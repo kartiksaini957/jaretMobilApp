@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter --version)",
+      "Bash(cd \"d:/vikramjeet singh/flutter_application_1\" && find / -maxdepth 8 -ipath \"*flutter_riverpod-3*\" -type d 2>/dev/null | head -5)",
+      "Read(//d//**)",
+      "Read(//c/Users/hp/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_riverpod-3.1.0/lib/**)",
+      "Bash(flutter test *)",
+      "Bash(exit 0)",
+      "Bash(adb -s 23076RN4BI shell screencap -p /sdcard/ls_screen1.png)",
+      "Bash(adb -s 23076RN4BI pull /sdcard/ls_screen1.png \"C:\\\\Users\\\\hp\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--vikramjeet-singh-flutter-application-1\\\\5a853e27-053f-4942-be4c-b8d7f6b024d6\\\\scratchpad\\\\ls_screen1.png\")",
+      "Bash(adb devices *)",
+      "Bash(adb -s 2bb1bcaf5788 shell screencap -p /sdcard/ls_screen1.png)",
+      "Bash(adb -s 2bb1bcaf5788 pull /sdcard/ls_screen1.png \"C:\\\\Users\\\\hp\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--vikramjeet-singh-flutter-application-1\\\\5a853e27-053f-4942-be4c-b8d7f6b024d6\\\\scratchpad\\\\ls_screen1.png\")",
+      "Bash(adb -s 2bb1bcaf5788 shell screencap /sdcard/ls_screen1.png)",
+      "Bash(MSYS_NO_PATHCONV=1 adb -s 2bb1bcaf5788 pull /sdcard/ls_screen1.png \"C:\\\\Users\\\\hp\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--vikramjeet-singh-flutter-application-1\\\\5a853e27-053f-4942-be4c-b8d7f6b024d6\\\\scratchpad\\\\ls_screen1.png\")",
+      "Bash(MSYS_NO_PATHCONV=1 adb -s 2bb1bcaf5788 shell \"input swipe 900 800 100 800 300\")",
+      "Bash(MSYS_NO_PATHCONV=1 adb -s 2bb1bcaf5788 shell \"screencap /sdcard/ls_screen3.png\")",
+      "Bash(MSYS_NO_PATHCONV=1 adb -s 2bb1bcaf5788 pull /sdcard/ls_screen3.png \"C:\\\\Users\\\\hp\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--vikramjeet-singh-flutter-application-1\\\\5a853e27-053f-4942-be4c-b8d7f6b024d6\\\\scratchpad\\\\ls_screen3.png\")",
+      "Bash(MSYS_NO_PATHCONV=1 adb -s 2bb1bcaf5788 shell \"screencap /sdcard/ls_check.png\")",
+      "Bash(MSYS_NO_PATHCONV=1 adb -s 2bb1bcaf5788 pull /sdcard/ls_check.png \"C:\\\\Users\\\\hp\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--vikramjeet-singh-flutter-application-1\\\\5a853e27-053f-4942-be4c-b8d7f6b024d6\\\\scratchpad\\\\ls_check.png\")",
+      "Bash(MSYS_NO_PATHCONV=1 adb -s 2bb1bcaf5788 shell \"am start -n com.example.lightsignal/.MainActivity\")",
+      "Bash(curl -s \"https://lightsignal.app/shape_library/papers_piling.html\")",
+      "Bash(nohup flutter run -d web-server --web-port=8765)",
+      "Bash(echo \"started pid $!\")",
+      "Bash(timeout 90 bash -c 'until curl -sf http://localhost:8765 >/dev/null 2>&1; do sleep 2; done')",
+      "Bash(command -v chromium-cli)",
+      "Bash(npm ls *)",
+      "Bash(command -v node)",
+      "Bash(command -v npx)",
+      "Bash(npx --version)",
+      "PowerShell(Start-Process \"chrome.exe\" -ArgumentList \"--new-window\",\"http://localhost:8765\")",
+      "Bash(netstat -ano)",
+      "Bash(powershell -Command \"Stop-Process -Id 15132 -Force\")"
+    ]
+  }
+}
