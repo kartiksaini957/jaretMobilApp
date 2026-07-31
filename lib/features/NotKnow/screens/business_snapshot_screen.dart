@@ -62,7 +62,7 @@ class _BusinessSnapshotScreenState extends State<BusinessSnapshotScreen> {
               children: [
                 const AppLogo(),
                 const SizedBox(height: 24),
-                const Text(
+                 Text(
                   'STEP 1 OF 3 · YOUR BUSINESS',
                   style: AppTextStyles.eyebrow,
                 ),
@@ -71,7 +71,7 @@ class _BusinessSnapshotScreenState extends State<BusinessSnapshotScreen> {
                 const SizedBox(height: 20),
                 Text('Tell us the basics.', style: AppTextStyles.headline),
                 const SizedBox(height: 8),
-                const Text(
+                 Text(
                   'Just enough to recognize your business. We\'ll fill in '
                   'the rest ourselves.',
                   style: AppTextStyles.body,

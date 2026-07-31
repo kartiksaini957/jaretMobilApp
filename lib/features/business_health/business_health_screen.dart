@@ -4,6 +4,7 @@ import '../../widgets/app_nav_drawer.dart';
 import '../../widgets/customAppbar.dart';
 import '../../widgets/gradient_background.dart';
 import '../FINANCIAL_Overview/financial_overview_screen.dart';
+import '../business_profile/business_profile_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../demand_Forecast/demand_forecast_screen.dart';
 import '../Scenario_lab/scenario_lab_screen.dart';
@@ -15,6 +16,7 @@ import 'widgets/narrative_card.dart';
 import 'widgets/overall_health_card.dart';
 import 'widgets/previous_snapshot_card.dart';
 import 'widgets/snapshot_dropdown_pill.dart';
+import 'widgets/snapshot_history_sheet.dart';
 
 /// Business Health screen: overall score and the category breakdown grid.
 class BusinessHealthScreen extends StatefulWidget {
@@ -47,6 +49,12 @@ class _BusinessHealthScreenState extends State<BusinessHealthScreen> {
       ).push(MaterialPageRoute(builder: (_) => const ScenarioLabScreen()));
       return;
     }
+    if (index == 6) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const BusinessProfileScreen()));
+      return;
+    }
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (_) => DashboardScreen(initialDrawerIndex: index),
@@ -75,7 +83,18 @@ class _BusinessHealthScreenState extends State<BusinessHealthScreen> {
               children: [
                 Row(
                   children: [
-                    const SnapshotDropdownPill(label: 'Snapshot · Feb 11'),
+                    SnapshotDropdownPill(
+                      label: 'Snapshot · Feb 11',
+                      onTap: () => SnapshotHistorySheet.show(context, const [
+                        SnapshotEntry(
+                          label: 'Feb 11 — current',
+                          score: 74,
+                          isCurrent: true,
+                        ),
+                        SnapshotEntry(label: 'Jan 11', score: 71),
+                        SnapshotEntry(label: 'Dec 11', score: 69),
+                      ]),
+                    ),
                     const Spacer(),
                     HeaderActionButton(
                       icon: Icons.refresh,

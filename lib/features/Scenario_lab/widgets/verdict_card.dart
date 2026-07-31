@@ -3,10 +3,15 @@ import 'package:flutter/material.dart';
 import '../theme/scenario_lab_colors.dart';
 
 class VerdictPill {
-  const VerdictPill({required this.label, required this.color});
+  const VerdictPill({
+    required this.label,
+    required this.color,
+    this.hasInfo = false,
+  });
 
   final String label;
   final Color color;
+  final bool hasInfo;
 }
 
 /// Glowing headline verdict card: decision pills, summary, and a
@@ -18,12 +23,16 @@ class VerdictCard extends StatelessWidget {
     required this.pills,
     required this.body,
     required this.warning,
+    this.warningLabel,
   });
 
   final String headline;
   final List<VerdictPill> pills;
   final String body;
   final String warning;
+
+  /// Bold lead-in before [warning], e.g. "Timing note:".
+  final String? warningLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -88,12 +97,21 @@ class VerdictCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    warning,
-                    style: const TextStyle(
-                      color: ScenarioLabColors.white,
-                      fontSize: 12.5,
-                      height: 1.4,
+                  child: RichText(
+                    text: TextSpan(
+                      style: const TextStyle(
+                        color: ScenarioLabColors.white,
+                        fontSize: 12.5,
+                        height: 1.4,
+                      ),
+                      children: [
+                        if (warningLabel != null)
+                          TextSpan(
+                            text: '$warningLabel ',
+                            style: const TextStyle(fontWeight: FontWeight.w800),
+                          ),
+                        TextSpan(text: warning),
+                      ],
                     ),
                   ),
                 ),
@@ -139,6 +157,10 @@ class _Pill extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
+          if (pill.hasInfo) ...[
+            const SizedBox(width: 4),
+            Icon(Icons.info_outline, size: 12, color: pill.color),
+          ],
         ],
       ),
     );

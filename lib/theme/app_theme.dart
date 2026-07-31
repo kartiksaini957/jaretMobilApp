@@ -23,16 +23,37 @@ class AppColors {
   static const Color mutedText = Color(0xE6FFFFFF);
   static const Color faintText = Color(0xB3FFFFFF);
 
-  /// Icy highlight used for accented headline text, links, focus rings.
-  static const Color accent = Color(0xFFCFF7FF);
+  // CYAN v2 tokens (LightSignalKit LSColor — locked design system).
+  static const Color soft = Color(0xFFCFEFFB); // --ls-soft
+  static const Color mute = Color(0xFFA7DCF0); // --ls-mute
+  static const Color good = Color(0xFF7BEFD0); // --ls-good
+  static const Color ink = Color(0xFF04303F); // --ls-ink
 
-  static const Color yellow = Color(0xFFFFD98A);
+  /// Icy highlight used for accented headline text, links, focus rings.
+  static const Color accent = Color(0xFF5FE0FF); // --ls-accent (cyan v2)
+  static const Color accentDeep = Color(0xFF0E9ED0); // gradient partner of accent
+
+  static const Color yellow = Color(0xFFFFD98A); // --ls-warn
+  static const Color warnText = Color(0xFFFFD466); // --ls-warnText
 
   /// Positive/good-news indicator text (e.g. "outpacing by 30%").
   static const Color goodText = Color(0xFFA6F5DC);
 
   /// Urgent/overdue indicator (notification badge dot, overdue reminders).
-  static const Color urgent = Color(0xFFFF5A5F);
+  static const Color urgent = Color(0xFFFF5757); // critDot
+  static const Color crit = Color(0xFFFF7A7A); // --ls-crit
+
+  // Severity dots — semantic, unchanged by theme/recolor.
+  static const Color critDot = Color(0xFFFF5757);
+  static const Color warnDot = Color(0xFFFFD466);
+  static const Color goodDot = Color(0xFF26C281);
+
+  // Surfaces (LightSignalKit LSColor).
+  static const Color sheetSurface = Color(0xFF08364C);
+  static const Color drawerTop = Color(0xFF073349);
+  static const Color drawerBottom = Color(0xFF052F43);
+  static const Color gotoTop = Color(0xFF7FE3FF);
+  static const Color gotoBottom = Color(0xFF3FBFE0);
 
   // Shared frosted-glass surface tokens — reused by cards, inputs, chips,
   // and buttons so every screen reads as one consistent system.
@@ -45,21 +66,20 @@ class AppColors {
 class AppTextStyles {
   AppTextStyles._();
 
-  static const String fontFamily = 'Roboto';
+  // Headings — Space Grotesk. Body — DM Sans. (LightSignalKit LSFont)
+  static TextStyle get logo => GoogleFonts.spaceGrotesk(
+        color: AppColors.white,
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.2,
+      );
 
-  static const TextStyle logo = TextStyle(
-    color: AppColors.white,
-    fontSize: 18,
-    fontWeight: FontWeight.w700,
-    letterSpacing: 0.2,
-  );
-
-  static const TextStyle eyebrow = TextStyle(
-    color: AppColors.faintText,
-    fontSize: 12,
-    fontWeight: FontWeight.w700,
-    letterSpacing: 1.2,
-  );
+  static TextStyle get eyebrow => GoogleFonts.dmSans(
+        color: AppColors.faintText,
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 1.2,
+      );
 
   // Layered text-shadow matching the reference .h1 style: a tight dark
   // contact shadow, a wider soft dark shadow for depth, and a cyan glow.
@@ -87,31 +107,31 @@ class AppTextStyles {
         shadows: _headlineShadows,
       );
 
-  static const TextStyle body = TextStyle(
-    color: AppColors.mutedText,
-    fontSize: 14.5,
-    fontWeight: FontWeight.w400,
-    height: 1.45,
-  );
+  static TextStyle get body => GoogleFonts.dmSans(
+        color: AppColors.mutedText,
+        fontSize: 14.5,
+        fontWeight: FontWeight.w400,
+        height: 1.45,
+      );
 
-  static const TextStyle small = TextStyle(
-    color: AppColors.faintText,
-    fontSize: 12.5,
-    fontWeight: FontWeight.w500,
-    height: 1.4,
-  );
+  static TextStyle get small => GoogleFonts.dmSans(
+        color: AppColors.faintText,
+        fontSize: 12.5,
+        fontWeight: FontWeight.w500,
+        height: 1.4,
+      );
 
-  static const TextStyle buttonLabel = TextStyle(
-    color: AppColors.white,
-    fontSize: 16,
-    fontWeight: FontWeight.w700,
-  );
+  static TextStyle get buttonLabel => GoogleFonts.dmSans(
+        color: AppColors.white,
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+      );
 
-  static const TextStyle link = TextStyle(
-    color: AppColors.white,
-    fontSize: 13.5,
-    fontWeight: FontWeight.w600,
-  );
+  static TextStyle get link => GoogleFonts.dmSans(
+        color: AppColors.white,
+        fontSize: 13.5,
+        fontWeight: FontWeight.w600,
+      );
 }
 
 ThemeData buildAppTheme() {

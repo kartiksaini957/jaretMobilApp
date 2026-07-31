@@ -300,7 +300,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'Create your account, connect the tools you already use, '
                     'and get your first read this session.',
                     style: AppTextStyles.body,
@@ -364,7 +364,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(color: AppColors.glassBorder),
                     ),
-                    child: const Text.rich(
+                    child: Text.rich(
                       TextSpan(
                         style: AppTextStyles.small,
                         children: [

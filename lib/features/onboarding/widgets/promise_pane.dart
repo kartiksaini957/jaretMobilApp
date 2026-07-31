@@ -23,7 +23,7 @@ class PromisePane extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        const Text(
+         Text(
           'The clarity of a \$500/hr advisor who\'s known your business for 30 years. '
           'It watches your numbers and tells you what to do, before you ask.',
           style: AppTextStyles.body,

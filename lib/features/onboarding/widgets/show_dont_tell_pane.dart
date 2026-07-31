@@ -12,7 +12,7 @@ class ShowDontTellPane extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
-        const Text(
+         Text(
           'THIS IS WHAT A READ LOOKS LIKE',
           style: AppTextStyles.eyebrow,
         ),
@@ -86,7 +86,7 @@ class _InsightCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const Text('This week', style: AppTextStyles.small),
+               Text('This week', style: AppTextStyles.small),
             ],
           ),
           const SizedBox(height: 2),
@@ -98,7 +98,7 @@ class _InsightCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          const Text.rich(
+           Text.rich(
             TextSpan(
               style: AppTextStyles.body,
               children: [

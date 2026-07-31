@@ -27,7 +27,7 @@ class ProfileStartScreen extends StatelessWidget {
                       children: [
                         const AppLogo(),
                         const SizedBox(height: 24),
-                        const Text(
+                         Text(
                           'FIRST READ IS BUILDING',
                           style: AppTextStyles.eyebrow,
                         ),
@@ -52,7 +52,7 @@ class ProfileStartScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        const Text(
+                         Text(
                           'Your books give us the numbers. A few more details '
                           'about how your business actually runs, and every read '
                           'gets sharper. Fill what you can now, come back for the '
@@ -62,7 +62,7 @@ class ProfileStartScreen extends StatelessWidget {
                         const SizedBox(height: 22),
                         Row(
                           children: [
-                            const Expanded(
+                             Expanded(
                               child: Text(
                                 'How well we understand your business',
                                 style: AppTextStyles.small,

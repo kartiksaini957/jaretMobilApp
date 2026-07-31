@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../theme/scenario_lab_colors.dart';
-import 'note_detail_panel.dart';
 import 'radial_wheel_detail.dart';
 import 'steps_detail_panel.dart';
 
-enum _DetailKind { steps, radial, note }
+enum _DetailKind { steps, radial }
 
 class _CategoryData {
   const _CategoryData({
@@ -25,8 +24,8 @@ class _CategoryData {
   final Widget? detail;
 }
 
-/// "Full analysis" grid: Steps / Pros / Cons / Watch-outs / Peer
-/// outcomes / Alternatives. Tapping a tile opens its detail panel below.
+/// "Full analysis" grid: Steps to take / Pros / Cons / Keep in mind.
+/// Tapping a tile opens its detail panel below.
 class CategorySection extends StatefulWidget {
   const CategorySection({super.key});
 
@@ -40,17 +39,18 @@ class _CategorySectionState extends State<CategorySection> {
   late final List<_CategoryData> _categories = [
     _CategoryData(
       icon: Icons.checklist,
-      title: 'Steps',
-      subtitle: 'What to do, in order',
+      title: 'Steps to take',
+      subtitle: '4 steps · 3 decision gates',
       kind: _DetailKind.steps,
       detail: const StepsDetailPanel(
         stepIndex: 1,
-        stepCount: 1,
-        title: 'Secure the mobile permit first',
+        stepCount: 4,
+        title: 'Post the Friday 5–10pm shift this week',
         body:
-            'Apply for the Mobile AL vendor permit before signing the '
-            "lease — it's the long pole and gates everything else.",
-        timeline: 'Budget 3-4 weeks for approval; start this week.',
+            "Post the hire before Thursday's dough call so the new "
+            "schedule is live for next Friday's peak — every week you "
+            'wait is another ≈\$630 of turned-away orders.',
+        timeline: 'Post by Wed; first shift covered as soon as Fri 5pm.',
         primaryLabel: 'Continue to financials',
         secondaryLabel: 'See alternatives',
       ),
@@ -58,66 +58,45 @@ class _CategorySectionState extends State<CategorySection> {
     _CategoryData(
       icon: Icons.thumb_up_outlined,
       title: 'Pros',
-      subtitle: 'Why this works',
+      subtitle: '3 upsides, each priced',
       kind: _DetailKind.radial,
       detail: const RadialWheelDetail(
         centerLabel: 'Pros',
         segments: [
-          'Higher foot traffic',
-          'Catering upside',
-          'Lower rent per sqft',
+          'Recovers ≈\$2,700/mo in turned-away orders',
+          'Cuts Friday sell-outs to near zero',
+          'Frees you from expediting on peak nights',
         ],
       ),
     ),
     _CategoryData(
       icon: Icons.thumb_down_outlined,
-      title: 'Cons / risks',
-      subtitle: 'What could bite',
+      title: 'Cons',
+      subtitle: '3 risks, each with a fix',
       kind: _DetailKind.radial,
       borderColor: ScenarioLabColors.statusBad,
       detail: const RadialWheelDetail(
         centerLabel: 'Cons',
-        segments: ['Cash dips negative', 'Staff ramp', 'Build-out delay risk'],
+        segments: [
+          'New-hire ramp takes 2–3 weeks — fix: train on Thu prep first',
+          'Cash dips to \$50,600 in month 2 — fix: hold the cheese saving in reserve',
+          'Dough batch waste if demand softens — fix: cap Thursday prep at the \$5,200 line',
+        ],
       ),
     ),
     _CategoryData(
       icon: Icons.lightbulb_outline,
-      title: 'Watch-outs',
-      subtitle: 'Keep an eye on',
+      title: 'Keep in mind',
+      subtitle: '3 landmines advisors flag',
       kind: _DetailKind.radial,
-      borderColor: ScenarioLabColors.glow,
+      borderColor: ScenarioLabColors.statusWarn,
       detail: const RadialWheelDetail(
-        centerLabel: 'Watch-outs',
-        segments: ['Keep DSO under 35', 'Reserve floor', 'Cap marketing'],
-      ),
-    ),
-    _CategoryData(
-      icon: Icons.groups_outlined,
-      title: 'Peer outcomes',
-      subtitle: 'How others did',
-      kind: _DetailKind.note,
-      detail: const NoteDetailPanel(
-        eyebrow: 'PEER OUTCOME',
-        headline: 'Similar food trucks averaged 2.4× ROI',
-        body:
-            'Across 5 comparable Mobile AL operators, transition-to-storefront '
-            'moves returned ~2.4× over 24 months.',
-        footnote:
-            "3 of 5 hit break-even by month 5; the 2 that didn't "
-            'under-budgeted build-out.',
-      ),
-    ),
-    _CategoryData(
-      icon: Icons.alt_route,
-      title: 'Alternatives',
-      subtitle: 'Other paths',
-      kind: _DetailKind.note,
-      detail: const NoteDetailPanel(
-        eyebrow: 'ALTERNATIVE',
-        headline: 'Stay mobile, add a second truck',
-        body: 'Lower capital, faster payback, but caps catering upside.',
-        footnote:
-            'Consider if you want to defer the lease commitment another quarter.',
+        centerLabel: 'Watch',
+        segments: [
+          'Recess week (Feb 16–20) will read soft — judge at week 6, not week 2',
+          'NY wage/OT rules apply to the added Friday shift',
+          'Re-check the hire decision at week 6 against actual recovered orders',
+        ],
       ),
     ),
   ];

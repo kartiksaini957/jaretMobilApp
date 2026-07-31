@@ -64,7 +64,7 @@ class AppLogo extends StatelessWidget {
         ),
 
         const SizedBox(width: 8),
-        const Text('LightSignal', style: AppTextStyles.logo),
+         Text('LightSignal', style: AppTextStyles.logo),
       ],
     );
   }

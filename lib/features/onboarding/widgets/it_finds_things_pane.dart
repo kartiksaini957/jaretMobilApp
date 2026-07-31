@@ -24,7 +24,7 @@ class ItFindsThingsPane extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        const Text(
+         Text(
           'Real alerts when something needs you. A weekly note in plain '
           'words. You run the business; it keeps watch.',
           style: AppTextStyles.body,

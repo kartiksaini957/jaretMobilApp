@@ -6,6 +6,7 @@ import '../../widgets/app_nav_drawer.dart';
 import '../../widgets/customToast.dart';
 import '../FINANCIAL_Overview/financial_overview_screen.dart';
 import '../business_health/business_health_screen.dart';
+import '../business_profile/business_profile_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../demand_Forecast/demand_forecast_screen.dart';
 import '../Scenario_lab/scenario_lab_screen.dart';
@@ -80,6 +81,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       Navigator.of(
         context,
       ).push(MaterialPageRoute(builder: (_) => const ScenarioLabScreen()));
+      return;
+    }
+    if (index == 6) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const BusinessProfileScreen()));
       return;
     }
     Navigator.of(context).pushReplacement(

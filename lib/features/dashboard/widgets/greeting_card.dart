@@ -74,11 +74,17 @@ class GreetingCard extends StatelessWidget {
             style: AppTextStyles.headline.copyWith(fontSize: 22),
           ),
           const SizedBox(height: 18),
-          const Text('YOUR BUSINESS RIGHT NOW', style: AppTextStyles.eyebrow),
+          Divider(),
+          const SizedBox(height: 18),
+
+          Text('YOUR BUSINESS RIGHT NOW', style: AppTextStyles.eyebrow),
           const SizedBox(height: 8),
           Text(
             summary,
-            style: AppTextStyles.body.copyWith(color: AppColors.white),
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.white,
+              fontSize: 22.0,
+            ),
           ),
         ],
       ),

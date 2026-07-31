@@ -120,7 +120,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  const Text(
+                                  Text(
                                     'PASSWORD RESET',
                                     style: AppTextStyles.eyebrow,
                                   ),
@@ -133,7 +133,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 style: AppTextStyles.headline,
                               ),
                               const SizedBox(height: 10),
-                              const Text(
+                              Text(
                                 'Enter your email and we\'ll send you a link to reset it.',
                                 textAlign: TextAlign.center,
                                 style: AppTextStyles.body,
@@ -215,7 +215,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           child: Wrap(
                             alignment: WrapAlignment.center,
                             children: [
-                              const Text(
+                              Text(
                                 'Remembered it? ',
                                 style: AppTextStyles.body,
                               ),

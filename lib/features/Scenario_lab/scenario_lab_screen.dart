@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../widgets/app_nav_drawer.dart';
+import '../../widgets/customAppbar.dart';
 import '../FINANCIAL_Overview/financial_overview_screen.dart';
 import '../business_health/business_health_screen.dart';
+import '../business_profile/business_profile_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../demand_Forecast/demand_forecast_screen.dart';
 import 'scenario_lab_state.dart';
 import 'theme/scenario_lab_colors.dart';
-import 'widgets/assumptions_section.dart';
 import 'widgets/cash_chart_card.dart';
 import 'widgets/category_section.dart';
 import 'widgets/empty_state_card.dart';
@@ -30,11 +31,10 @@ class ScenarioLabScreen extends StatefulWidget {
 }
 
 class _ScenarioLabScreenState extends State<ScenarioLabScreen> {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-
   ScenarioViewState _viewState = ScenarioViewState.empty;
   String _question =
-      'What if I move my food truck to a storefront on Government St?';
+      'Can I hire a second pizzaiolo for Friday nights and scale dough '
+      'production to stop the sell-outs?';
 
   void _ask(String question) {
     setState(() {
@@ -67,6 +67,12 @@ class _ScenarioLabScreenState extends State<ScenarioLabScreen> {
       ).push(MaterialPageRoute(builder: (_) => const BusinessHealthScreen()));
       return;
     }
+    if (index == 6) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const BusinessProfileScreen()));
+      return;
+    }
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (_) => DashboardScreen(initialDrawerIndex: index),
@@ -88,7 +94,10 @@ class _ScenarioLabScreenState extends State<ScenarioLabScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
+      appBar: const CustomAppBar(
+        title: 'Scenario Lab',
+        hasUnreadNotifications: true,
+      ),
       drawer: AppNavDrawer(
         selectedIndex: 5,
         onItemSelected: _onDrawerItemSelected,
@@ -102,25 +111,17 @@ class _ScenarioLabScreenState extends State<ScenarioLabScreen> {
           ),
         ),
         child: SafeArea(
+          top: false,
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-                      icon: const Icon(
-                        Icons.menu,
-                        color: ScenarioLabColors.white,
-                      ),
-                    ),
-                    const Spacer(),
-                    StateTabs(
-                      value: _viewState,
-                      onChanged: (state) => setState(() => _viewState = state),
-                    ),
-                  ],
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: StateTabs(
+                    value: _viewState,
+                    onChanged: (state) => setState(() => _viewState = state),
+                  ),
                 ),
               ),
               Expanded(child: _buildBody()),
@@ -190,25 +191,6 @@ class _ResultsBody extends StatelessWidget {
   final String question;
   final ValueChanged<String> onAsk;
 
-  static const _assumptions = [
-    AssumptionData(label: 'Monthly rent', value: '\$2,400', source: 'Listing'),
-    AssumptionData(
-      label: 'Build-out cost',
-      value: '\$16,000',
-      source: 'Contractor quote',
-    ),
-    AssumptionData(
-      label: 'Avg ticket',
-      value: '\$14.50',
-      source: 'Last 90 days',
-    ),
-    AssumptionData(
-      label: 'Catering ramp',
-      value: 'Month 3',
-      source: 'Estimate',
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -222,69 +204,106 @@ class _ResultsBody extends StatelessWidget {
                 QuestionBubble(text: question),
                 const SizedBox(height: 16),
                 const VerdictCard(
-                  headline: 'Proceed with caution',
+                  headline: 'Feasible',
                   pills: [
                     VerdictPill(
-                      label: 'Decision: Conditional go',
+                      label: 'Decision',
                       color: ScenarioLabColors.statusInfo,
                     ),
                     VerdictPill(
-                      label: 'Risk: Medium',
-                      color: ScenarioLabColors.statusWarn,
+                      label: 'Confidence: High',
+                      color: ScenarioLabColors.statusGood,
+                      hasInfo: true,
                     ),
                     VerdictPill(
-                      label: 'Confidence: Moderate',
-                      color: ScenarioLabColors.statusWarn,
+                      label: 'Risk: Low',
+                      color: ScenarioLabColors.statusGood,
+                      hasInfo: true,
                     ),
                   ],
                   body:
-                      'The move pencils out to roughly 2.4× ROI over 24 '
-                      'months and break-even by month 5 — but cash dips to '
-                      '-\$4.1k in month 2, so secure a small credit buffer '
-                      'and lock catering accounts before signing.',
+                      'The hire and the added prep cost about \$1,730 a '
+                      'month all-in, and the ≈35 orders a week you turn '
+                      'away at the sold-out Fri–Sat peak are worth ≈\$2,700 '
+                      'a month at your \$19 average ticket. Cash dips to '
+                      'about \$50,600 in month 2 while the recovered orders '
+                      'ramp, then climbs past where it started — it never '
+                      'comes within \$30,000 of your \$20,000 reserve floor, '
+                      'so this is a capacity decision, not a cash-risk '
+                      'decision.',
+                  warningLabel: 'Timing note:',
                   warning:
-                      'Worst-case cash goes negative in month 2. A \$10k '
-                      'line of credit removes the risk.',
+                      'the NYC public-school mid-winter recess (Feb 16–20) '
+                      'trims your school-lunch slice trade by about \$980 '
+                      'that week, so the first scaled Fridays will read '
+                      'soft. Judge the hire at week 6, not week 2.',
                 ),
                 const SizedBox(height: 20),
                 const KeyNumbersGrid(
                   numbers: [
                     KeyNumberData(
-                      label: 'SETUP COST RANGE',
-                      value: '\$18k-24k',
-                      note: 'From assumptions',
-                    ),
-                    KeyNumberData(
-                      label: 'NEW MONTHLY FIXED',
-                      value: '\$3,200',
-                      note: 'Lease + staff',
+                      label: 'FRIDAY HIRE, LOADED',
+                      value: '\$950/mo',
+                      note: 'your question · NYC weekend rate check',
                       dotColor: ScenarioLabColors.statusWarn,
                     ),
                     KeyNumberData(
-                      label: 'BREAK-EVEN MONTH',
-                      value: 'Month 5',
-                      note: 'Projected',
+                      label: 'ADDED DOUGH & PREP',
+                      value: '\$180/wk',
+                      note: 'estimated from your 400 lb/wk cheese usage',
+                      dotColor: ScenarioLabColors.statusWarn,
+                    ),
+                    KeyNumberData(
+                      label: 'ORDERS RECOVERED',
+                      value: '≈\$2,700/mo',
+                      note: '≈35 orders/wk · \$19 ticket · Square POS',
                       dotColor: ScenarioLabColors.statusGood,
                     ),
                     KeyNumberData(
                       label: 'CASH AT LOWEST POINT',
-                      value: '-\$4,100',
-                      note: 'Month 2 (worst)',
-                      dotColor: ScenarioLabColors.statusBad,
+                      value: '\$50,600',
+                      note: 'month 2 · floor is \$20,000',
+                      dotColor: ScenarioLabColors.statusGood,
                     ),
                   ],
                 ),
                 const SizedBox(height: 20),
                 const CategorySection(),
                 const SizedBox(height: 20),
-                const AssumptionsSection(assumptions: _assumptions),
-                const SizedBox(height: 16),
-                const CashChartCard(),
+                const CashChartCard(
+                  xLabels: ['Now', 'Mo1', 'Mo2', 'Mo3', 'Mo4', 'Mo5', 'Mo6'],
+                  projected: [58.0, 54.0, 50.6, 52.0, 55.0, 58.0, 60.5],
+                  worstCase: [58.0, 52.0, 49.3, 49.3, 49.5, 50.0, 50.5],
+                  reserveFloor: 20.0,
+                  maxValue: 65.0,
+                  breakEvenIndex: 5,
+                  breakEvenLabel: 'Break-even',
+                  lowPointIndex: 2,
+                  lowPointLabel: 'Low \$50.6K',
+                  reserveFloorLabel: 'Reserve floor \$20,000',
+                  yAxisLabels: ['\$0', '\$20K', '\$40K', '\$65K'],
+                  yAxisValues: [0.0, 20.0, 40.0, 65.0],
+                  stressTestBody:
+                      'the worst case assumes only ~60% of the '
+                      'turned-away orders return and prep runs \$60/wk '
+                      'over — cash flattens near \$49,300 but never '
+                      'threatens the \$20,000 floor. Break-even in month '
+                      '5 means the recovered Friday orders have by then '
+                      'paid back every dollar of hire and prep since '
+                      'launch; from there you run ~\$970 a month ahead.',
+                ),
                 const SizedBox(height: 20),
                 ScenarioActionsRow(
+                  disclaimer:
+                      'These projections are based on your Square and '
+                      'QuickBooks data plus comparable-market research. '
+                      'No financing is involved, so there is no lender to '
+                      'confirm with — but review the wage and hour '
+                      'figures with your accountant before posting the '
+                      'shift.',
                   onSave: () => showSaveScenarioDialog(
                     context,
-                    initialName: 'Restaurant Transition Mobile AL',
+                    initialName: 'Second Pizzaiolo, Friday Nights',
                     onConfirm: (_) {},
                   ),
                   onAdjust: () {},
@@ -292,7 +311,7 @@ class _ResultsBody extends StatelessWidget {
                     context,
                     onSaveFirst: () => showSaveScenarioDialog(
                       context,
-                      initialName: 'Restaurant Transition Mobile AL',
+                      initialName: 'Second Pizzaiolo, Friday Nights',
                       onConfirm: (_) {},
                     ),
                     onStartFresh: () {},

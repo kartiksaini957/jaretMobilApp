@@ -49,7 +49,7 @@ class AppNavDrawer extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    const Expanded(
+                     Expanded(
                       child: Text('LightSignal', style: AppTextStyles.logo),
                     ),
                     IconButton(
@@ -95,7 +95,7 @@ class AppNavDrawer extends ConsumerWidget {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: const Text(
+                    child:  Text(
                       'Log out',
                       style: AppTextStyles.buttonLabel,
                     ),

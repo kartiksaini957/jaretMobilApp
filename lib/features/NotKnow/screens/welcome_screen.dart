@@ -37,7 +37,7 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                 Text(
                   'In about ten minutes you\'ll see your first real read, '
                   'pulled from your own numbers, in plain language. No '
                   'spreadsheets, no jargon. We\'ll show you something '
@@ -57,7 +57,7 @@ class WelcomeScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 15),
-                const Center(
+                 Center(
                   child: Text(
                     'Takes about 10 minutes',
                     style: AppTextStyles.small,

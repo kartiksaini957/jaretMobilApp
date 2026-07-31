@@ -3,9 +3,39 @@ import 'package:flutter/material.dart';
 import '../theme/scenario_lab_colors.dart';
 
 /// "Cash position over time" card: projected / worst-case / reserve
-/// floor lines plus a break-even marker.
+/// floor lines, a low-point marker, a break-even marker, and an
+/// optional "Stress test:" note.
 class CashChartCard extends StatelessWidget {
-  const CashChartCard({super.key});
+  const CashChartCard({
+    super.key,
+    required this.xLabels,
+    required this.projected,
+    required this.worstCase,
+    required this.reserveFloor,
+    required this.maxValue,
+    required this.breakEvenIndex,
+    required this.breakEvenLabel,
+    required this.lowPointIndex,
+    required this.lowPointLabel,
+    required this.reserveFloorLabel,
+    required this.yAxisLabels,
+    required this.yAxisValues,
+    this.stressTestBody,
+  });
+
+  final List<String> xLabels;
+  final List<double> projected;
+  final List<double> worstCase;
+  final double reserveFloor;
+  final double maxValue;
+  final int breakEvenIndex;
+  final String breakEvenLabel;
+  final List<String> yAxisLabels;
+  final List<double> yAxisValues;
+  final int lowPointIndex;
+  final String lowPointLabel;
+  final String reserveFloorLabel;
+  final String? stressTestBody;
 
   @override
   Widget build(BuildContext context) {
@@ -54,8 +84,54 @@ class CashChartCard extends StatelessWidget {
           const SizedBox(height: 14),
           SizedBox(
             height: 170,
-            child: CustomPaint(painter: _CashChartPainter()),
+            child: CustomPaint(
+              painter: _CashChartPainter(
+                xLabels: xLabels,
+                projected: projected,
+                worstCase: worstCase,
+                reserveFloor: reserveFloor,
+                maxValue: maxValue,
+                breakEvenIndex: breakEvenIndex,
+                breakEvenLabel: breakEvenLabel,
+                lowPointIndex: lowPointIndex,
+                lowPointLabel: lowPointLabel,
+                reserveFloorLabel: reserveFloorLabel,
+                yAxisLabels: yAxisLabels,
+                yAxisValues: yAxisValues,
+              ),
+            ),
           ),
+          if (stressTestBody != null) ...[
+            const SizedBox(height: 14),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: ScenarioLabColors.cardFillStrong,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: ScenarioLabColors.cardBorder),
+              ),
+              child: RichText(
+                text: TextSpan(
+                  style: const TextStyle(
+                    color: ScenarioLabColors.mutedText,
+                    fontSize: 12,
+                    height: 1.5,
+                  ),
+                  children: [
+                    const TextSpan(
+                      text: 'Stress test: ',
+                      style: TextStyle(
+                        color: ScenarioLabColors.white,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    TextSpan(text: stressTestBody),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -118,11 +194,33 @@ class _LegendItem extends StatelessWidget {
 }
 
 class _CashChartPainter extends CustomPainter {
-  static const _projected = [38.0, 8.0, 20.0, 35.0, 45.0, 55.0];
-  static const _worstCase = [30.0, 2.0, 10.0, 22.0, 30.0, 40.0];
-  static const _reserveFloor = 18.0;
-  static const _maxValue = 55.0;
-  static const _breakEvenIndex = 4;
+  _CashChartPainter({
+    required this.xLabels,
+    required this.projected,
+    required this.worstCase,
+    required this.reserveFloor,
+    required this.maxValue,
+    required this.breakEvenIndex,
+    required this.breakEvenLabel,
+    required this.lowPointIndex,
+    required this.lowPointLabel,
+    required this.reserveFloorLabel,
+    required this.yAxisLabels,
+    required this.yAxisValues,
+  });
+
+  final List<String> xLabels;
+  final List<double> projected;
+  final List<double> worstCase;
+  final double reserveFloor;
+  final double maxValue;
+  final int breakEvenIndex;
+  final String breakEvenLabel;
+  final int lowPointIndex;
+  final String lowPointLabel;
+  final String reserveFloorLabel;
+  final List<String> yAxisLabels;
+  final List<double> yAxisValues;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -132,19 +230,17 @@ class _CashChartPainter extends CustomPainter {
     final chartHeight = size.height - bottomPad;
 
     Offset pointFor(int index, double value) {
-      final x = leftPad + chartWidth * (index / (_projected.length - 1));
-      final y = chartHeight * (1 - (value / _maxValue));
+      final x = leftPad + chartWidth * (index / (projected.length - 1));
+      final y = chartHeight * (1 - (value / maxValue));
       return Offset(x, y);
     }
 
     // Y-axis labels.
-    const labels = ['\$0', '\$20K', '\$38K', '\$55K'];
-    const labelValues = [0.0, 20.0, 38.0, 55.0];
-    for (var i = 0; i < labels.length; i++) {
-      final y = chartHeight * (1 - (labelValues[i] / _maxValue));
+    for (var i = 0; i < yAxisLabels.length; i++) {
+      final y = chartHeight * (1 - (yAxisValues[i] / maxValue));
       final painter = TextPainter(
         text: TextSpan(
-          text: labels[i],
+          text: yAxisLabels[i],
           style: const TextStyle(
             color: ScenarioLabColors.faintText,
             fontSize: 9,
@@ -156,11 +252,11 @@ class _CashChartPainter extends CustomPainter {
     }
 
     // X-axis labels.
-    for (var i = 0; i < _projected.length; i++) {
+    for (var i = 0; i < xLabels.length; i++) {
       final x = pointFor(i, 0).dx;
       final painter = TextPainter(
         text: TextSpan(
-          text: 'Mo${i + 1}',
+          text: xLabels[i],
           style: const TextStyle(
             color: ScenarioLabColors.faintText,
             fontSize: 9,
@@ -172,7 +268,7 @@ class _CashChartPainter extends CustomPainter {
     }
 
     // Reserve floor dashed horizontal line.
-    final reserveY = chartHeight * (1 - (_reserveFloor / _maxValue));
+    final reserveY = chartHeight * (1 - (reserveFloor / maxValue));
     _drawDashedLine(
       canvas,
       Offset(leftPad, reserveY),
@@ -180,9 +276,9 @@ class _CashChartPainter extends CustomPainter {
       ScenarioLabColors.statusWarn,
     );
     final reserveLabel = TextPainter(
-      text: const TextSpan(
-        text: 'Reserve \$18K',
-        style: TextStyle(color: ScenarioLabColors.faintText, fontSize: 9),
+      text: TextSpan(
+        text: reserveFloorLabel,
+        style: const TextStyle(color: ScenarioLabColors.faintText, fontSize: 9),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -193,8 +289,8 @@ class _CashChartPainter extends CustomPainter {
 
     // Worst case dashed line.
     final worstPath = Path();
-    for (var i = 0; i < _worstCase.length; i++) {
-      final point = pointFor(i, _worstCase[i]);
+    for (var i = 0; i < worstCase.length; i++) {
+      final point = pointFor(i, worstCase[i]);
       if (i == 0) {
         worstPath.moveTo(point.dx, point.dy);
       } else {
@@ -205,8 +301,8 @@ class _CashChartPainter extends CustomPainter {
 
     // Projected solid line.
     final projectedPath = Path();
-    for (var i = 0; i < _projected.length; i++) {
-      final point = pointFor(i, _projected[i]);
+    for (var i = 0; i < projected.length; i++) {
+      final point = pointFor(i, projected[i]);
       if (i == 0) {
         projectedPath.moveTo(point.dx, point.dy);
       } else {
@@ -222,20 +318,40 @@ class _CashChartPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round,
     );
 
-    // Break-even marker.
-    final breakEvenPoint = pointFor(
-      _breakEvenIndex,
-      _projected[_breakEvenIndex],
+    // Low-point marker.
+    final lowPoint = pointFor(lowPointIndex, projected[lowPointIndex]);
+    canvas.drawCircle(
+      lowPoint,
+      4,
+      Paint()..color = ScenarioLabColors.statusWarn,
     );
+    final lowLabel = TextPainter(
+      text: TextSpan(
+        text: lowPointLabel,
+        style: const TextStyle(
+          color: ScenarioLabColors.statusWarn,
+          fontSize: 9,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    lowLabel.paint(
+      canvas,
+      Offset(lowPoint.dx - lowLabel.width / 2, lowPoint.dy + 8),
+    );
+
+    // Break-even marker.
+    final breakEvenPoint = pointFor(breakEvenIndex, projected[breakEvenIndex]);
     canvas.drawCircle(
       breakEvenPoint,
       4,
       Paint()..color = ScenarioLabColors.statusGood,
     );
-    final breakEvenLabel = TextPainter(
-      text: const TextSpan(
-        text: 'Break-even',
-        style: TextStyle(
+    final breakEvenText = TextPainter(
+      text: TextSpan(
+        text: breakEvenLabel,
+        style: const TextStyle(
           color: ScenarioLabColors.statusGood,
           fontSize: 9,
           fontWeight: FontWeight.w700,
@@ -243,10 +359,10 @@ class _CashChartPainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    breakEvenLabel.paint(
+    breakEvenText.paint(
       canvas,
       Offset(
-        breakEvenPoint.dx - breakEvenLabel.width / 2,
+        breakEvenPoint.dx - breakEvenText.width / 2,
         breakEvenPoint.dy - 16,
       ),
     );
@@ -283,5 +399,5 @@ class _CashChartPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _CashChartPainter oldDelegate) => true;
 }

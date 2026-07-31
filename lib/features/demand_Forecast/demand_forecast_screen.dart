@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/app_theme.dart';
 import '../../widgets/app_nav_drawer.dart';
+import '../../widgets/customAppbar.dart';
+import '../../widgets/gradient_background.dart';
 import '../FINANCIAL_Overview/financial_overview_screen.dart';
-import '../business_health/business_health_screen.dart';
-import '../dashboard/dashboard_screen.dart';
 import '../Scenario_lab/scenario_lab_screen.dart';
-import 'theme/demand_colors.dart';
-import 'widgets/demand_forecasting_tab.dart';
-import 'widgets/demand_tab_bar.dart';
-import 'widgets/placeholder_tab.dart';
+import '../business_health/business_health_screen.dart';
+import '../business_profile/business_profile_screen.dart';
+import '../dashboard/dashboard_screen.dart';
+import 'data/demand_forecast_data.dart';
+import 'widgets/forecast_full_read_section.dart';
+import 'widgets/forecast_headline_card.dart';
+import 'widgets/forecast_tab_pills.dart';
 
-/// Demand Forecast screen: three tabs (Demand Forecasting / Tracking /
-/// Current) over a teal gradient background.
+/// Demand Forecast screen: This weekend / Rest of month / $ per slice,
+/// each with a headline forecast card and "THE FULL READ" breakdown.
 class DemandForecastScreen extends StatefulWidget {
   const DemandForecastScreen({super.key});
 
@@ -20,9 +24,7 @@ class DemandForecastScreen extends StatefulWidget {
 }
 
 class _DemandForecastScreenState extends State<DemandForecastScreen> {
-  static const _tabs = ['Demand Forecasting', 'Tracking', 'Current'];
-
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  static const _tabs = ['This weekend', 'Rest of month', '\$ / slices'];
 
   int _selectedTab = 0;
 
@@ -46,6 +48,12 @@ class _DemandForecastScreenState extends State<DemandForecastScreen> {
       ).push(MaterialPageRoute(builder: (_) => const ScenarioLabScreen()));
       return;
     }
+    if (index == 6) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const BusinessProfileScreen()));
+      return;
+    }
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (_) => DashboardScreen(initialDrawerIndex: index),
@@ -56,46 +64,52 @@ class _DemandForecastScreenState extends State<DemandForecastScreen> {
   Widget _buildTabContent() {
     switch (_selectedTab) {
       case 1:
-        return const PlaceholderTab(
-          key: ValueKey('tracking'),
-          message: 'Tracking view is still being built.',
+        return Column(
+          key: const ValueKey('restOfMonth'),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const ForecastHeadlineCard(data: restOfMonthForecast),
+            const SizedBox(height: 20),
+            const ForecastFullReadSection(data: restOfMonthForecast),
+          ],
         );
       case 2:
-        return const PlaceholderTab(
-          key: ValueKey('current'),
-          message: 'Current view is still being built.',
-        );
+        return const _SlicesPlaceholder(key: ValueKey('slices'));
       default:
-        return const DemandForecastingTab(key: ValueKey('forecasting'));
+        return Column(
+          key: const ValueKey('thisWeekend'),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const ForecastHeadlineCard(data: thisWeekendForecast),
+            const SizedBox(height: 20),
+            const ForecastFullReadSection(data: thisWeekendForecast),
+          ],
+        );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
+      appBar: const CustomAppBar(
+        title: 'Demand Forecast',
+        hasUnreadNotifications: true,
+      ),
       drawer: AppNavDrawer(
         selectedIndex: 1,
         onItemSelected: _onDrawerItemSelected,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [DemandColors.bgTop, DemandColors.bgBottom],
-          ),
-        ),
+      body: GradientBackground(
         child: SafeArea(
+          top: false,
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: DemandTabBar(
-                  tabs: _tabs,
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: ForecastTabPills(
+                  labels: _tabs,
                   selectedIndex: _selectedTab,
-                  onTap: (index) => setState(() => _selectedTab = index),
-                  onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
+                  onSelect: (index) => setState(() => _selectedTab = index),
                 ),
               ),
               Expanded(
@@ -110,6 +124,27 @@ class _DemandForecastScreenState extends State<DemandForecastScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _SlicesPlaceholder extends StatelessWidget {
+  const _SlicesPlaceholder({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.glassDark,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.glassBorder),
+      ),
+      child: Text(
+        '\$ / slices view is still being built.',
+        style: AppTextStyles.small,
       ),
     );
   }

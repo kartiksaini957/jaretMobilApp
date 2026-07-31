@@ -30,7 +30,7 @@ class ValuePreviewScreen extends StatelessWidget {
                       children: [
                         const AppLogo(),
                         const SizedBox(height: 24),
-                        const Text(
+                         Text(
                           'STEP 2 OF 3 · WHAT WE\'LL DO',
                           style: AppTextStyles.eyebrow,
                         ),
@@ -90,7 +90,7 @@ class ValuePreviewScreen extends StatelessWidget {
                               'Catering, events, slow-day promotions worth your time.',
                         ),
                         const SizedBox(height: 22),
-                        const Text(
+                         Text(
                           'To do this with your real numbers, we need to read your '
                           'books. That\'s next. It takes about a minute.',
                           style: AppTextStyles.body,

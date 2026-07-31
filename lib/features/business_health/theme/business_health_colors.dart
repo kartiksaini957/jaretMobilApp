@@ -15,12 +15,16 @@ class BusinessHealthColors {
   static const cardDarkFill = Color(0x330B4A44);
   static const cardBorder = Color(0x33FFFFFF);
 
-  static const goodText = Color(0xFF6FDB6C);
+  // CYAN v2 tokens (LightSignalKit LSColor — locked design system).
+  static const goodText = Color(0xFFA6F5DC); // --ls-goodText
 
-  static const dotGood = Color(0xFF4ADE80);
+  static const dotGood = Color(0xFF26C281); // goodDot
   static const dotNeutral = Color(0xB3FFFFFF);
-  static const negativeText = Color(0xFFFF8A80);
-  static const warnColor = Color(0xFFFFC168);
-  static const pillGoodBg = Color(0x334ADE80);
+  static const negativeText = Color(0xFFFF7A7A); // --ls-crit
+  static const warnColor = Color(0xFFFFD466); // warnDot / --ls-warnText
+  static const pillGoodBg = Color(0x3326C281); // dotGood @ 20%
   static const trackFill = Color(0x24FFFFFF);
+
+  /// Solid backing for the snapshot-history bottom sheet.
+  static const sheetBg = Color(0xFF08364C); // --ls-sheetSurface
 }

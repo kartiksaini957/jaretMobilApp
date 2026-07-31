@@ -120,7 +120,9 @@ class HealthCategoryCard extends StatelessWidget {
                     Container(
                       height: 4,
                       width: constraints.maxWidth * progress.clamp(0.0, 1.0),
-                      color: BusinessHealthColors.white,
+                      color: statusGood == true
+                          ? BusinessHealthColors.dotGood
+                          : BusinessHealthColors.white,
                     ),
                   ],
                 );

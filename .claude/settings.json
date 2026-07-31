@@ -31,7 +31,8 @@
       "Bash(npx --version)",
       "PowerShell(Start-Process \"chrome.exe\" -ArgumentList \"--new-window\",\"http://localhost:8765\")",
       "Bash(netstat -ano)",
-      "Bash(powershell -Command \"Stop-Process -Id 15132 -Force\")"
+      "Bash(powershell -Command \"Stop-Process -Id 15132 -Force\")",
+      "Bash(dart analyze *)"
     ]
   }
 }

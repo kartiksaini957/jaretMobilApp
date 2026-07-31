@@ -1,227 +1,220 @@
 import 'package:flutter/material.dart';
 
-import '../../widgets/customToast.dart';
-import 'theme/business_profile_colors.dart';
-import 'widgets/uploads_documents_section.dart';
-import 'widgets/wizard_sections.dart';
-import 'widgets/wizard_shell.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/app_nav_drawer.dart';
+import '../../widgets/customAppbar.dart';
+import '../../widgets/gradient_background.dart';
+import '../FINANCIAL_Overview/financial_overview_screen.dart';
+import '../Scenario_lab/scenario_lab_screen.dart';
+import '../business_health/business_health_screen.dart';
+import '../dashboard/dashboard_screen.dart';
+import '../demand_Forecast/demand_forecast_screen.dart';
+import 'classification/classification_screen.dart';
+import 'data/profile_question_flow_data.dart';
+import 'data/profile_sections_data.dart';
+import 'flow/question_flow_screen.dart';
+import 'locations/locations_screen.dart';
+import 'owner_notes/owner_notes_screen.dart';
+import 'widgets/profile_info_card.dart';
+import 'widgets/profile_insight_banner.dart';
+import 'widgets/profile_sections_list.dart';
+import 'widgets/understanding_meter_card.dart';
 
-class _WizardStep {
-  const _WizardStep({
-    required this.section,
-    required this.progressLabel,
-    required this.cardTitle,
-    required this.builder,
-  });
-
-  final int section;
-  final String progressLabel;
-  final String cardTitle;
-  final WidgetBuilder builder;
-}
-
-/// Business Profile setup wizard. Currently holds all 17 sections.
+/// Business Profile hub: completion snapshot, an AI insight, quick links
+/// into the classification/notes views, and the full section list. Every
+/// section row opens the [QuestionFlowScreen] (currently showing the
+/// Customers & Market questions as a placeholder) except "Business
+/// Basics", which opens [LocationsScreen].
 class BusinessProfileScreen extends StatefulWidget {
-  const BusinessProfileScreen({super.key, this.initialSection = 1});
-
-  /// Section number (1–17) to open on. Defaults to the first section.
-  final int initialSection;
+  const BusinessProfileScreen({super.key});
 
   @override
   State<BusinessProfileScreen> createState() => _BusinessProfileScreenState();
 }
 
 class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
-  static const totalSections = 17;
+  bool _showInsight = true;
 
-  static final List<_WizardStep> _steps = [
-    _WizardStep(
-      section: 1,
-      progressLabel: 'Business Basics',
-      cardTitle: 'Business Basics',
-      builder: (_) => const BusinessBasicsSection(),
-    ),
-    _WizardStep(
-      section: 2,
-      progressLabel: 'Ownership & Key People',
-      cardTitle: 'Ownership & Key People',
-      builder: (_) => const OwnershipKeyPeopleSection(),
-    ),
-    _WizardStep(
-      section: 3,
-      progressLabel: 'Industry & What You Do',
-      cardTitle: 'Business Description',
-      builder: (_) => const BusinessDescriptionSection(),
-    ),
-    _WizardStep(
-      section: 4,
-      progressLabel: 'Service Area & Opportunity Search Preferences',
-      cardTitle: 'Service Area & Opportunity Search Preferences',
-      builder: (_) => const ServiceAreaPreferencesSection(),
-    ),
-    _WizardStep(
-      section: 5,
-      progressLabel: 'Operations Snapshot',
-      cardTitle: 'Operations & Team',
-      builder: (_) => const OperationsTeamSection(),
-    ),
-    _WizardStep(
-      section: 6,
-      progressLabel: 'Capacity & Constraints',
-      cardTitle: 'Capacity & Constraints',
-      builder: (_) => const CapacityConstraintsSection(),
-    ),
-    _WizardStep(
-      section: 7,
-      progressLabel: 'Sales & Marketing',
-      cardTitle: 'Sales & Marketing',
-      builder: (_) => const SalesMarketingSection(),
-    ),
-    _WizardStep(
-      section: 8,
-      progressLabel: 'Hiring & Team Structure',
-      cardTitle: 'Hiring & Team Structure',
-      builder: (_) => const HiringTeamStructureSection(),
-    ),
-    _WizardStep(
-      section: 9,
-      progressLabel: 'Financial Systems',
-      cardTitle: 'Financial Systems',
-      builder: (_) => const FinancialSystemsSection(),
-    ),
-    _WizardStep(
-      section: 10,
-      progressLabel: 'Pricing & Revenue Model',
-      cardTitle: 'Pricing & Revenue Model',
-      builder: (_) => const PricingRevenueModelSection(),
-    ),
-    _WizardStep(
-      section: 11,
-      progressLabel: 'Customers & Market',
-      cardTitle: 'Customers & Market',
-      builder: (_) => const CustomersMarketSection(),
-    ),
-    _WizardStep(
-      section: 12,
-      progressLabel: 'Vendors & Inputs',
-      cardTitle: 'Vendors & Inputs',
-      builder: (_) => const VendorsInputsSection(),
-    ),
-    _WizardStep(
-      section: 13,
-      progressLabel: 'Assets & Equipment',
-      cardTitle: 'Assets & Equipment',
-      builder: (_) => const AssetsEquipmentSection(),
-    ),
-    _WizardStep(
-      section: 14,
-      progressLabel: 'Risk, Insurance & Debt',
-      cardTitle: 'Risk, Insurance & Debt',
-      builder: (_) => const RiskInsuranceDebtSection(),
-    ),
-    _WizardStep(
-      section: 15,
-      progressLabel: 'Permits & Compliance',
-      cardTitle: 'Permits & Compliance',
-      builder: (_) => const PermitsComplianceSection(),
-    ),
-    _WizardStep(
-      section: 16,
-      progressLabel: 'Strategic Goals & Preferences',
-      cardTitle: 'Strategic Goals & Preferences',
-      builder: (_) => const StrategicGoalsSection(),
-    ),
-    _WizardStep(
-      section: 17,
-      progressLabel: 'Uploads & Documents',
-      cardTitle: 'Uploads & Documents',
-      builder: (_) => const UploadsDocumentsSection(),
-    ),
-  ];
+  static const _totalSections = 16;
+  static int get _completeCount => profileSections
+      .where((s) => s.status == SectionStatus.complete)
+      .length;
 
-  late int _stepIndex = _steps
-      .indexWhere((step) => step.section == widget.initialSection)
-      .clamp(0, _steps.length - 1)
-      .toInt();
+  void _openCustomersMarketFlow() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const QuestionFlowScreen(flow: customersMarketFlow),
+      ),
+    );
+  }
 
-  void _goNext() {
-    if (_stepIndex < _steps.length - 1) {
-      setState(() => _stepIndex++);
+  void _openClassification() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const ClassificationScreen()),
+    );
+  }
+
+  void _openOwnerNotes() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const OwnerNotesScreen()));
+  }
+
+  void _openLocations() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const LocationsScreen()));
+  }
+
+  void _openSection(ProfileSectionData section) {
+    if (section.title == 'Business Basics') {
+      _openLocations();
     } else {
-      CustomToast.showSuccess(context, 'Business profile completed.');
+      _openCustomersMarketFlow();
     }
   }
 
-  void _goBack() {
-    if (_stepIndex > 0) setState(() => _stepIndex--);
+  void _onDrawerItemSelected(int index) {
+    if (index == 6) return; // Business Profile — already here.
+    if (index == 1) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const DemandForecastScreen()));
+      return;
+    }
+    if (index == 2) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const FinancialOverviewScreen()),
+      );
+      return;
+    }
+    if (index == 3) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const BusinessHealthScreen()));
+      return;
+    }
+    if (index == 5) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const ScenarioLabScreen()));
+      return;
+    }
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => DashboardScreen(initialDrawerIndex: index),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final step = _steps[_stepIndex];
-    final isLast = _stepIndex == _steps.length - 1;
-
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              BusinessProfileColors.bgTop,
-              BusinessProfileColors.bgBottom,
-            ],
-          ),
-        ),
+      appBar: const CustomAppBar(
+        title: 'Business Profile',
+        hasUnreadNotifications: true,
+      ),
+      drawer: AppNavDrawer(
+        selectedIndex: 6,
+        onItemSelected: _onDrawerItemSelected,
+      ),
+      body: GradientBackground(
         child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                child: Column(
-                  children: [
-                    WizardProgressBar(
-                      current: step.section,
-                      total: totalSections,
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Section ${step.section} of $totalSections: '
-                      '${step.progressLabel}',
-                      style: const TextStyle(
-                        color: BusinessProfileColors.white,
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-                  child: WizardSectionCard(
-                    title: step.cardTitle,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        step.builder(context),
-                        const SizedBox(height: 24),
-                        WizardFooter(
-                          onBack: _stepIndex == 0 ? null : _goBack,
-                          onNext: _goNext,
-                          onSkip: isLast ? null : _goNext,
-                          nextLabel: isLast
-                              ? 'Complete Profile'
-                              : 'Save & Next',
+          top: false,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    style: AppTextStyles.headline,
+                    children: [
+                      TextSpan(text: '$_completeCount'),
+                      TextSpan(
+                        text: ' of $_totalSections sections complete',
+                        style: AppTextStyles.body.copyWith(
+                          color: AppColors.faintText,
+                          fontSize: 15,
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'The more LightSignal knows, the sharper every read '
+                  'gets — every agent sees this profile on every call.',
+                  style: AppTextStyles.small,
+                ),
+                const SizedBox(height: 16),
+                const UnderstandingMeterCard(
+                  statusLabel: 'Building',
+                  progress: 0.58,
+                  caption:
+                      'This moves as you tell us things we can actually '
+                      'use — not by how many boxes you tick.',
+                ),
+                if (_showInsight) ...[
+                  const SizedBox(height: 16),
+                  ProfileInsightBanner(
+                    eyebrow: 'BUSINESSES LIKE YOURS',
+                    leadText: 'Slice shops like yours commonly find ',
+                    highlight: '2–3 points of margin',
+                    trailText:
+                        ' hiding in vendor pricing. Finish your Operations '
+                        "answers and we'll run the same check on your "
+                        'cheese and flour costs.',
+                    onDismiss: () => setState(() => _showInsight = false),
+                  ),
+                ],
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: _openCustomersMarketFlow,
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: AppColors.glassLight,
+                      side: const BorderSide(color: AppColors.glassBorder),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                    ),
+                    child: Text(
+                      'Continue — Customers & Market →',
+                      style: AppTextStyles.buttonLabel.copyWith(fontSize: 14),
                     ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                ProfileInfoCard(
+                  title: 'How LightSignal sees your business',
+                  caption:
+                      '12 classification dimensions from your profile and '
+                      'data — correct anything we got wrong.',
+                  pillLabel: 'REVIEW · 2 LOW',
+                  pillColor: AppColors.warnDot,
+                  onPillTap: _openClassification,
+                ),
+                const SizedBox(height: 16),
+                ProfileInfoCard(
+                  title: 'Tell LightSignal something',
+                  caption:
+                      "Owner notes — what you're seeing on the ground. "
+                      '3 notes this quarter.',
+                  pillLabel: '+ ADD A NOTE',
+                  onPillTap: _openOwnerNotes,
+                ),
+                const SizedBox(height: 24),
+                Text('PROFILE SECTIONS', style: AppTextStyles.eyebrow),
+                const SizedBox(height: 10),
+                ProfileSectionsList(
+                  sections: profileSections,
+                  onSectionTap: _openSection,
+                ),
+              ],
+            ),
           ),
         ),
       ),

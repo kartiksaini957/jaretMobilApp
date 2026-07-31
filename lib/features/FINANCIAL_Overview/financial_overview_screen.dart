@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/app_theme.dart';
 import '../../widgets/app_nav_drawer.dart';
+import '../../widgets/customAppbar.dart';
+import '../../widgets/gradient_background.dart';
+import '../Scenario_lab/scenario_lab_screen.dart';
 import '../business_health/business_health_screen.dart';
+import '../business_profile/business_profile_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../demand_Forecast/demand_forecast_screen.dart';
-import '../Scenario_lab/scenario_lab_screen.dart';
-import 'theme/financial_colors.dart';
-import 'widgets/ai_analysis_card.dart';
-import 'widgets/ask_ai_chat_card.dart';
-import 'widgets/expense_breakdown_card.dart';
-import 'widgets/key_metrics_grid.dart';
-import 'widgets/overdue_invoices_card.dart';
-import 'widgets/pressing_alert_card.dart';
-import 'widgets/profitability_status_card.dart';
+import 'data/financial_overview_data.dart';
+import 'widgets/financial_category_tabs.dart';
+import 'widgets/financial_metric_detail_card.dart';
+import 'widgets/financial_metric_pills.dart';
+import 'widgets/financial_status_banner.dart';
+import 'widgets/expenses_overview_tab.dart';
+import 'widgets/home_overview_tab.dart';
+import 'widgets/pressing_now_tab.dart';
 
-/// Financial Overview screen: profitability status, overdue invoices,
-/// key metrics, AI analysis/chat, and expense breakdown.
+/// Financial Overview: a status banner, category tabs (Home / Pressing
+/// now / Ratios / Expenses), and — on Ratios — a metric pill row driving
+/// a detailed metric card (trend, peer comparison, drivers, actions, AI).
 class FinancialOverviewScreen extends StatefulWidget {
   const FinancialOverviewScreen({super.key});
 
@@ -25,66 +30,13 @@ class FinancialOverviewScreen extends StatefulWidget {
 }
 
 class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  static const _homeCategoryIndex = 0;
+  static const _pressingNowCategoryIndex = 1;
+  static const _ratiosCategoryIndex = 2;
+  static const _expensesCategoryIndex = 3;
 
-  static const _metrics = [
-    MetricData(
-      label: 'GROSS MARGIN',
-      value: '38.0%',
-      statusLabel: 'Above Average',
-      statusColor: FinancialColors.statusGood,
-    ),
-    MetricData(
-      label: 'NET MARGIN',
-      value: '13.8%',
-      statusLabel: 'At Average',
-      statusColor: FinancialColors.statusNeutral,
-    ),
-    MetricData(
-      label: 'OPEX RATIO',
-      value: '28.0%',
-      statusLabel: 'At Average',
-      statusColor: FinancialColors.statusNeutral,
-    ),
-    MetricData(
-      label: 'CURRENT RATIO',
-      value: '1.60',
-      statusLabel: 'Above Average',
-      statusColor: FinancialColors.statusGood,
-    ),
-    MetricData(
-      label: 'QUICK RATIO',
-      value: '1.30',
-      statusLabel: 'Above Average',
-      statusColor: FinancialColors.statusGood,
-    ),
-    MetricData(
-      label: 'AR DAYS (DSO)',
-      value: '28d',
-      statusLabel: 'Below Average',
-      statusColor: FinancialColors.statusBad,
-    ),
-    MetricData(
-      label: 'AP DAYS (DPO)',
-      value: '32d',
-      statusLabel: 'At Average',
-      statusColor: FinancialColors.statusNeutral,
-    ),
-    MetricData(
-      label: 'CASH CONV. CYCLE',
-      value: '21d',
-      statusLabel: 'At Average',
-      statusColor: FinancialColors.statusNeutral,
-    ),
-  ];
-
-  static const _expenseSlices = [
-    ExpenseSlice(label: 'Labor', percent: 38, amount: '\$69,312'),
-    ExpenseSlice(label: 'Ingredients', percent: 27, amount: '\$49,248'),
-    ExpenseSlice(label: 'Rent & Utilities', percent: 15, amount: '\$27,360'),
-    ExpenseSlice(label: 'Marketing', percent: 10, amount: '\$18,240'),
-    ExpenseSlice(label: 'Other', percent: 10, amount: '\$18,240'),
-  ];
+  int _selectedCategory = _homeCategoryIndex;
+  int _selectedMetric = 0;
 
   void _onDrawerItemSelected(int index) {
     if (index == 2) return; // Financial Overview — already here.
@@ -106,6 +58,12 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
       ).push(MaterialPageRoute(builder: (_) => const ScenarioLabScreen()));
       return;
     }
+    if (index == 6) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const BusinessProfileScreen()));
+      return;
+    }
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (_) => DashboardScreen(initialDrawerIndex: index),
@@ -113,92 +71,88 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
     );
   }
 
+  Widget _buildCategoryContent() {
+    if (_selectedCategory == _homeCategoryIndex) {
+      return HomeOverviewTab(
+        key: const ValueKey('home'),
+        onViewPressingTap: () =>
+            setState(() => _selectedCategory = _pressingNowCategoryIndex),
+      );
+    }
+    if (_selectedCategory == _pressingNowCategoryIndex) {
+      return const PressingNowTab(key: ValueKey('pressingNow'));
+    }
+    if (_selectedCategory == _ratiosCategoryIndex) {
+      return Column(
+        key: const ValueKey('ratios'),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FinancialMetricPills(
+            metrics: metricDetails,
+            selectedIndex: _selectedMetric,
+            onSelect: (index) => setState(() => _selectedMetric = index),
+          ),
+          const SizedBox(height: 16),
+          FinancialMetricDetailCard(metric: metricDetails[_selectedMetric]),
+        ],
+      );
+    }
+    if (_selectedCategory == _expensesCategoryIndex) {
+      return const ExpensesOverviewTab(key: ValueKey('expenses'));
+    }
+
+    final label = financialCategories[_selectedCategory];
+    return Container(
+      key: ValueKey(label),
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.glassDark,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.glassBorder),
+      ),
+      child: Text('$label view is still being built.', style: AppTextStyles.small),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
+      appBar: const CustomAppBar(
+        title: 'Financial Overview',
+        hasUnreadNotifications: true,
+      ),
       drawer: AppNavDrawer(
         selectedIndex: 2,
         onItemSelected: _onDrawerItemSelected,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [FinancialColors.bgTop, FinancialColors.bgBottom],
-          ),
-        ),
+      body: GradientBackground(
         child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 4, 16, 8),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-                      icon: const Icon(
-                        Icons.menu,
-                        color: FinancialColors.white,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Text(
-                      'FINANCIAL OVERVIEW',
-                      style: TextStyle(
-                        color: FinancialColors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.4,
-                      ),
-                    ),
-                  ],
+          top: false,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const FinancialStatusBanner(
+                  headline:
+                      "You're profitable — 1 thing needs you this week.",
+                  freshnessLabel: 'Updated 2h ago · QuickBooks + Square synced',
                 ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const ProfitabilityStatusCard(),
-                      const SizedBox(height: 16),
-                      const OverdueInvoicesCard(),
-                      const SizedBox(height: 16),
-                      const PressingAlertCard(),
-                      const SizedBox(height: 22),
-                      const Text(
-                        'KEY METRICS',
-                        style: TextStyle(
-                          color: FinancialColors.white,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      const KeyMetricsGrid(metrics: _metrics),
-                      const SizedBox(height: 16),
-                      const AiAnalysisCard(title: 'Gross Margin'),
-                      const SizedBox(height: 16),
-                      const AskAiChatCard(kpiName: 'Gross Margin'),
-                      const SizedBox(height: 22),
-                      const Text(
-                        'Expense Breakdown',
-                        style: TextStyle(
-                          color: FinancialColors.white,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      const ExpenseBreakdownCard(slices: _expenseSlices),
-                    ],
-                  ),
+                const SizedBox(height: 14),
+                FinancialCategoryTabs(
+                  labels: financialCategories,
+                  selectedIndex: _selectedCategory,
+                  onSelect: (index) =>
+                      setState(() => _selectedCategory = index),
                 ),
-              ),
-            ],
+                const SizedBox(height: 12),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 220),
+                  child: _buildCategoryContent(),
+                ),
+              ],
+            ),
           ),
         ),
       ),

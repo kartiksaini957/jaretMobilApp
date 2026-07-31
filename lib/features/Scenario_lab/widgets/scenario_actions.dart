@@ -10,62 +10,46 @@ class ScenarioActionsRow extends StatelessWidget {
     required this.onSave,
     required this.onAdjust,
     required this.onNewScenario,
+    this.disclaimer =
+        'Projections are estimates based on your assumptions, not '
+        'financial advice.',
   });
 
   final VoidCallback onSave;
   final VoidCallback onAdjust;
   final VoidCallback onNewScenario;
+  final String disclaimer;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final isNarrow = constraints.maxWidth < 380;
-            final buttons = [
-              _ActionButton(
-                label: 'Save scenario',
-                filled: true,
-                onTap: onSave,
-              ),
-              _ActionButton(
+        _ActionButton(label: 'Save scenario', filled: true, onTap: onSave),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: _ActionButton(
                 label: 'Adjust an assumption',
                 filled: false,
                 onTap: onAdjust,
               ),
-              _ActionButton(
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _ActionButton(
                 label: 'New scenario',
                 filled: false,
                 onTap: onNewScenario,
               ),
-            ];
-            if (isNarrow) {
-              return Column(
-                children: [
-                  for (var i = 0; i < buttons.length; i++) ...[
-                    if (i > 0) const SizedBox(height: 8),
-                    buttons[i],
-                  ],
-                ],
-              );
-            }
-            return Row(
-              children: [
-                for (var i = 0; i < buttons.length; i++) ...[
-                  if (i > 0) const SizedBox(width: 8),
-                  Expanded(child: buttons[i]),
-                ],
-              ],
-            );
-          },
+            ),
+          ],
         ),
         const SizedBox(height: 12),
-        const Text(
-          'Projections are estimates based on your assumptions, not '
-          'financial advice.',
+        Text(
+          disclaimer,
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             color: ScenarioLabColors.faintText,
             fontSize: 11,
             fontStyle: FontStyle.italic,

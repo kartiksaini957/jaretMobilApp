@@ -12,6 +12,7 @@ import '../business_health/business_health_screen.dart';
 import '../demand_Forecast/demand_forecast_screen.dart';
 import '../Scenario_lab/scenario_lab_screen.dart';
 import '../auth/providers/login_provider.dart';
+import '../business_profile/business_profile_screen.dart';
 import '../setting/settings_screen.dart';
 import 'model/dashboardModel.dart';
 import 'provider/dashboardProvider.dart';
@@ -100,6 +101,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       ).push(MaterialPageRoute(builder: (_) => const ScenarioLabScreen()));
       return;
     }
+    if (index == 6) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const BusinessProfileScreen()));
+      return;
+    }
     if (index == 7) {
       Navigator.of(
         context,
@@ -156,7 +163,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           'zone.',
                     ),
                     const SizedBox(height: 20),
-                    const Text(
+                    Text(
                       'UPCOMING REMINDERS',
                       style: AppTextStyles.eyebrow,
                     ),
@@ -297,7 +304,7 @@ class _WhatToActOnSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('WHAT TO ACT ON', style: AppTextStyles.eyebrow),
+        Text('WHAT TO ACT ON', style: AppTextStyles.eyebrow),
         const SizedBox(height: 10),
         const InsightCard(
           dotColor: AppColors.yellow,
@@ -334,7 +341,7 @@ class _FlagsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('FLAGS', style: AppTextStyles.eyebrow),
+        Text('FLAGS', style: AppTextStyles.eyebrow),
         const SizedBox(height: 10),
         for (var i = 0; i < _flags.length; i++) ...[
           if (i > 0) const SizedBox(height: 10),
@@ -390,12 +397,12 @@ class _OpportunitiesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('OPPORTUNITIES', style: AppTextStyles.eyebrow),
-        SizedBox(height: 10),
-        InsightCard(
+        const SizedBox(height: 10),
+        const InsightCard(
           dotColor: AppColors.accent,
           label: 'OPPORTUNITY',
           headline: 'Catering inquiries up 40%',
@@ -422,7 +429,7 @@ class _TrendsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('WHAT CHANGED', style: AppTextStyles.eyebrow),
+        Text('WHAT CHANGED', style: AppTextStyles.eyebrow),
         const SizedBox(height: 10),
         for (var i = 0; i < _changes.length; i++) ...[
           if (i > 0) const SizedBox(height: 10),
@@ -704,7 +711,7 @@ class _NumbersSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('NUMBERS', style: AppTextStyles.eyebrow),
+        Text('NUMBERS', style: AppTextStyles.eyebrow),
         const SizedBox(height: 10),
         Row(
           children: [
@@ -772,7 +779,7 @@ class _AskAiSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('ASK AI', style: AppTextStyles.eyebrow),
+        Text('ASK AI', style: AppTextStyles.eyebrow),
         const SizedBox(height: 14),
         Row(
           children: [

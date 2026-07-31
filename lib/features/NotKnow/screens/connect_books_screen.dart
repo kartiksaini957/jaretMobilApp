@@ -29,7 +29,7 @@ class ConnectBooksScreen extends StatelessWidget {
                       children: [
                         const AppLogo(),
                         const SizedBox(height: 24),
-                        const Text(
+                         Text(
                           'STEP 3 OF 3 · CONNECT BOOKS',
                           style: AppTextStyles.eyebrow,
                         ),
@@ -51,7 +51,7 @@ class ConnectBooksScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        const Text(
+                         Text(
                           'Connect read-only. We can never move money or change a '
                           'record, we only read, so we can tell you what\'s going '
                           'on. One minute, and your first read starts building.',
@@ -89,7 +89,7 @@ class ConnectBooksScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
+                         Text(
                           'Enough to start reading your margins and cash today, '
                           'not weeks from now. Syncing now.',
                           style: AppTextStyles.body,

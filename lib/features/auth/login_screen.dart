@@ -98,7 +98,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         children: [
                           const AppLogo(),
                           const SizedBox(height: 32),
-                          const Text(
+                          Text(
                             'WELCOME BACK',
                             style: AppTextStyles.eyebrow,
                           ),
@@ -108,7 +108,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             style: AppTextStyles.headline,
                           ),
                           const SizedBox(height: 10),
-                          const Text(
+                          Text(
                             'Your business has been busy. Let\'s see what changed.',
                             style: AppTextStyles.body,
                           ),
@@ -185,7 +185,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             child: Wrap(
                               alignment: WrapAlignment.center,
                               children: [
-                                const Text(
+                                Text(
                                   'New here? ',
                                   style: AppTextStyles.body,
                                 ),
