@@ -1,95 +1,36 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_theme.dart';
+import 'lightsignal/ls_field.dart';
 
-/// Shared aurora-glass backdrop used by every screen: a diagonal base
-/// gradient with five soft cyan/blue glow blobs layered on top, so all
-/// screens read as one consistent system.
+/// Shared backdrop used by every screen — the LightSignal Visual Foundation
+/// v2 field (§2): a deep cyan base with real tonal range, five luminous
+/// glows so open areas read lit, and the decorative motion layers (flowing
+/// light streaks §4.1 + drifting motes §4.2) behind all glass.
+///
+/// Glass only reads as glass over a field like this, so every screen shares
+/// it. See [LsField] for the recipe.
 class GradientBackground extends StatelessWidget {
-  const GradientBackground({super.key, required this.child});
+  const GradientBackground({
+    super.key,
+    required this.child,
+    this.showStreaks = true,
+    this.showMotes = true,
+  });
 
   final Widget child;
 
-  static const _blobs = [ 
-    _Blob(
-      alignment: Alignment(-0.64, -0.76),
-      color: AppColors.blobCyan,
-      sizeFactor: 0.95,
-    ),
-    _Blob(
-      alignment: Alignment(0.84, -0.4),
-      color: AppColors.blobBlueA,
-      sizeFactor: 0.8,
-    ),
-    _Blob(
-      alignment: Alignment(0.5, 0.76),
-      color: AppColors.blobBlueB,
-      sizeFactor: 0.9,
-    ),
-    _Blob(
-      alignment: Alignment(-0.3, 0.4),
-      color: AppColors.blobBlueC,
-      sizeFactor: 0.75,
-    ),
-    _Blob(
-      alignment: Alignment(0.2, -0.2),
-      color: AppColors.blobAqua,
-      sizeFactor: 0.65,
-    ),
-  ];
+  /// §4.1 flowing light streaks.
+  final bool showStreaks;
+
+  /// §4.2 drifting light motes.
+  final bool showMotes;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: const Alignment(-0.9, -1.0),
-          end: const Alignment(0.9, 1.0),
-          colors: [AppColors.baseDeep, AppColors.baseMid, AppColors.baseLight],
-          stops: [0.0, 0.52, 1.0],
-        ),
-      ),
-      child: Stack(fit: StackFit.expand, children: [..._blobs, child]),
-    );
-  }
-}
-
-class _Blob extends StatelessWidget {
-  const _Blob({
-    required this.alignment,
-    required this.color,
-    required this.sizeFactor,
-  });
-
-  final Alignment alignment;
-  final Color color;
-  final double sizeFactor;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth * sizeFactor * 1.6;
-        final height = width * 0.75;
-        return Align(
-          alignment: alignment,
-          child: Container(
-            width: width,
-            height: height,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                radius: 0.8,
-                stops: const [0.0, 0.56],
-                colors: [
-                  color.withValues(alpha: 0.85),
-                  color.withValues(alpha: 0.0),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+    return LsField(
+      showStreaks: showStreaks,
+      showMotes: showMotes,
+      child: child,
     );
   }
 }
