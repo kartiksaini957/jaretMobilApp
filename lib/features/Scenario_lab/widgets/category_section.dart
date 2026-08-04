@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/scenario_lab_colors.dart';
+import '../../opportunity/ScenarioLab/widgets/scenario_lab_colors.dart';
 import 'radial_wheel_detail.dart';
 import 'steps_detail_panel.dart';
 

@@ -25,12 +25,43 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      centerTitle: true,
+      // centerTitle: true,
       leading: IconButton(
         icon: const Icon(Icons.menu, color: AppColors.white),
         onPressed: () => Scaffold.of(context).openDrawer(),
       ),
       title: Text(title, style: AppTextStyles.logo),
+
+      // actions: [
+      //   Padding(
+      //     padding: const EdgeInsets.only(right: 4),
+      //     child: IconButton(
+      //       onPressed: onNotificationTap,
+      //       icon: Stack(
+      //         clipBehavior: Clip.none,
+      //         children: [
+      //           const Icon(
+      //             Icons.notifications_none_outlined,
+      //             color: AppColors.white,
+      //           ),
+      //           if (hasUnreadNotifications)
+      //             Positioned(
+      //               top: -1,
+      //               right: -1,
+      //               child: Container(
+      //                 width: 9,
+      //                 height: 9,
+      //                 decoration: const BoxDecoration(
+      //                   color: Color(0xFFFF5A5F),
+      //                   shape: BoxShape.circle,
+      //                 ),
+      //               ),
+      //             ),
+      //         ],
+      //       ),
+      //     ),
+      //   ),
+      // ],
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 4),
@@ -39,17 +70,18 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             icon: Stack(
               clipBehavior: Clip.none,
               children: [
-                const Icon(
-                  Icons.notifications_none_outlined,
-                  color: AppColors.white,
+                Image.asset(
+                  'assets/images/notification.png', // apna image path
+                  width: 32,
+                  height: 32,
                 ),
                 if (hasUnreadNotifications)
                   Positioned(
-                    top: -1,
-                    right: -1,
+                    top: 4,
+                    right: 7,
                     child: Container(
-                      width: 9,
-                      height: 9,
+                      width: 8,
+                      height: 8,
                       decoration: const BoxDecoration(
                         color: Color(0xFFFF5A5F),
                         shape: BoxShape.circle,

@@ -5,10 +5,25 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
 /// One icon slot on [AppBottomBar]: an icon plus an optional badge count.
-class BottomBarItem {
-  const BottomBarItem({required this.icon, this.badgeCount});
+// class BottomBarItem {
+//   const BottomBarItem({required this.icon, this.badgeCount, this.image,}): assert(
+//           icon != null || image != null,
+//           'Either icon or image must be provided',
+//         );
 
-  final IconData icon;
+//   final IconData icon;
+//   final String? image;
+//   final int? badgeCount;
+// }
+class BottomBarItem {
+  const BottomBarItem({this.icon, this.image, this.badgeCount})
+    : assert(
+        icon != null || image != null,
+        'Either icon or image must be provided',
+      );
+
+  final IconData? icon;
+  final String? image; // asset image path
   final int? badgeCount;
 }
 
@@ -37,7 +52,7 @@ class AppBottomBar extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.glassDark,
             borderRadius: BorderRadius.circular(32),
-            border: Border.all(color: AppColors.glassBorder),
+            // border: Border.all(color: AppColors.glassBorder),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -105,7 +120,16 @@ class _BottomBarButton extends StatelessWidget {
                       ]
                     : null,
               ),
-              child: Icon(item.icon, size: 20, color: AppColors.white),
+              child: item.image != null
+                  ? Image.asset(
+                      item.image!,
+                      width: 30,
+                      height: 30,
+                      color: AppColors.white, // agar PNG/SVG monochrome ho
+                    )
+                  : Icon(item.icon, size: 20, color: AppColors.white),
+              // child:
+              //  Icon(item.icon, size: 20, color: AppColors.white),
             ),
             if (item.badgeCount != null)
               Positioned(

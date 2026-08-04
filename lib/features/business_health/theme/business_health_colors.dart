@@ -9,7 +9,7 @@ class BusinessHealthColors {
 
   static const white = Colors.white;
   static const mutedText = Color(0xCCFFFFFF);
-  static const faintText = Color(0x99FFFFFF);
+  static const faintText = Color(0xFFCFEFFB);
 
   static const cardFill = Color(0x26FFFFFF);
   static const cardDarkFill = Color(0x330B4A44);

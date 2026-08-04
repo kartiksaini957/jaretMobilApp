@@ -1,37 +1,70 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-import '../../../theme/app_theme.dart';
+class MiniBarChart extends StatefulWidget {
+  const MiniBarChart({super.key});
 
-/// Small 5-bar sparkline: the last bar (current period) is highlighted.
-class FinancialBarChart extends StatelessWidget {
-  const FinancialBarChart({super.key, required this.values});
+  @override
+  State<MiniBarChart> createState() => _MiniBarChartState();
+}
 
-  /// Relative heights, 0..1, oldest to newest.
-  final List<double> values;
+class _MiniBarChartState extends State<MiniBarChart> {
+  bool animate = false;
+  @override
+  void initState() {
+    super.initState();
+
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        setState(() {
+          animate = true;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 44,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          for (var i = 0; i < values.length; i++) ...[
-            if (i != 0) const SizedBox(width: 6),
-            Expanded(
-              child: Container(
-                height: 44 * values[i].clamp(0.08, 1.0),
-                decoration: BoxDecoration(
-                  color: i == values.length - 1
-                      ? AppColors.warnDot
-                      : AppColors.glassLight,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
+      width: 80,
+      height: 55,
+      child: BarChart(
+        BarChartData(
+          alignment: BarChartAlignment.spaceBetween,
+          maxY: 50,
+
+          // Remove everything
+          borderData: FlBorderData(show: false),
+          gridData: const FlGridData(show: false),
+          titlesData: const FlTitlesData(show: false),
+          barTouchData: BarTouchData(enabled: false),
+
+          barGroups: [
+            _bar(0, animate ? 10 : 0, const Color(0x40FFFFFF)),
+            _bar(1, animate ? 18 : 0, const Color(0x40FFFFFF)),
+            _bar(2, animate ? 28 : 0, const Color(0x40FFFFFF)),
+            _bar(3, animate ? 36 : 0, const Color(0x40FFFFFF)),
+            _bar(4, animate ? 46 : 0, const Color(0xFFFFD466)),
           ],
-        ],
+        ),
+        swapAnimationDuration: const Duration(milliseconds: 1000),
+        swapAnimationCurve: Curves.easeOutCubic,
       ),
+    );
+  }
+
+  BarChartGroupData _bar(int x, double value, Color color) {
+    return BarChartGroupData(
+      x: x,
+      barsSpace: 0,
+      barRods: [
+        BarChartRodData(
+          toY: value,
+          width: 12,
+          borderRadius: BorderRadius.circular(3),
+          color: color,
+        ),
+      ],
     );
   }
 }

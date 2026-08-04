@@ -290,11 +290,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       children: [
                         TextSpan(
                           text: 'Start knowing what\'s\n',
-                          style: AppTextStyles.headline,
+                          style: AppTextStyles.headline.copyWith(fontSize: 23),
                         ),
                         TextSpan(
                           text: 'really going on.',
-                          style: AppTextStyles.headlineAccent,
+                          style: AppTextStyles.headlineAccent.copyWith(
+                            fontSize: 23,
+                          ),
                         ),
                       ],
                     ),
@@ -360,32 +362,60 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.glassDark,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(color: AppColors.glassBorder),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight, // ~160deg
+                        colors: [
+                          Color.fromRGBO(8, 40, 56, 0.34),
+                          Color.fromRGBO(123, 239, 208, 0.14),
+                        ],
+                        stops: [0.0, 1.0],
+                      ),
                     ),
                     child: Text.rich(
                       TextSpan(
                         style: AppTextStyles.small,
                         children: [
-                          TextSpan(text: 'Free for 14 days, then '),
+                          TextSpan(
+                            text: 'Free for 14 days, then ',
+                            style: AppTextStyles.body.copyWith(
+                              color: AppColors.white,
+                              fontSize: 12.5,
+                            ),
+                          ),
                           TextSpan(
                             text: '\$249/month.',
-                            style: TextStyle(color: AppColors.goodText),
+                            style: AppTextStyles.body.copyWith(
+                              color: AppColors.goodText,
+                              fontSize: 12.5,
+                            ),
                           ),
                           TextSpan(
                             text:
                                 ' You\'ll enter a card on the next step to '
                                 'start, but ',
+                            style: AppTextStyles.body.copyWith(
+                              color: AppColors.white,
+                              fontSize: 12.5,
+                            ),
                           ),
                           TextSpan(
                             text: 'you won\'t be charged today.',
-                            style: TextStyle(color: AppColors.goodText),
+                            style: AppTextStyles.body.copyWith(
+                              color: AppColors.goodText,
+                              fontSize: 12.5,
+                            ),
                           ),
                           TextSpan(
                             text:
                                 ' Cancel anytime before day 14 and you\'re '
                                 'never charged.',
+                            style: AppTextStyles.body.copyWith(
+                              color: AppColors.white,
+                              fontSize: 12.5,
+                            ),
                           ),
                         ],
                       ),

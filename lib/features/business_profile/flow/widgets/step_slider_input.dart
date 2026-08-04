@@ -24,7 +24,7 @@ class StepSliderInput extends StatelessWidget {
         final stopCount = labels.length;
         final positions = List.generate(
           stopCount,
-          (i) => stopCount == 1 ? width / 2 : width * i / (stopCount - 1),
+          (i) => stopCount == 1 ? width / 2 : width * i / (stopCount - .86),
         );
 
         return Column(
@@ -43,7 +43,7 @@ class StepSliderInput extends StatelessWidget {
                   ),
                   for (var i = 0; i < stopCount; i++)
                     Positioned(
-                      left: positions[i] - 12,
+                      left: positions[i] - 0,
                       child: GestureDetector(
                         onTap: () => onSelect(i),
                         child: _Dot(selected: selectedIndex == i),
@@ -66,14 +66,14 @@ class StepSliderInput extends StatelessWidget {
                             : i == stopCount - 1
                             ? TextAlign.right
                             : TextAlign.center,
-                        style: TextStyle(
+                        style: AppTextStyles.body.copyWith(
                           color: selectedIndex == i
                               ? AppColors.white
                               : AppColors.faintText,
-                          fontSize: 11.5,
+                          fontSize: 11,
                           fontWeight: selectedIndex == i
                               ? FontWeight.w700
-                              : FontWeight.w500,
+                              : FontWeight.w700,
                         ),
                       ),
                     ),
@@ -95,18 +95,18 @@ class _Dot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 24,
-      height: 24,
+      // width: 24,
+      // height: 24,
       alignment: Alignment.center,
       child: Container(
-        width: selected ? 16 : 10,
-        height: selected ? 16 : 10,
+        width: selected ? 20 : 20,
+        height: selected ? 20 : 20,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: selected ? AppColors.accent : AppColors.glassDark,
           border: Border.all(
             color: selected ? AppColors.white : AppColors.glassBorder,
-            width: selected ? 2 : 1.4,
+            width: selected ? 1 : 1.4,
           ),
         ),
       ),

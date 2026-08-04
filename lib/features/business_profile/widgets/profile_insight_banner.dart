@@ -26,8 +26,8 @@ class ProfileInsightBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.glassDark,
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0x0DFFFFFF),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
@@ -38,9 +38,9 @@ class ProfileInsightBanner extends StatelessWidget {
               Expanded(
                 child: Text(
                   eyebrow,
-                  style: const TextStyle(
+                  style: AppTextStyles.body.copyWith(
                     color: AppColors.accent,
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.8,
                   ),
@@ -51,7 +51,11 @@ class ProfileInsightBanner extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 child: const Padding(
                   padding: EdgeInsets.all(2),
-                  child: Icon(Icons.close, size: 16, color: AppColors.faintText),
+                  child: Icon(
+                    Icons.close,
+                    size: 16,
+                    color: AppColors.faintText,
+                  ),
                 ),
               ),
             ],
@@ -61,15 +65,33 @@ class ProfileInsightBanner extends StatelessWidget {
             text: TextSpan(
               style: AppTextStyles.small.copyWith(height: 1.5),
               children: [
-                TextSpan(text: leadText),
+                TextSpan(
+                  text: leadText,
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12.5,
+
+                    // fontSize: 14,
+                    height: 1.5,
+                  ),
+                ),
                 TextSpan(
                   text: highlight,
-                  style: const TextStyle(
+                  style: AppTextStyles.body.copyWith(
                     color: AppColors.goodText,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                TextSpan(text: trailText),
+                TextSpan(
+                  text: trailText,
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.white,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ],
             ),
           ),

@@ -33,7 +33,7 @@ class FlowFooterButtons extends StatelessWidget {
           ),
           child: Text(
             secondaryLabel,
-            style: AppTextStyles.buttonLabel.copyWith(fontSize: 13.5),
+            style: AppTextStyles.buttonLabel.copyWith(fontSize: 13),
           ),
         ),
         const Spacer(),
@@ -50,7 +50,11 @@ class FlowFooterButtons extends StatelessWidget {
           ),
           child: Text(
             primaryLabel,
-            style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700),
+            style: AppTextStyles.buttonLabel.copyWith(
+              fontSize: 13,
+              color: const Color(0xFF04303F),
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ],

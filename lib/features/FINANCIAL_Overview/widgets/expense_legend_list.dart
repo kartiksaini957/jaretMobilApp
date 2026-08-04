@@ -60,14 +60,15 @@ class _LegendRow extends StatelessWidget {
                 height: 10,
                 decoration: BoxDecoration(
                   color: category.color,
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(3),
+                  shape: BoxShape.rectangle,
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   category.label,
-                  style: AppTextStyles.buttonLabel.copyWith(fontSize: 13.5),
+                  style: AppTextStyles.buttonLabel.copyWith(fontSize: 13),
                 ),
               ),
               SizedBox(

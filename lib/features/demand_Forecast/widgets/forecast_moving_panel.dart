@@ -47,15 +47,15 @@ class _ForceRow extends StatelessWidget {
             Expanded(
               child: Text(
                 item.title,
-                style: AppTextStyles.buttonLabel.copyWith(fontSize: 13.5),
+                style: AppTextStyles.buttonLabel.copyWith(fontSize: 14.5),
               ),
             ),
             Text(
               item.deltaLabel,
               style: TextStyle(
                 color: item.positive ? AppColors.goodText : AppColors.crit,
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],
@@ -65,7 +65,7 @@ class _ForceRow extends StatelessWidget {
           padding: const EdgeInsets.only(left: 12),
           child: Text(
             item.dateLabel,
-            style: AppTextStyles.small.copyWith(fontSize: 11),
+            style: AppTextStyles.small.copyWith(fontSize: 13),
           ),
         ),
         const SizedBox(height: 6),
@@ -73,7 +73,7 @@ class _ForceRow extends StatelessWidget {
           padding: const EdgeInsets.only(left: 12),
           child: Text(
             item.body,
-            style: AppTextStyles.small.copyWith(height: 1.5),
+            style: AppTextStyles.small.copyWith(height: 1.5, fontSize: 13),
           ),
         ),
         const SizedBox(height: 6),
@@ -84,10 +84,9 @@ class _ForceRow extends StatelessWidget {
               children: [
                 TextSpan(
                   text: '${item.confidencePercent}% confidence',
-                  style: const TextStyle(
-                    color: AppColors.white,
+                  style: AppTextStyles.small.copyWith(
                     fontSize: 11,
-                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
                   ),
                 ),
                 TextSpan(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/widgets/gradient_background.dart';
 
 import '../../widgets/app_nav_drawer.dart';
 import '../../widgets/customAppbar.dart';
@@ -8,12 +9,12 @@ import '../business_profile/business_profile_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../demand_Forecast/demand_forecast_screen.dart';
 import 'scenario_lab_state.dart';
-import 'theme/scenario_lab_colors.dart';
+import '../opportunity/ScenarioLab/widgets/scenario_lab_colors.dart';
 import 'widgets/cash_chart_card.dart';
 import 'widgets/category_section.dart';
 import 'widgets/empty_state_card.dart';
 import 'widgets/follow_up_input_bar.dart';
-import 'widgets/key_numbers_grid.dart';
+import '../opportunity/ScenarioLab/widgets/key_numbers_grid.dart';
 import 'widgets/question_bubble.dart';
 import 'widgets/scenario_actions.dart';
 import 'widgets/shimmer_box.dart';
@@ -102,31 +103,22 @@ class _ScenarioLabScreenState extends State<ScenarioLabScreen> {
         selectedIndex: 5,
         onItemSelected: _onDrawerItemSelected,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [ScenarioLabColors.bgTop, ScenarioLabColors.bgBottom],
-          ),
-        ),
-        child: SafeArea(
-          top: false,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: StateTabs(
-                    value: _viewState,
-                    onChanged: (state) => setState(() => _viewState = state),
-                  ),
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: StateTabs(
+                  value: _viewState,
+                  onChanged: (state) => setState(() => _viewState = state),
                 ),
               ),
-              Expanded(child: _buildBody()),
-            ],
-          ),
+            ),
+            Expanded(child: _buildBody()),
+          ],
         ),
       ),
     );

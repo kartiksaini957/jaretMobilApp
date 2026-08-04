@@ -27,7 +27,15 @@ class FlowHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        Text(label, style: AppTextStyles.eyebrow),
+        Text(
+          label,
+          style: AppTextStyles.eyebrow.copyWith(
+            color: const Color(0xFFCFEFFB),
+            fontSize: 10.5,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.8,
+          ),
+        ),
       ],
     );
   }

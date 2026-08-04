@@ -97,15 +97,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const AppLogo(),
-                          const SizedBox(height: 32),
-                          Text(
-                            'WELCOME BACK',
-                            style: AppTextStyles.eyebrow,
-                          ),
+                          const SizedBox(height: 62),
+                          Text('WELCOME BACK', style: AppTextStyles.eyebrow),
                           const SizedBox(height: 10),
                           Text(
                             'Sign in to LightSignal.',
-                            style: AppTextStyles.headline,
+                            style: AppTextStyles.headline.copyWith(
+                              fontSize: 25,
+                            ),
                           ),
                           const SizedBox(height: 10),
                           Text(
@@ -160,15 +159,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 );
                               },
                               style: TextButton.styleFrom(
-                                foregroundColor: AppColors.accent,
+                                foregroundColor: AppColors.white,
                                 padding: EdgeInsets.zero,
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Forgot password?',
-                                style: TextStyle(
-                                  fontSize: 12.5,
+                                style: AppTextStyles.body.copyWith(
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   decoration: TextDecoration.underline,
+                                  decorationColor: AppColors.white,
                                 ),
                               ),
                             ),
@@ -185,20 +185,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             child: Wrap(
                               alignment: WrapAlignment.center,
                               children: [
-                                Text(
-                                  'New here? ',
-                                  style: AppTextStyles.body,
-                                ),
+                                Text('New here? ', style: AppTextStyles.body),
                                 GestureDetector(
                                   onTap: _goToSignUp,
-                                  child: const Text(
+                                  child: Text(
                                     'Start your free trial',
-                                    style: TextStyle(
-                                      color: AppColors.accent,
-                                      fontSize: 14.5,
+                                    style: AppTextStyles.body.copyWith(
+                                      color: AppColors.white,
+                                      fontSize: 13.5,
                                       fontWeight: FontWeight.w700,
                                       decoration: TextDecoration.underline,
-                                      decorationColor: AppColors.accent,
+                                      decorationColor: AppColors.white,
                                     ),
                                   ),
                                 ),

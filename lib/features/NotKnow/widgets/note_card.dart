@@ -22,13 +22,13 @@ class NoteCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.glassDark,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        borderRadius: BorderRadius.circular(16),
+        // border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(eyebrow, style: AppTextStyles.eyebrow),
+          Text(eyebrow, style: AppTextStyles.eyebrow.copyWith(fontSize: 10.5)),
           const SizedBox(height: 8),
           Text.rich(
             body,
@@ -38,7 +38,10 @@ class NoteCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               footer!,
-              style: AppTextStyles.small.copyWith(color: AppColors.faintText),
+              style: AppTextStyles.small.copyWith(
+                color: AppColors.faintText,
+                fontSize: 10,
+              ),
             ),
           ],
         ],

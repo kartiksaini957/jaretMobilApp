@@ -36,7 +36,12 @@ class FlowProgressDots extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           '$answered of $total answered',
-          style: AppTextStyles.small.copyWith(fontWeight: FontWeight.w700),
+          style: AppTextStyles.small.copyWith(
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFFCFEFFB),
+            fontSize: 11.5,
+            letterSpacing: 0.8,
+          ),
         ),
       ],
     );

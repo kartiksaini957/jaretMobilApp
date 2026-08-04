@@ -34,7 +34,15 @@ class RemindersCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.glassDark,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            spreadRadius: 10,
+            offset: const Offset(10, 10),
+          ),
+        ],
+        // border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,11 +85,12 @@ class _ReminderTile extends StatelessWidget {
             children: [
               Text(
                 reminder.title,
-                style: const TextStyle(
-                  color: AppColors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w500),
+                // const TextStyle(
+                //   color: AppColors.white,
+                //   fontSize: 14,
+                //   fontWeight: FontWeight.w700,
+                // ),
               ),
               if (reminder.subtitle != null) ...[
                 const SizedBox(height: 2),
@@ -92,6 +101,7 @@ class _ReminderTile extends StatelessWidget {
                     fontWeight: reminder.subtitleColor != null
                         ? FontWeight.w700
                         : FontWeight.w500,
+                    fontSize: 12.0,
                   ),
                 ),
               ],

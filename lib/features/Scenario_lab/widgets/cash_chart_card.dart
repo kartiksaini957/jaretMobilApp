@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/scenario_lab_colors.dart';
+import '../../opportunity/ScenarioLab/widgets/scenario_lab_colors.dart';
 
 /// "Cash position over time" card: projected / worst-case / reserve
 /// floor lines, a low-point marker, a break-even marker, and an

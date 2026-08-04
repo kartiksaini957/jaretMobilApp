@@ -38,10 +38,8 @@ class ForecastFullReadSection extends StatelessWidget {
       tone: data.doThisTone,
       count: '${data.doThisItems.length} actions',
       summary: data.doThisSummary,
-      builder: (_) => ForecastDoThisPanel(
-        intro: data.doThisIntro,
-        items: data.doThisItems,
-      ),
+      builder: (_) =>
+          ForecastDoThisPanel(intro: data.doThisIntro, items: data.doThisItems),
     ),
     _Category(
       label: "What's moving",
@@ -94,7 +92,9 @@ class ForecastFullReadSection extends StatelessWidget {
         const SizedBox(height: 10),
         for (var i = 0; i < categories.length; i++)
           Padding(
-            padding: EdgeInsets.only(bottom: i == categories.length - 1 ? 0 : 12),
+            padding: EdgeInsets.only(
+              bottom: i == categories.length - 1 ? 0 : 12,
+            ),
             child: _CategoryCard(
               category: categories[i],
               onTap: () => _open(context, categories[i]),
@@ -142,20 +142,25 @@ class _CategoryCard extends StatelessWidget {
                     ),
                     child: Text(
                       category.tone.badgeText,
-                      style: TextStyle(
+                      style: AppTextStyles.body.copyWith(
                         color: category.tone.color,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.4,
+                        fontSize: 11,
                       ),
+                      // TextStyle(
+                      //   color: category.tone.color,
+                      //   fontSize: 10,
+                      //   fontWeight: FontWeight.w800,
+                      //   letterSpacing: 0.4,
+                      // ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       category.label,
-                      style: AppTextStyles.buttonLabel.copyWith(
+                      style: AppTextStyles.headlineAccent.copyWith(
                         fontSize: 14.5,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -225,19 +230,26 @@ class _CategorySheet extends StatelessWidget {
                   ),
                   child: Text(
                     category.tone.badgeText,
-                    style: TextStyle(
+                    style: AppTextStyles.body.copyWith(
                       color: category.tone.color,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.4,
+                      fontSize: 11,
                     ),
+                    // TextStyle(
+                    //   color: category.tone.color,
+                    //   fontSize: 10,
+                    //   fontWeight: FontWeight.w800,
+                    //   letterSpacing: 0.4,
+                    // ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     category.label,
-                    style: AppTextStyles.buttonLabel.copyWith(fontSize: 17),
+                    style: AppTextStyles.headlineAccent.copyWith(
+                      fontSize: 18,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
                 if (category.count != null)

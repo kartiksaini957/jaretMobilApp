@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/scenario_lab_colors.dart';
+import '../../opportunity/ScenarioLab/widgets/scenario_lab_colors.dart';
 
 /// Sticky bottom input bar for asking/following up on a scenario.
 class FollowUpInputBar extends StatefulWidget {

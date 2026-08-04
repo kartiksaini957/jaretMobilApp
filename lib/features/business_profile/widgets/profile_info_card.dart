@@ -23,7 +23,7 @@ class ProfileInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.glassDark,
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onPillTap,
@@ -33,7 +33,22 @@ class ProfileInfoCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.glassBorder),
+            border: Border.all(color: const Color(0x33FFFFFF)),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.fromRGBO(95, 224, 255, 0.16),
+                Color.fromRGBO(95, 224, 255, 0.05),
+              ],
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Color.fromRGBO(0, 20, 40, 0.20),
+                blurRadius: 24,
+                offset: Offset(0, 8),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,9 +59,7 @@ class ProfileInfoCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: AppTextStyles.buttonLabel.copyWith(
-                        fontSize: 14.5,
-                      ),
+                      style: AppTextStyles.buttonLabel.copyWith(fontSize: 14),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -61,10 +74,10 @@ class ProfileInfoCard extends StatelessWidget {
                     ),
                     child: Text(
                       pillLabel,
-                      style: TextStyle(
+                      style: AppTextStyles.buttonLabel.copyWith(
                         color: pillColor,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: 0.3,
                       ),
                     ),
@@ -72,7 +85,14 @@ class ProfileInfoCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              Text(caption, style: AppTextStyles.small),
+              Text(
+                caption,
+                style: AppTextStyles.small.copyWith(
+                  height: 1.5,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
             ],
           ),
         ),

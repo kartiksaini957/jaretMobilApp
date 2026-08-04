@@ -23,10 +23,10 @@ class PromisePane extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-         Text(
+        Text(
           'The clarity of a \$500/hr advisor who\'s known your business for 30 years. '
           'It watches your numbers and tells you what to do, before you ask.',
-          style: AppTextStyles.body,
+          style: AppTextStyles.body.copyWith(fontSize: 15),
         ),
         const SizedBox(height: 24),
         const _PromiseBullet(
@@ -41,9 +41,9 @@ class PromisePane extends StatelessWidget {
         const SizedBox(height: 14),
         InkWell(
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const WelcomeScreen()));
           },
           child: const _PromiseBullet(
             icon: Icons.link_off,
@@ -67,12 +67,15 @@ class _PromiseBullet extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: AppColors.accent),
+        Icon(icon, size: 18, color: Color(0xFFCFEFFB)),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
             text,
-            style: AppTextStyles.body.copyWith(color: AppColors.white),
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.white,
+              fontSize: 13,
+            ),
           ),
         ),
       ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/scenario_lab_colors.dart';
+import '../../opportunity/ScenarioLab/widgets/scenario_lab_colors.dart';
 
 /// "PEER OUTCOME" / "ALTERNATIVE" style detail card used for the Peer
 /// outcomes and Alternatives categories.

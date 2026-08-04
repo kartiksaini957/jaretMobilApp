@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/scenario_lab_colors.dart';
+import '../../opportunity/ScenarioLab/widgets/scenario_lab_colors.dart';
 
 /// Save scenario / Adjust an assumption / New scenario buttons, plus the
 /// disclaimer line beneath them.

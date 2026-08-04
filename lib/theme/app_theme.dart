@@ -22,6 +22,7 @@ class AppColors {
   static const Color white = Colors.white;
   static const Color mutedText = Color(0xE6FFFFFF);
   static const Color faintText = Color(0xB3FFFFFF);
+  static const Color appfaintText = Color(0xB3FFFFFF);
 
   // CYAN v2 tokens (LightSignalKit LSColor — locked design system).
   static const Color soft = Color(0xFFCFEFFB); // --ls-soft
@@ -31,7 +32,9 @@ class AppColors {
 
   /// Icy highlight used for accented headline text, links, focus rings.
   static const Color accent = Color(0xFF5FE0FF); // --ls-accent (cyan v2)
-  static const Color accentDeep = Color(0xFF0E9ED0); // gradient partner of accent
+  static const Color accentDeep = Color(
+    0xFF0E9ED0,
+  ); // gradient partner of accent
 
   static const Color yellow = Color(0xFFFFD98A); // --ls-warn
   static const Color warnText = Color(0xFFFFD466); // --ls-warnText
@@ -68,18 +71,18 @@ class AppTextStyles {
 
   // Headings — Space Grotesk. Body — DM Sans. (LightSignalKit LSFont)
   static TextStyle get logo => GoogleFonts.spaceGrotesk(
-        color: AppColors.white,
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        letterSpacing: 0.2,
-      );
+    color: AppColors.white,
+    fontSize: 18,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 0.2,
+  );
 
   static TextStyle get eyebrow => GoogleFonts.dmSans(
-        color: AppColors.faintText,
-        fontSize: 12,
-        fontWeight: FontWeight.w700,
-        letterSpacing: 1.2,
-      );
+    color: AppColors.mute,
+    fontSize: 11,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 1.2,
+  );
 
   // Layered text-shadow matching the reference .h1 style: a tight dark
   // contact shadow, a wider soft dark shadow for depth, and a cyan glow.
@@ -90,48 +93,48 @@ class AppTextStyles {
   ];
 
   static TextStyle get headline => GoogleFonts.spaceGrotesk(
-        color: AppColors.white,
-        fontSize: 27,
-        fontWeight: FontWeight.w700,
-        height: 1.16,
-        letterSpacing: -0.4,
-        shadows: _headlineShadows,
-      );
+    color: AppColors.white,
+    fontSize: 27,
+    fontWeight: FontWeight.w700,
+    height: 1.16,
+    letterSpacing: -0.4,
+    shadows: _headlineShadows,
+  );
 
   static TextStyle get headlineAccent => GoogleFonts.spaceGrotesk(
-        color: AppColors.accent,
-        fontSize: 27,
-        fontWeight: FontWeight.w700,
-        height: 1.16,
-        letterSpacing: -0.4,
-        shadows: _headlineShadows,
-      );
+    color: AppColors.accent,
+    fontSize: 27,
+    fontWeight: FontWeight.w700,
+    height: 1.16,
+    letterSpacing: -0.4,
+    shadows: _headlineShadows,
+  );
 
   static TextStyle get body => GoogleFonts.dmSans(
-        color: AppColors.mutedText,
-        fontSize: 14.5,
-        fontWeight: FontWeight.w400,
-        height: 1.45,
-      );
+    color: AppColors.mutedText,
+    fontSize: 13.5,
+    fontWeight: FontWeight.w400,
+    height: 1.45,
+  );
 
   static TextStyle get small => GoogleFonts.dmSans(
-        color: AppColors.faintText,
-        fontSize: 12.5,
-        fontWeight: FontWeight.w500,
-        height: 1.4,
-      );
+    color: AppColors.white,
+    fontSize: 12.5,
+    fontWeight: FontWeight.w500,
+    height: 1.4,
+  );
 
   static TextStyle get buttonLabel => GoogleFonts.dmSans(
-        color: AppColors.white,
-        fontSize: 16,
-        fontWeight: FontWeight.w700,
-      );
+    color: AppColors.white,
+    fontSize: 16,
+    fontWeight: FontWeight.w700,
+  );
 
   static TextStyle get link => GoogleFonts.dmSans(
-        color: AppColors.white,
-        fontSize: 13.5,
-        fontWeight: FontWeight.w600,
-      );
+    color: AppColors.white,
+    fontSize: 13.5,
+    fontWeight: FontWeight.w600,
+  );
 }
 
 ThemeData buildAppTheme() {

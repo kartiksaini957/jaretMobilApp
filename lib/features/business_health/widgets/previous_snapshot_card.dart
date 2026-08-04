@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/theme/app_theme.dart';
 
 import '../theme/business_health_colors.dart';
 import 'health_category_card.dart';
@@ -54,9 +55,9 @@ class PreviousSnapshotCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 label,
-                style: const TextStyle(
+                style: AppTextStyles.body.copyWith(
                   color: BusinessHealthColors.faintText,
-                  fontSize: 11.5,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.8,
                 ),
@@ -65,12 +66,29 @@ class PreviousSnapshotCard extends StatelessWidget {
               InkWell(
                 onTap: onDismiss,
                 borderRadius: BorderRadius.circular(20),
-                child: const Padding(
-                  padding: EdgeInsets.all(2),
-                  child: Icon(
-                    Icons.close,
-                    size: 16,
-                    color: BusinessHealthColors.faintText,
+                child: Padding(
+                  padding: EdgeInsets.all(0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color.fromRGBO(
+                          255,
+                          255,
+                          255,
+                          0.28,
+                        ), // border color
+                        width: 1,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Icon(
+                        Icons.close,
+                        size: 16,
+                        color: BusinessHealthColors.faintText,
+                      ),
+                    ),
                   ),
                 ),
               ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/theme/app_theme.dart';
+import 'package:flutter_application_1/widgets/app_text_field.dart';
 
 import '../theme/business_health_colors.dart';
 
@@ -67,20 +69,25 @@ class _SnapshotHistorySheetState extends State<SnapshotHistorySheet> {
               ),
             ),
             const SizedBox(height: 18),
-            const Text(
+            Text(
               'Snapshots',
-              style: TextStyle(
+              style: AppTextStyles.headline.copyWith(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
                 color: BusinessHealthColors.white,
-                fontSize: 19,
-                fontWeight: FontWeight.w800,
               ),
+              // TextStyle(
+              //   color: BusinessHealthColors.white,
+              //   fontSize: 19,
+              //   fontWeight: FontWeight.w800,
+              // ),
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'SNAPSHOT HISTORY',
-              style: TextStyle(
-                color: BusinessHealthColors.faintText,
-                fontSize: 11,
+              style: AppTextStyles.body.copyWith(
+                color: const Color(0xFFCFEFFB),
+                fontSize: 10.5,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.8,
               ),
@@ -97,28 +104,69 @@ class _SnapshotHistorySheetState extends State<SnapshotHistorySheet> {
             const SizedBox(height: 18),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: compareLabel.isEmpty
-                    ? null
-                    : () => Navigator.of(context).pop(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: BusinessHealthColors.pillGoodBg,
-                  foregroundColor: BusinessHealthColors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color.fromRGBO(140, 235, 255, 0.5),
+                  ),
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color.fromRGBO(95, 224, 255, 0.32),
+                      Color.fromRGBO(30, 169, 214, 0.28),
+                    ],
                   ),
                 ),
-                child: Text(
-                  'Compare with $compareLabel →',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(24),
+                    onTap: compareLabel.isEmpty
+                        ? null
+                        : () => Navigator.of(context).pop(),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 14),
+                      child: Center(
+                        child: Text(
+                          'Compare with $compareLabel →',
+                          style: AppTextStyles.body.copyWith(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
+            // SizedBox(
+            //   width: double.infinity,
+            //   child: ElevatedButton(
+            //     onPressed: compareLabel.isEmpty
+            //         ? null
+            //         : () => Navigator.of(context).pop(),
+            //     style: ElevatedButton.styleFrom(
+            //       backgroundColor: BusinessHealthColors.pillGoodBg,
+            //       foregroundColor: BusinessHealthColors.white,
+            //       elevation: 0,
+            //       padding: const EdgeInsets.symmetric(vertical: 14),
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(24),
+            //       ),
+            //     ),
+            //     child: Text(
+            //       'Compare with $compareLabel →',
+            //       style: const TextStyle(
+            //         fontSize: 14,
+            //         fontWeight: FontWeight.w700,
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -162,16 +210,18 @@ class _SnapshotRow extends StatelessWidget {
             children: [
               Text(
                 entry.label,
-                style: TextStyle(
+                style: AppTextStyles.body.copyWith(
                   color: BusinessHealthColors.white,
                   fontSize: 14,
-                  fontWeight: entry.isCurrent ? FontWeight.w800 : FontWeight.w600,
+                  fontWeight: entry.isCurrent
+                      ? FontWeight.w800
+                      : FontWeight.w600,
                 ),
               ),
               const Spacer(),
               Text(
                 '${entry.score}',
-                style: const TextStyle(
+                style: AppTextStyles.body.copyWith(
                   color: BusinessHealthColors.mutedText,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,

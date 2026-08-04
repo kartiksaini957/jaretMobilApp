@@ -134,9 +134,10 @@ class _MetricDetailSheetState extends State<MetricDetailSheet> {
                             Expanded(
                               child: Text(
                                 detail.title,
-                                style: AppTextStyles.small.copyWith(
-                                  color: AppColors.faintText,
-                                  fontWeight: FontWeight.w700,
+                                style: AppTextStyles.headlineAccent.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15.0,
                                 ),
                               ),
                             ),
@@ -149,17 +150,20 @@ class _MetricDetailSheetState extends State<MetricDetailSheet> {
                         const SizedBox(height: 6),
                         Text(
                           detail.value,
-                          style: const TextStyle(
-                            color: AppColors.white,
-                            fontSize: 30,
-                            fontWeight: FontWeight.w800,
+                          style: AppTextStyles.headline.copyWith(
+                            fontSize: 38.0,
                           ),
+                          // const TextStyle(
+                          //   color: AppColors.white,
+                          //   fontSize: 30,
+                          //   fontWeight: FontWeight.w800,
+                          // ),
                         ),
                         const SizedBox(height: 10),
                         Text(
                           comparison.body,
                           style: AppTextStyles.body.copyWith(
-                            color: AppColors.mutedText,
+                            color: AppColors.white,
                           ),
                         ),
                         const SizedBox(height: 14),
@@ -191,7 +195,7 @@ class _MetricDetailSheetState extends State<MetricDetailSheet> {
                           decoration: BoxDecoration(
                             color: AppColors.glassDark,
                             borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: AppColors.glassBorder),
+                            // border: Border.all(color: AppColors.glassBorder),
                           ),
                           child: Row(
                             children: [
@@ -208,11 +212,15 @@ class _MetricDetailSheetState extends State<MetricDetailSheet> {
                               Expanded(
                                 child: Text(
                                   comparison.changeText,
-                                  style: const TextStyle(
+                                  style: AppTextStyles.body.copyWith(
                                     color: AppColors.white,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13.5,
                                   ),
+                                  // const TextStyle(
+                                  //   color: AppColors.white,
+                                  //   fontSize: 13,
+                                  //   fontWeight: FontWeight.w600,
+                                  // ),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -223,7 +231,9 @@ class _MetricDetailSheetState extends State<MetricDetailSheet> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 22),
+                        const SizedBox(height: 16),
+                        Divider(thickness: .1, color: Colors.white),
+
                         _CollapsibleSection(
                           title: 'Top drivers',
                           count: detail.drivers.length,
@@ -235,7 +245,11 @@ class _MetricDetailSheetState extends State<MetricDetailSheet> {
                               ),
                           ],
                         ),
-                        const SizedBox(height: 22),
+                        Divider(thickness: .1, color: Colors.white),
+
+                        const SizedBox(height: 12),
+                        Divider(thickness: .1, color: Colors.white),
+
                         _CollapsibleSection(
                           title: 'Suggested actions',
                           count: detail.actions.length,
@@ -249,6 +263,7 @@ class _MetricDetailSheetState extends State<MetricDetailSheet> {
                           'Confidence: ${detail.confidence}',
                           style: AppTextStyles.small.copyWith(
                             color: AppColors.faintText,
+                            fontSize: 11.5,
                           ),
                         ),
                       ],
@@ -280,11 +295,12 @@ class _Badge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
-          color: color,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-        ),
+        style: AppTextStyles.body.copyWith(color: color, fontSize: 12.5),
+        // TextStyle(
+        //   color: color,
+        //   fontSize: 11,
+        //   fontWeight: FontWeight.w700,
+        // ),
       ),
     );
   }
@@ -321,11 +337,14 @@ class _CompareChip extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: TextStyle(
+            style: AppTextStyles.body.copyWith(
               color: selected ? AppColors.white : AppColors.faintText,
-              fontSize: 12.5,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
             ),
+            // TextStyle(
+            //   color: selected ? AppColors.white : AppColors.faintText,
+            //   fontSize: 12.5,
+            //   fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+            // ),
           ),
         ),
       ),
@@ -368,11 +387,12 @@ class _CollapsibleSectionState extends State<_CollapsibleSection> {
                 Expanded(
                   child: Text(
                     widget.title,
-                    style: const TextStyle(
-                      color: AppColors.white,
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: AppTextStyles.logo.copyWith(fontSize: 14.5),
+                    //  const TextStyle(
+                    //   color: AppColors.white,
+                    //   fontSize: 14.5,
+                    //   fontWeight: FontWeight.w700,
+                    // ),
                   ),
                 ),
                 Container(
@@ -440,12 +460,12 @@ class _DriverRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.glassDark,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      // decoration: BoxDecoration(
+      // color: AppColors.glassDark,
+      // borderRadius: BorderRadius.circular(14),
+      // border: Border.all(color: AppColors.glassBorder),
+      // ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -474,17 +494,19 @@ class _DriverRow extends StatelessWidget {
               children: [
                 Text(
                   driver.title,
-                  style: const TextStyle(
-                    color: AppColors.white,
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AppTextStyles.body.copyWith(color: AppColors.white),
+                  // const TextStyle(
+                  //   color: AppColors.white,
+                  //   fontSize: 13.5,
+                  //   fontWeight: FontWeight.w700,
+                  // ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   driver.subtitle,
                   style: AppTextStyles.small.copyWith(
                     color: AppColors.faintText,
+                    fontSize: 11.0,
                   ),
                 ),
               ],
@@ -493,11 +515,14 @@ class _DriverRow extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             driver.delta,
-            style: TextStyle(
-              color: driver.isPositive ? AppColors.goodText : AppColors.yellow,
-              fontSize: 13.5,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.body.copyWith(
+              color: driver.isPositive ? Color(0xFFA6F5DC) : Color(0xFFFFD466),
             ),
+            //  TextStyle(
+            //   color: driver.isPositive ? AppColors.goodText : AppColors.yellow,
+            //   fontSize: 13.5,
+            //   fontWeight: FontWeight.w700,
+            // ),
           ),
         ],
       ),
@@ -514,23 +539,32 @@ class _ActionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.glassDark,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      // padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      // decoration: BoxDecoration(
+      //   color: AppColors.glassDark,
+      //   borderRadius: BorderRadius.circular(14),
+      //   border: Border.all(color: AppColors.glassBorder),
+      // ),
+      child: Column(
         children: [
-          _Badge(label: action.severity.label, color: action.severity.color),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              action.text,
-              style: AppTextStyles.body.copyWith(color: AppColors.white),
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _Badge(
+                label: action.severity.label,
+                color: action.severity.color,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  action.text,
+                  style: AppTextStyles.body.copyWith(color: AppColors.white),
+                ),
+              ),
+            ],
           ),
+          // SizedBox(height: 10),
+          Divider(thickness: .1, color: Colors.white),
         ],
       ),
     );

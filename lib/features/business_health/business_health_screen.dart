@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/features/opportunity/ScenarioLab/cenario_lab_screen.dart';
+import 'package:flutter_application_1/features/opportunity/opportunities_screen.dart';
+import 'package:flutter_application_1/theme/app_theme.dart';
 
 import '../../widgets/app_nav_drawer.dart';
 import '../../widgets/customAppbar.dart';
@@ -43,10 +46,16 @@ class _BusinessHealthScreenState extends State<BusinessHealthScreen> {
       );
       return;
     }
+     if (index == 4) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const OpportunitiesScreen()));
+      return;
+    }
     if (index == 5) {
       Navigator.of(
         context,
-      ).push(MaterialPageRoute(builder: (_) => const ScenarioLabScreen()));
+      ).push(MaterialPageRoute(builder: (_) => const ScenariooLabScreen()));
       return;
     }
     if (index == 6) {
@@ -110,16 +119,17 @@ class _BusinessHealthScreenState extends State<BusinessHealthScreen> {
                       width: 6,
                       height: 6,
                       decoration: const BoxDecoration(
-                        color: BusinessHealthColors.dotGood,
+                        color: const Color(0xFF26C281),
                         shape: BoxShape.circle,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Text(
+                    Text(
                       'BUSINESS HEALTH · AS OF FEB 11',
-                      style: TextStyle(
+
+                      style: AppTextStyles.body.copyWith(
                         color: BusinessHealthColors.faintText,
-                        fontSize: 11.5,
+                        fontSize: 11,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.8,
                       ),
@@ -241,8 +251,7 @@ class _BusinessHealthScreenState extends State<BusinessHealthScreen> {
                         'AI Confidence 89% · Full coverage — QuickBooks '
                         'Online, Square, and your Google reviews are '
                         'connected.',
-                    onDismiss: () =>
-                        setState(() => _showJan11Snapshot = false),
+                    onDismiss: () => setState(() => _showJan11Snapshot = false),
                     narrative:
                         'January was steady rather than strong — weekend '
                         'dinner held the month near \$101,300 while '

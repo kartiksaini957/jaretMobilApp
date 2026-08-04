@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/theme/app_theme.dart';
 
-import '../theme/scenario_lab_colors.dart';
+import 'scenario_lab_colors.dart';
 
 class KeyNumberData {
   const KeyNumberData({
@@ -8,12 +9,14 @@ class KeyNumberData {
     required this.value,
     required this.note,
     this.dotColor,
+    this.showGlow = true,
   });
 
   final String label;
   final String value;
   final String note;
   final Color? dotColor;
+  final bool showGlow;
 }
 
 /// "Key numbers" 2-column grid of stat tiles, each with an optional
@@ -28,15 +31,6 @@ class KeyNumbersGrid extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Key numbers',
-          style: TextStyle(
-            color: ScenarioLabColors.white,
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 12),
         LayoutBuilder(
           builder: (context, constraints) {
             const spacing = 12.0;
@@ -69,9 +63,39 @@ class _NumberTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: ScenarioLabColors.cardFill,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ScenarioLabColors.cardBorder),
+        border: Border.all(color: const Color(0xFF4D93A9), width: 1),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.fromARGB(255, 37, 134, 161),
+            Color.fromARGB(255, 31, 105, 129),
+          ],
+        ),
+        boxShadow: [
+          // Existing shadow
+          const BoxShadow(
+            color: Colors.black26,
+            blurRadius: 18,
+            offset: Offset(0, 10),
+          ),
+
+          const BoxShadow(
+            color: Color(0x3324D8FF),
+            blurRadius: 12,
+            spreadRadius: -2,
+          ),
+
+          // Yellow glow (only first 2 cards)
+          if (data.showGlow)
+            BoxShadow(
+              color: Color(0xFFFFD466), // rgb(255, 212, 102)
+              blurRadius: 14,
+              spreadRadius: -2,
+              offset: Offset(0, 0),
+            ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,10 +105,10 @@ class _NumberTile extends StatelessWidget {
               Expanded(
                 child: Text(
                   data.label,
-                  style: const TextStyle(
+                  style: AppTextStyles.body.copyWith(
                     color: ScenarioLabColors.faintText,
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
                     letterSpacing: 0.4,
                   ),
                 ),
@@ -103,18 +127,18 @@ class _NumberTile extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             data.value,
-            style: const TextStyle(
+            style: AppTextStyles.headline.copyWith(
               color: ScenarioLabColors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
+              fontSize: 21,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 3),
           Text(
             data.note,
-            style: const TextStyle(
+            style: AppTextStyles.body.copyWith(
               color: ScenarioLabColors.faintText,
-              fontSize: 11,
+              fontSize: 10,
             ),
           ),
         ],

@@ -52,16 +52,16 @@ class _LocationsScreenState extends State<LocationsScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.glassDark,
+                    color: AppColors.glassDark.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.glassBorder),
+                    border: Border.all(color: AppColors.glassLight),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Your locations',
-                        style: AppTextStyles.buttonLabel.copyWith(fontSize: 17),
+                        style: AppTextStyles.headline.copyWith(fontSize: 19),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -80,16 +80,18 @@ class _LocationsScreenState extends State<LocationsScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: AppColors.glassDark,
+                    color: AppColors.glassDark.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.glassBorder),
+                    border: Border.all(color: AppColors.glassLight),
                   ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       for (var i = 0; i < _locations.length; i++)
                         LocationCard(
                           location: _locations[i],
-                          showDivider: i != _locations.length - 1 || _showAddForm,
+                          showDivider:
+                              i != _locations.length - 1 || _showAddForm,
                         ),
                       if (_showAddForm)
                         Padding(
@@ -121,7 +123,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
                             child: Text(
                               '+ Add a location',
                               style: AppTextStyles.buttonLabel.copyWith(
-                                fontSize: 13.5,
+                                fontSize: 11.5,
                               ),
                             ),
                           ),

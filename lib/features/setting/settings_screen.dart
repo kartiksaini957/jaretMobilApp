@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/features/opportunity/ScenarioLab/cenario_lab_screen.dart';
+import 'package:flutter_application_1/features/opportunity/opportunities_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../theme/app_theme.dart';
@@ -77,10 +79,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ).push(MaterialPageRoute(builder: (_) => const BusinessHealthScreen()));
       return;
     }
+    if (index == 4) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const OpportunitiesScreen()));
+      return;
+    }
     if (index == 5) {
       Navigator.of(
         context,
-      ).push(MaterialPageRoute(builder: (_) => const ScenarioLabScreen()));
+      ).push(MaterialPageRoute(builder: (_) => const ScenariooLabScreen()));
       return;
     }
     if (index == 6) {

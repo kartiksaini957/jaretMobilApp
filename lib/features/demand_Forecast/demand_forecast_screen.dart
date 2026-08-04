@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/features/opportunity/ScenarioLab/cenario_lab_screen.dart';
+import 'package:flutter_application_1/features/opportunity/opportunities_screen.dart';
 
 import '../../theme/app_theme.dart';
 import '../../widgets/app_nav_drawer.dart';
@@ -42,10 +44,16 @@ class _DemandForecastScreenState extends State<DemandForecastScreen> {
       ).push(MaterialPageRoute(builder: (_) => const BusinessHealthScreen()));
       return;
     }
+     if (index == 4) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const OpportunitiesScreen()));
+      return;
+    }
     if (index == 5) {
       Navigator.of(
         context,
-      ).push(MaterialPageRoute(builder: (_) => const ScenarioLabScreen()));
+      ).push(MaterialPageRoute(builder: (_) => const ScenariooLabScreen()));
       return;
     }
     if (index == 6) {
@@ -69,7 +77,41 @@ class _DemandForecastScreenState extends State<DemandForecastScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const ForecastHeadlineCard(data: restOfMonthForecast),
-            const SizedBox(height: 20),
+
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(51, 13, 61, 85),
+                borderRadius: BorderRadius.circular(16),
+                // border: Border.all(color: AppColors.glassBorder),
+              ),
+              child: RichText(
+                text: TextSpan(
+                  style: AppTextStyles.small.copyWith(
+                    color: AppColors.mutedText,
+                    height: 1.5,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: '⚡ Biggest swing factor: ',
+                      style: AppTextStyles.body.copyWith(
+                        color: Colors.white,
+                        fontSize: 13,
+                      ),
+                    ),
+                    TextSpan(
+                      text:
+                          " Friday dough. Scale Thursday's prep past the ≈\$5,200 cap and the weekend runs toward \$15,000; sell out by 8pm again — it's happened twice this month — and ≈\$330 walks (≈17 orders at your \$19 ticket), nearer \$14,400.",
+                      style: AppTextStyles.body.copyWith(color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 12),
+            // const SizedBox(height: 20),
             const ForecastFullReadSection(data: restOfMonthForecast),
           ],
         );
@@ -81,7 +123,40 @@ class _DemandForecastScreenState extends State<DemandForecastScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const ForecastHeadlineCard(data: thisWeekendForecast),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(51, 13, 61, 85),
+                borderRadius: BorderRadius.circular(16),
+                // border: Border.all(color: AppColors.glassBorder),
+              ),
+              child: RichText(
+                text: TextSpan(
+                  style: AppTextStyles.small.copyWith(
+                    color: AppColors.mutedText,
+                    height: 1.5,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: '⚡ Biggest swing factor: ',
+                      style: AppTextStyles.body.copyWith(
+                        color: Colors.white,
+                        fontSize: 13,
+                      ),
+                    ),
+                    TextSpan(
+                      text:
+                          " Friday dough. Scale Thursday's prep past the ≈\$5,200 cap and the weekend runs toward \$15,000; sell out by 8pm again — it's happened twice this month — and ≈\$330 walks (≈17 orders at your \$19 ticket), nearer \$14,400.",
+                      style: AppTextStyles.body.copyWith(color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 12),
+
             const ForecastFullReadSection(data: thisWeekendForecast),
           ],
         );

@@ -29,7 +29,7 @@ class InsightCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.glassDark,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder),
+        // border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,11 +47,9 @@ class InsightCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 label,
-                style: const TextStyle(
-                  color: AppColors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.6,
+                style: AppTextStyles.eyebrow.copyWith(
+                  fontSize: 11.5,
+                  color: AppColors.soft,
                 ),
               ),
             ],
@@ -60,17 +58,29 @@ class InsightCard extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               headline!,
-              style: const TextStyle(
-                color: AppColors.white,
+              style: AppTextStyles.body.copyWith(
                 fontSize: 14.5,
-                fontWeight: FontWeight.w700,
-                height: 1.35,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
               ),
+              // const TextStyle(
+              //   color: AppColors.white,
+              //   fontSize: 14.5,
+              //   fontWeight: FontWeight.w700,
+              //   height: 1.35,
+              // ),
             ),
           ],
           if (body != null) ...[
             SizedBox(height: headline != null ? 6 : 10),
-            Text(body!, style: AppTextStyles.body.copyWith(color: bodyColor)),
+            Text(
+              body!,
+              style: AppTextStyles.body.copyWith(
+                color: bodyColor,
+                fontSize: 14.5,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
         ],
       ),

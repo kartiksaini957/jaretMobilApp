@@ -22,9 +22,9 @@ class UnderstandingMeterCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.glassDark,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder),
+        color: const Color(0x0DFFFFFF),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.glassLight),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,15 +34,19 @@ class UnderstandingMeterCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'How well we understand your business',
-                  style: AppTextStyles.buttonLabel.copyWith(fontSize: 14.5),
+                  style: AppTextStyles.buttonLabel.copyWith(
+                    fontSize: 12.5,
+                    color: AppColors.mutedText,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 statusLabel,
-                style: const TextStyle(
+                style: AppTextStyles.headline.copyWith(
                   color: AppColors.accent,
-                  fontSize: 13.5,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -56,12 +60,12 @@ class UnderstandingMeterCard extends StatelessWidget {
                 return Stack(
                   children: [
                     Container(
-                      height: 6,
+                      height: 8,
                       width: constraints.maxWidth,
                       color: AppColors.glassLight,
                     ),
                     Container(
-                      height: 6,
+                      height: 8,
                       width: constraints.maxWidth * progress.clamp(0.0, 1.0),
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
@@ -75,7 +79,13 @@ class UnderstandingMeterCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          Text(caption, style: AppTextStyles.small),
+          Text(
+            caption,
+            style: AppTextStyles.small.copyWith(
+              color: AppColors.mutedText,
+              fontSize: 11.5,
+            ),
+          ),
         ],
       ),
     );

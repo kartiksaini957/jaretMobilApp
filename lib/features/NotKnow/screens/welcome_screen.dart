@@ -27,22 +27,24 @@ class WelcomeScreen extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: 'The advisor who\'s known your business for ',
-                        style: AppTextStyles.headline,
+                        style: AppTextStyles.headline.copyWith(fontSize: 26),
                       ),
                       TextSpan(
                         text: 'thirty years.',
-                        style: AppTextStyles.headlineAccent,
+                        style: AppTextStyles.headlineAccent.copyWith(
+                          fontSize: 26,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 16),
-                 Text(
+                Text(
                   'In about ten minutes you\'ll see your first real read, '
                   'pulled from your own numbers, in plain language. No '
                   'spreadsheets, no jargon. We\'ll show you something '
                   'useful at each step along the way.',
-                  style: AppTextStyles.body,
+                  style: AppTextStyles.body.copyWith(fontSize: 15),
                 ),
                 const SizedBox(height: 24),
                 const Spacer(),
@@ -57,10 +59,12 @@ class WelcomeScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 15),
-                 Center(
+                Center(
                   child: Text(
                     'Takes about 10 minutes',
-                    style: AppTextStyles.small,
+                    style: AppTextStyles.small.copyWith(
+                      color: const Color(0xFFA7DCF0),
+                    ),
                   ),
                 ),
               ],

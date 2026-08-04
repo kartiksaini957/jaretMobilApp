@@ -27,10 +27,12 @@ class SelectableOptionTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected
               ? AppColors.accent.withValues(alpha: 0.16)
-              : AppColors.glassDark,
+              : AppColors.white.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: selected ? AppColors.accent : AppColors.glassBorder,
+            color: selected
+                ? AppColors.accent
+                : AppColors.white.withValues(alpha: 0.16),
             width: selected ? 1.4 : 1,
           ),
         ),
@@ -39,10 +41,10 @@ class SelectableOptionTile extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: TextStyle(
-                  color: AppColors.white,
-                  fontSize: 14,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                style: AppTextStyles.body.copyWith(
+                  color: selected ? AppColors.white : AppColors.mutedText,
+                  fontSize: 15,
+                  fontWeight: selected ? FontWeight.w400 : FontWeight.w400,
                 ),
               ),
             ),

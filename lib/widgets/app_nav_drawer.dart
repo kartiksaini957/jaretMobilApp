@@ -22,6 +22,17 @@ class AppNavDrawer extends ConsumerWidget {
     'Business Profile',
     'Settings',
   ];
+ 
+  static const _icons = [
+    Icons.grid_view_outlined,
+    Icons.trending_up_rounded,
+    Icons.tab,
+    Icons.favorite_border_rounded,
+    Icons.lightbulb_outline_rounded,
+    Icons.science_outlined,
+    Icons.person_outline_rounded,
+    Icons.settings_outlined,
+  ];
 
   final int selectedIndex;
   final ValueChanged<int>? onItemSelected;
@@ -49,22 +60,32 @@ class AppNavDrawer extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                     Expanded(
-                      child: Text('LightSignal', style: AppTextStyles.logo),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(
-                        Icons.close,
-                        color: AppColors.white,
-                        size: 16,
+                    Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      style: IconButton.styleFrom(
-                        backgroundColor: AppColors.glassLight,
-                        side: const BorderSide(color: AppColors.glassBorder),
-                        shape: const CircleBorder(),
+                      child: Image.asset(
+                        'assets/images/ls_logo.png', 
+                        fit: BoxFit.contain,
                       ),
                     ),
+                    const SizedBox(width: 10),
+                    Text('LightSignal', style: AppTextStyles.logo),
+                    // IconButton(
+                    //   onPressed: () => Navigator.of(context).pop(),
+                    //   icon: const Icon(
+                    //     Icons.close,
+                    //     color: AppColors.white,
+                    //     size: 16,
+                    //   ),
+                    //   style: IconButton.styleFrom(
+                    //     backgroundColor: AppColors.glassLight,
+                    //     side: const BorderSide(color: AppColors.glassBorder),
+                    //     shape: const CircleBorder(),
+                    //   ),
+                    // ),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -74,6 +95,7 @@ class AppNavDrawer extends ConsumerWidget {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: _DrawerItem(
+                      icon: _icons[index],
                       label: label,
                       isSelected: index == selectedIndex,
                       onTap: () {
@@ -84,21 +106,36 @@ class AppNavDrawer extends ConsumerWidget {
                   );
                 }),
                 const Spacer(),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () => _logout(context, ref),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.glassBorder),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                InkWell(
+                  onTap: () => _logout(context, ref),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 14),
+
+                        Icon(Icons.logout, size: 19),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Log out',
+                          style: AppTextStyles.body.copyWith(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
-                    child:  Text(
-                      'Log out',
-                      style: AppTextStyles.buttonLabel,
-                    ),
+                    // child: OutlinedButton(
+                    //   onPressed: () => _logout(context, ref),
+                    //   // style: OutlinedButton.styleFrom(
+                    //   //   side: const BorderSide(color: AppColors.glassBorder),
+                    //   //   shape: RoundedRectangleBorder(
+                    //   //     borderRadius: BorderRadius.circular(28),
+                    //   //   ),
+                    //   //   padding: const EdgeInsets.symmetric(vertical: 14),
+                    //   // ),
+                    //   child: Text('Log out', style: AppTextStyles.buttonLabel),
+                    // ),
                   ),
                 ),
               ],
@@ -112,11 +149,12 @@ class AppNavDrawer extends ConsumerWidget {
 
 class _DrawerItem extends StatelessWidget {
   const _DrawerItem({
+    required this.icon,
     required this.label,
     required this.isSelected,
     required this.onTap,
   });
-
+  final IconData icon;
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
@@ -132,17 +170,29 @@ class _DrawerItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected ? AppColors.glassLight : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isSelected ? AppColors.glassBorder : Colors.transparent,
-          ),
+          // border: Border.all(
+          //   color: isSelected ? AppColors.glassBorder : Colors.transparent,
+          // ),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: AppColors.white,
-            fontSize: 14.5,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-          ),
+        child: Row(
+          children: [
+            Icon(icon, size: 19, color: Colors.white),
+
+            const SizedBox(width: 14),
+            Text(
+              label,
+              style: AppTextStyles.body.copyWith(
+                fontSize: 14.5,
+
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
+              ),
+              // TextStyle(
+              //   color: AppColors.white,
+              //   fontSize: 14.5,
+              //   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              // ),
+            ),
+          ],
         ),
       ),
     );

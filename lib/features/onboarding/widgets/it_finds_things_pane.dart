@@ -24,10 +24,10 @@ class ItFindsThingsPane extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-         Text(
+        Text(
           'Real alerts when something needs you. A weekly note in plain '
           'words. You run the business; it keeps watch.',
-          style: AppTextStyles.body,
+          style: AppTextStyles.body.copyWith(fontSize: 15),
         ),
         const SizedBox(height: 22),
         const _AlertCard(
@@ -81,7 +81,7 @@ class _AlertCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
                 padding: const EdgeInsets.all(4.0),
@@ -93,16 +93,16 @@ class _AlertCard extends StatelessWidget {
                     color: AppColors.blobCyan.withValues(alpha: 0.50),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Icon(icon, size: 16, color: AppColors.accent),
+                  child: Icon(icon, size: 18, color: const Color(0xFF04303F)),
                 ),
               ),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
+                  style: AppTextStyles.body.copyWith(
                     color: AppColors.white,
-                    fontSize: 13.5,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     height: 1.3,
                   ),
@@ -110,7 +110,7 @@ class _AlertCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 0),
           Padding(
             padding: const EdgeInsets.only(left: 45),
             child: Text(
@@ -124,7 +124,13 @@ class _AlertCard extends StatelessWidget {
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.only(left: 45),
-            child: Text(footer, style: AppTextStyles.small),
+            child: Text(
+              footer,
+              style: AppTextStyles.small.copyWith(
+                fontSize: 10.5,
+                color: AppColors.faintText,
+              ),
+            ),
           ),
         ],
       ),

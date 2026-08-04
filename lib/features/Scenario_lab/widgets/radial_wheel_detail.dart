@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../theme/scenario_lab_colors.dart';
+import '../../opportunity/ScenarioLab/widgets/scenario_lab_colors.dart';
 
 /// Donut wheel divided into 3 tappable segments, with a center label and
 /// a "reveal" line below for whichever segment was last tapped.

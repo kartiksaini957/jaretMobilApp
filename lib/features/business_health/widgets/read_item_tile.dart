@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/theme/app_theme.dart';
 
 import '../data/full_read_data.dart';
 import '../theme/business_health_colors.dart';
@@ -35,9 +36,9 @@ class _ReadItemTileState extends State<ReadItemTile> {
                 Expanded(
                   child: Text(
                     item.title,
-                    style: const TextStyle(
+                    style: AppTextStyles.body.copyWith(
                       color: BusinessHealthColors.white,
-                      fontSize: 13.5,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                       height: 1.35,
                     ),
@@ -57,7 +58,7 @@ class _ReadItemTileState extends State<ReadItemTile> {
           if (item.body.isNotEmpty)
             Text(
               item.body,
-              style: const TextStyle(
+              style: AppTextStyles.body.copyWith(
                 color: BusinessHealthColors.mutedText,
                 fontSize: 13,
                 height: 1.5,
@@ -67,15 +68,15 @@ class _ReadItemTileState extends State<ReadItemTile> {
             const SizedBox(height: 8),
             RichText(
               text: TextSpan(
-                style: const TextStyle(
+                style: AppTextStyles.body.copyWith(
                   color: BusinessHealthColors.mutedText,
                   fontSize: 13,
                   height: 1.5,
                 ),
                 children: [
-                  const TextSpan(
+                  TextSpan(
                     text: 'Why now: ',
-                    style: TextStyle(
+                    style: AppTextStyles.body.copyWith(
                       color: BusinessHealthColors.warnColor,
                       fontWeight: FontWeight.w700,
                     ),
@@ -97,9 +98,9 @@ class _ReadItemTileState extends State<ReadItemTile> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'POSSIBLE CAUSES',
-                    style: TextStyle(
+                    style: AppTextStyles.body.copyWith(
                       color: BusinessHealthColors.faintText,
                       fontSize: 10.5,
                       fontWeight: FontWeight.w700,
@@ -125,9 +126,9 @@ class _ReadItemTileState extends State<ReadItemTile> {
                           Expanded(
                             child: Text(
                               cause,
-                              style: const TextStyle(
+                              style: AppTextStyles.body.copyWith(
                                 color: BusinessHealthColors.mutedText,
-                                fontSize: 12,
+                                fontSize: 13,
                                 height: 1.45,
                               ),
                             ),
@@ -144,23 +145,26 @@ class _ReadItemTileState extends State<ReadItemTile> {
             onTap: () => setState(() => _actionExpanded = !_actionExpanded),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: _actionExpanded
-                      ? BusinessHealthColors.white
-                      : BusinessHealthColors.cardBorder,
-                ),
-                borderRadius: BorderRadius.circular(20),
-              ),
+              // decoration: BoxDecoration(
+              //   color: _actionExpanded
+              //       ? const Color(0xFF5FE0FF)
+              //       : BusinessHealthColors.trackFill,
+              //   // border: Border.all(
+              //   //   color: _actionExpanded
+              //   //       ? BusinessHealthColors.white
+              //   //       : BusinessHealthColors.cardBorder,
+              //   // ),
+              //   borderRadius: BorderRadius.circular(20),
+              // ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     item.actionLabel,
-                    style: const TextStyle(
-                      color: BusinessHealthColors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
+                    style: AppTextStyles.body.copyWith(
+                      color: const Color(0xFF5FE0FF),
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w700,
                       letterSpacing: 0.4,
                     ),
                   ),
@@ -177,20 +181,20 @@ class _ReadItemTileState extends State<ReadItemTile> {
             ),
           ),
           if (_actionExpanded) ...[
-            const SizedBox(height: 10),
+            // const SizedBox(height: 10),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: BusinessHealthColors.trackFill,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: BusinessHealthColors.cardBorder),
-              ),
+              // decoration: BoxDecoration(
+              //   color: BusinessHealthColors.trackFill,
+              //   borderRadius: BorderRadius.circular(12),
+              //   border: Border.all(color: BusinessHealthColors.cardBorder),
+              // ),
               child: Text(
                 item.actionBody,
-                style: const TextStyle(
+                style: AppTextStyles.body.copyWith(
                   color: BusinessHealthColors.mutedText,
-                  fontSize: 12.5,
+                  fontSize: 13,
                   height: 1.5,
                 ),
               ),

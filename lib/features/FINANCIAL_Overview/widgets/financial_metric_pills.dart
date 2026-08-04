@@ -71,7 +71,7 @@ class _Pill extends StatelessWidget {
             color: selected ? AppColors.glassLight : Colors.transparent,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: selected ? AppColors.white : AppColors.glassBorder,
+              color: selected ? const Color(0x805FE0FF) : AppColors.glassBorder,
             ),
           ),
           child: Row(
@@ -81,11 +81,15 @@ class _Pill extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: TextStyle(
+                style: AppTextStyles.small.copyWith(
                   color: selected ? AppColors.white : AppColors.faintText,
-                  fontSize: 12.5,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                 ),
+                // TextStyle(
+                //   color: selected ? AppColors.white : AppColors.faintText,
+                //   fontSize: 12.5,
+                //   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                // ),
               ),
             ],
           ),

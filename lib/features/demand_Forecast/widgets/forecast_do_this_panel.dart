@@ -7,7 +7,11 @@ import '../data/demand_forecast_data.dart';
 /// independent checked state (strikes it through) and an independent
 /// "why this, why now" expand state.
 class ForecastDoThisPanel extends StatefulWidget {
-  const ForecastDoThisPanel({super.key, required this.intro, required this.items});
+  const ForecastDoThisPanel({
+    super.key,
+    required this.intro,
+    required this.items,
+  });
 
   final String intro;
   final List<DoThisItem> items;
@@ -107,14 +111,20 @@ class _DoThisRow extends StatelessWidget {
             children: [
               Text(
                 item.title,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w700,
-                  height: 1.35,
+                style: AppTextStyles.body.copyWith(
                   decoration: checked ? TextDecoration.lineThrough : null,
-                  decorationColor: AppColors.faintText,
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
                 ),
+                // TextStyle(
+                //   color: textColor,
+                //   fontSize: 13.5,
+                //   fontWeight: FontWeight.w700,
+                //   height: 1.35,
+                //   decoration: checked ? TextDecoration.lineThrough : null,
+                //   decorationColor: AppColors.faintText,
+                // ),
               ),
               const SizedBox(height: 5),
               Wrap(
@@ -124,14 +134,18 @@ class _DoThisRow extends StatelessWidget {
                 children: [
                   Text(
                     item.dateLabel,
-                    style: TextStyle(
-                      color: checked
-                          ? AppColors.faintText
-                          : AppColors.warnDot,
+                    style: AppTextStyles.body.copyWith(
+                      color: checked ? AppColors.faintText : AppColors.warnDot,
                       fontSize: 11.5,
                       fontWeight: FontWeight.w600,
                       decoration: checked ? TextDecoration.lineThrough : null,
                     ),
+                    // TextStyle(
+                    //   color: checked ? AppColors.faintText : AppColors.warnDot,
+                    //   fontSize: 11.5,
+                    //   fontWeight: FontWeight.w600,
+                    //   decoration: checked ? TextDecoration.lineThrough : null,
+                    // ),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -144,11 +158,16 @@ class _DoThisRow extends StatelessWidget {
                     ),
                     child: Text(
                       item.priority,
-                      style: TextStyle(
+                      style: AppTextStyles.body.copyWith(
                         color: _priorityColor,
                         fontSize: 9.5,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                       ),
+                      //  TextStyle(
+                      //   color: _priorityColor,
+                      //   fontSize: 9.5,
+                      //   fontWeight: FontWeight.w800,
+                      // ),
                     ),
                   ),
                   Container(
@@ -167,7 +186,7 @@ class _DoThisRow extends StatelessWidget {
                           width: 5,
                           height: 5,
                           decoration: const BoxDecoration(
-                            color: AppColors.goodDot,
+                            color: AppColors.critDot,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -189,8 +208,9 @@ class _DoThisRow extends StatelessWidget {
                   child: Text(
                     '${expanded ? '▾' : '▸'} why this, why now',
                     style: AppTextStyles.small.copyWith(
-                      color: AppColors.accent,
+                      color: Colors.white,
                       fontWeight: FontWeight.w600,
+                      fontSize: 11.0,
                     ),
                   ),
                 ),
@@ -199,9 +219,7 @@ class _DoThisRow extends StatelessWidget {
                 Text(
                   item.whyBody,
                   style: TextStyle(
-                    color: checked
-                        ? AppColors.faintText
-                        : AppColors.mutedText,
+                    color: checked ? AppColors.faintText : AppColors.mutedText,
                     fontSize: 12.5,
                     height: 1.5,
                     decoration: checked ? TextDecoration.lineThrough : null,
@@ -211,7 +229,7 @@ class _DoThisRow extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     item.whyDollarLine!,
-                    style: TextStyle(
+                    style: AppTextStyles.body.copyWith(
                       color: checked
                           ? AppColors.faintText
                           : AppColors.mutedText,
@@ -219,6 +237,14 @@ class _DoThisRow extends StatelessWidget {
                       height: 1.5,
                       decoration: checked ? TextDecoration.lineThrough : null,
                     ),
+                    // TextStyle(
+                    //   color: checked
+                    //       ? AppColors.faintText
+                    //       : AppColors.mutedText,
+                    //   fontSize: 12.5,
+                    //   height: 1.5,
+                    //   decoration: checked ? TextDecoration.lineThrough : null,
+                    // ),
                   ),
                 ],
               ],

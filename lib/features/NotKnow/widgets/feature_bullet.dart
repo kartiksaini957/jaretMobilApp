@@ -25,10 +25,17 @@ class FeatureBullet extends StatelessWidget {
           height: 30,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: AppColors.blobCyan.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(8),
+            gradient: const LinearGradient(
+              begin: Alignment(-0.25, -1.0), // ~140deg
+              end: Alignment(0.25, 1.0),
+              colors: [
+                Color(0xFF5FE0FF), // rgb(95, 224, 255)
+                Color(0xFF0E9ED0), // rgb(14, 158, 208)
+              ],
+            ),
+            borderRadius: BorderRadius.circular(9),
           ),
-          child: Icon(icon, size: 16, color: AppColors.accent),
+          child: Icon(icon, size: 16, color: Colors.black),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -37,9 +44,9 @@ class FeatureBullet extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: AppTextStyles.body.copyWith(
                   color: AppColors.white,
-                  fontSize: 14,
+                  fontSize: 13.5,
                   fontWeight: FontWeight.w700,
                 ),
               ),

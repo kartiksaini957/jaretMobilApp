@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/features/opportunity/ScenarioLab/cenario_lab_screen.dart';
+import 'package:flutter_application_1/features/opportunity/opportunities_screen.dart';
 
 import '../../theme/app_theme.dart';
 import '../../widgets/app_nav_drawer.dart';
@@ -19,6 +21,7 @@ import 'widgets/profile_info_card.dart';
 import 'widgets/profile_insight_banner.dart';
 import 'widgets/profile_sections_list.dart';
 import 'widgets/understanding_meter_card.dart';
+import 'dart:math' show pi;
 
 /// Business Profile hub: completion snapshot, an AI insight, quick links
 /// into the classification/notes views, and the full section list. Every
@@ -36,9 +39,8 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   bool _showInsight = true;
 
   static const _totalSections = 16;
-  static int get _completeCount => profileSections
-      .where((s) => s.status == SectionStatus.complete)
-      .length;
+  static int get _completeCount =>
+      profileSections.where((s) => s.status == SectionStatus.complete).length;
 
   void _openCustomersMarketFlow() {
     Navigator.of(context).push(
@@ -49,9 +51,9 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   }
 
   void _openClassification() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const ClassificationScreen()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const ClassificationScreen()));
   }
 
   void _openOwnerNotes() {
@@ -94,10 +96,16 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
       ).push(MaterialPageRoute(builder: (_) => const BusinessHealthScreen()));
       return;
     }
+    if (index == 4) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const OpportunitiesScreen()));
+      return;
+    }
     if (index == 5) {
       Navigator.of(
         context,
-      ).push(MaterialPageRoute(builder: (_) => const ScenarioLabScreen()));
+      ).push(MaterialPageRoute(builder: (_) => const ScenariooLabScreen()));
       return;
     }
     Navigator.of(context).pushReplacement(
@@ -126,65 +134,127 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                RichText(
-                  text: TextSpan(
-                    style: AppTextStyles.headline,
-                    children: [
-                      TextSpan(text: '$_completeCount'),
-                      TextSpan(
-                        text: ' of $_totalSections sections complete',
-                        style: AppTextStyles.body.copyWith(
-                          color: AppColors.faintText,
-                          fontSize: 15,
-                        ),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color.fromRGBO(95, 224, 255, 0.16),
+                        Color.fromRGBO(95, 224, 255, 0.06),
+                      ],
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color.fromRGBO(0, 20, 40, 0.50),
+                        blurRadius: 55,
+                        spreadRadius: -22,
+                        offset: Offset(0, 22),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'The more LightSignal knows, the sharper every read '
-                  'gets — every agent sees this profile on every call.',
-                  style: AppTextStyles.small,
-                ),
-                const SizedBox(height: 16),
-                const UnderstandingMeterCard(
-                  statusLabel: 'Building',
-                  progress: 0.58,
-                  caption:
-                      'This moves as you tell us things we can actually '
-                      'use — not by how many boxes you tick.',
-                ),
-                if (_showInsight) ...[
-                  const SizedBox(height: 16),
-                  ProfileInsightBanner(
-                    eyebrow: 'BUSINESSES LIKE YOURS',
-                    leadText: 'Slice shops like yours commonly find ',
-                    highlight: '2–3 points of margin',
-                    trailText:
-                        ' hiding in vendor pricing. Finish your Operations '
-                        "answers and we'll run the same check on your "
-                        'cheese and flour costs.',
-                    onDismiss: () => setState(() => _showInsight = false),
-                  ),
-                ],
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: _openCustomersMarketFlow,
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: AppColors.glassLight,
-                      side: const BorderSide(color: AppColors.glassBorder),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          style: AppTextStyles.headline,
+                          children: [
+                            TextSpan(
+                              text: '$_completeCount',
+                              style: AppTextStyles.headline.copyWith(
+                                color: Colors.white,
+                                fontSize: 38,
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' of $_totalSections sections complete',
+                              style: AppTextStyles.headline.copyWith(
+                                color: AppColors.faintText,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      'Continue — Customers & Market →',
-                      style: AppTextStyles.buttonLabel.copyWith(fontSize: 14),
-                    ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'The more LightSignal knows, the sharper every read '
+                        'gets — every agent sees this profile on every call.',
+                        style: AppTextStyles.small,
+                      ),
+                      const SizedBox(height: 16),
+                      const UnderstandingMeterCard(
+                        statusLabel: 'Building',
+                        progress: 0.58,
+                        caption:
+                            'This moves as you tell us things we can actually '
+                            'use — not by how many boxes you tick.',
+                      ),
+                      if (_showInsight) ...[
+                        const SizedBox(height: 16),
+                        ProfileInsightBanner(
+                          eyebrow: 'BUSINESSES LIKE YOURS',
+                          leadText: 'Slice shops like yours commonly find ',
+                          highlight: '2–3 points of margin',
+                          trailText:
+                              ' hiding in vendor pricing. Finish your Operations '
+                              "answers and we'll run the same check on your "
+                              'cheese and flour costs.',
+                          onDismiss: () => setState(() => _showInsight = false),
+                        ),
+                      ],
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: Ink(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                transform: GradientRotation(160 * pi / 180),
+                                colors: const [
+                                  Color(0xFF7FE3FF), // rgb(127,227,255)
+                                  Color(0xFF3FBFE0), // rgb(63,191,224)
+                                ],
+                              ),
+
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color.fromRGBO(5, 197, 250, 0.60),
+                                  blurRadius: 26,
+                                  spreadRadius: -12,
+                                  offset: Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              onTap: _openCustomersMarketFlow,
+                              child: Center(
+                                child: Text(
+                                  'Continue — Customers & Market →',
+                                  style: AppTextStyles.body.copyWith(
+                                    color: const Color(0xFF04303F),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -194,7 +264,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                       '12 classification dimensions from your profile and '
                       'data — correct anything we got wrong.',
                   pillLabel: 'REVIEW · 2 LOW',
-                  pillColor: AppColors.warnDot,
+                  // pillColor: AppColors.warnDot,
                   onPillTap: _openClassification,
                 ),
                 const SizedBox(height: 16),
@@ -207,7 +277,12 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                   onPillTap: _openOwnerNotes,
                 ),
                 const SizedBox(height: 24),
-                Text('PROFILE SECTIONS', style: AppTextStyles.eyebrow),
+                Text(
+                  'PROFILE SECTIONS',
+                  style: AppTextStyles.eyebrow.copyWith(
+                    color: const Color(0xFFA7DCF0),
+                  ),
+                ),
                 const SizedBox(height: 10),
                 ProfileSectionsList(
                   sections: profileSections,

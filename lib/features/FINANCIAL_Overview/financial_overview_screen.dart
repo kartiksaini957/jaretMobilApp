@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/features/opportunity/ScenarioLab/cenario_lab_screen.dart';
+import 'package:flutter_application_1/features/opportunity/opportunities_screen.dart';
 
 import '../../theme/app_theme.dart';
 import '../../widgets/app_nav_drawer.dart';
@@ -52,10 +54,16 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
       ).push(MaterialPageRoute(builder: (_) => const BusinessHealthScreen()));
       return;
     }
+     if (index == 4) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const OpportunitiesScreen()));
+      return;
+    }
     if (index == 5) {
       Navigator.of(
         context,
-      ).push(MaterialPageRoute(builder: (_) => const ScenarioLabScreen()));
+      ).push(MaterialPageRoute(builder: (_) => const ScenariooLabScreen()));
       return;
     }
     if (index == 6) {
@@ -111,7 +119,10 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.glassBorder),
       ),
-      child: Text('$label view is still being built.', style: AppTextStyles.small),
+      child: Text(
+        '$label view is still being built.',
+        style: AppTextStyles.small,
+      ),
     );
   }
 
@@ -135,8 +146,7 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const FinancialStatusBanner(
-                  headline:
-                      "You're profitable — 1 thing needs you this week.",
+                  headline: "You're profitable — 1 thing needs you this week.",
                   freshnessLabel: 'Updated 2h ago · QuickBooks + Square synced',
                 ),
                 const SizedBox(height: 14),
@@ -148,7 +158,7 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
                 ),
                 const SizedBox(height: 12),
                 AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 220),
+                  duration: const Duration(milliseconds: 300),
                   child: _buildCategoryContent(),
                 ),
               ],

@@ -27,7 +27,7 @@ class ProfileStartScreen extends StatelessWidget {
                       children: [
                         const AppLogo(),
                         const SizedBox(height: 24),
-                         Text(
+                        Text(
                           'FIRST READ IS BUILDING',
                           style: AppTextStyles.eyebrow,
                         ),
@@ -38,31 +38,37 @@ class ProfileStartScreen extends StatelessWidget {
                               TextSpan(
                                 text:
                                     'While that syncs, the more we know, the ',
-                                style: AppTextStyles.headline,
+                                style: AppTextStyles.headline.copyWith(
+                                  fontSize: 22,
+                                ),
                               ),
                               TextSpan(
-                                text: 'sharper we',
-                                style: AppTextStyles.headlineAccent,
+                                text: 'sharper we get.',
+                                style: AppTextStyles.headlineAccent.copyWith(
+                                  fontSize: 22,
+                                ),
                               ),
-                              TextSpan(
-                                text: ' get.',
-                                style: AppTextStyles.headline,
-                              ),
+                              // TextSpan(
+                              //   text: '',
+                              //   style: AppTextStyles.headline.copyWith(
+                              //     fontSize: 22,
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),
                         const SizedBox(height: 12),
-                         Text(
+                        Text(
                           'Your books give us the numbers. A few more details '
                           'about how your business actually runs, and every read '
                           'gets sharper. Fill what you can now, come back for the '
                           'rest anytime.',
-                          style: AppTextStyles.body,
+                          style: AppTextStyles.body.copyWith(fontSize: 13),
                         ),
                         const SizedBox(height: 22),
                         Row(
                           children: [
-                             Expanded(
+                            Expanded(
                               child: Text(
                                 'How well we understand your business',
                                 style: AppTextStyles.small,
@@ -72,6 +78,7 @@ class ProfileStartScreen extends StatelessWidget {
                               'Building',
                               style: AppTextStyles.small.copyWith(
                                 color: AppColors.accent,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -80,22 +87,47 @@ class ProfileStartScreen extends StatelessWidget {
                         const SizedBox(height: 8),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(4),
-                          child: const LinearProgressIndicator(
-                            value: 0.22,
-                            minHeight: 4,
-                            backgroundColor: AppColors.glassBorderSoft,
-                            color: AppColors.accent,
+                          child: SizedBox(
+                            height: 7.9,
+                            child: Stack(
+                              children: [
+                                // Background
+                                Container(
+                                  color: AppColors.white.withValues(
+                                    alpha: 0.14,
+                                  ),
+                                ),
+
+                                // Progress
+                                FractionallySizedBox(
+                                  widthFactor: 0.30, // 22%
+                                  alignment: Alignment.centerLeft,
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight, // 90deg
+                                        colors: [
+                                          Color(0xFF5FE0FF),
+                                          Color(0xFF0E9ED0),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(height: 22),
                         NoteCard(
                           eyebrow: 'A BUSINESS NEAR YOU',
-                          body: const TextSpan(
+                          body: TextSpan(
                             children: [
                               TextSpan(text: 'A restaurant near you found '),
                               TextSpan(
                                 text: '\$3,200 a month',
-                                style: TextStyle(
+                                style: AppTextStyles.body.copyWith(
                                   color: AppColors.goodText,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -128,7 +160,7 @@ class ProfileStartScreen extends StatelessWidget {
                             ).popUntil((route) => route.isFirst),
                             child: Text(
                               'Skip for now, show my dashboard',
-                              style: AppTextStyles.small.copyWith(
+                              style: AppTextStyles.body.copyWith(
                                 color: AppColors.white,
                                 decoration: TextDecoration.underline,
                                 decorationColor: AppColors.white,

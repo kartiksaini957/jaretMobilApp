@@ -30,16 +30,18 @@ class ValuePreviewScreen extends StatelessWidget {
                       children: [
                         const AppLogo(),
                         const SizedBox(height: 24),
-                         Text(
+
+                        const StepProgressBar(step: 2, totalSteps: 3),
+                        const SizedBox(height: 5),
+
+                        Text(
                           'STEP 2 OF 3 · WHAT WE\'LL DO',
                           style: AppTextStyles.eyebrow,
                         ),
-                        const SizedBox(height: 10),
-                        const StepProgressBar(step: 2, totalSteps: 3),
                         const SizedBox(height: 20),
                         Text(
                           'Based on what you told us, LightSignal will...',
-                          style: AppTextStyles.headline,
+                          style: AppTextStyles.headline.copyWith(fontSize: 22),
                         ),
                         const SizedBox(height: 16),
                         Container(
@@ -50,16 +52,29 @@ class ValuePreviewScreen extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.glassDark,
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(color: AppColors.glassBorder),
+                            borderRadius: BorderRadius.circular(14),
+                            // border: Border.all(color: AppColors.glassBorder),
                           ),
-                          child: const Text(
-                            'You said slow weeks blindside you',
-                            style: TextStyle(
-                              color: AppColors.mutedText,
-                              fontSize: 14,
-                              // fontStyle: FontStyle.italic,
-                            ),
+                          child: Row(
+                            children: [
+                              Text(
+                                'You said ',
+                                style: AppTextStyles.body.copyWith(
+                                  color: AppColors.mutedText,
+                                  fontSize: 13,
+                                  // fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                              Text(
+                                'slow weeks blindside you',
+                                style: AppTextStyles.body.copyWith(
+                                  color: AppColors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  // fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 22),
@@ -90,10 +105,10 @@ class ValuePreviewScreen extends StatelessWidget {
                               'Catering, events, slow-day promotions worth your time.',
                         ),
                         const SizedBox(height: 22),
-                         Text(
+                        Text(
                           'To do this with your real numbers, we need to read your '
                           'books. That\'s next. It takes about a minute.',
-                          style: AppTextStyles.body,
+                          style: AppTextStyles.body.copyWith(fontSize: 12.5),
                         ),
                         const SizedBox(height: 24),
                         const Spacer(),

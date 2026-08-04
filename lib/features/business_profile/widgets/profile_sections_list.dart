@@ -17,22 +17,25 @@ class ProfileSectionsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColors.glassDark,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder),
-      ),
-      child: Column(
-        children: [
-          for (var i = 0; i < sections.length; i++)
-            _SectionRow(
-              data: sections[i],
-              showDivider: i != sections.length - 1,
-              onTap: () => onSectionTap(sections[i]),
-            ),
-        ],
+      decoration: BoxDecoration(),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: AppColors.glassDark.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.glassLight),
+        ),
+        child: Column(
+          children: [
+            for (var i = 0; i < sections.length; i++)
+              _SectionRow(
+                data: sections[i],
+                showDivider: i != sections.length - 1,
+                onTap: () => onSectionTap(sections[i]),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -74,10 +77,7 @@ class _SectionRow extends StatelessWidget {
             children: [
               SizedBox(
                 width: 20,
-                child: Text(
-                  '${data.number}',
-                  style: AppTextStyles.small,
-                ),
+                child: Text('${data.number}', style: AppTextStyles.small),
               ),
               const SizedBox(width: 6),
               Expanded(
@@ -98,7 +98,7 @@ class _SectionRow extends StatelessWidget {
               ),
               Text(
                 data.statusLabel,
-                style: AppTextStyles.small,
+                style: AppTextStyles.small.copyWith(fontSize: 10.5),
               ),
             ],
           ),

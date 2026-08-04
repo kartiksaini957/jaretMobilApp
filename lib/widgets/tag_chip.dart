@@ -18,9 +18,9 @@ class TagChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: const TextStyle(
+        style: AppTextStyles.small.copyWith(
           color: AppColors.mutedText,
-          fontSize: 11.5,
+          fontSize: 10.5,
           fontWeight: FontWeight.w600,
         ),
       ),

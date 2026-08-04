@@ -29,33 +29,39 @@ class ConnectBooksScreen extends StatelessWidget {
                       children: [
                         const AppLogo(),
                         const SizedBox(height: 24),
-                         Text(
+
+                        const StepProgressBar(step: 3, totalSteps: 3),
+                        const SizedBox(height: 5),
+
+                        Text(
                           'STEP 3 OF 3 · CONNECT BOOKS',
                           style: AppTextStyles.eyebrow,
                         ),
-                        const SizedBox(height: 10),
-                        const StepProgressBar(step: 3, totalSteps: 3),
                         const SizedBox(height: 20),
                         Text.rich(
                           TextSpan(
                             children: [
                               TextSpan(
                                 text: 'This is where it ',
-                                style: AppTextStyles.headline,
+                                style: AppTextStyles.headline.copyWith(
+                                  fontSize: 23,
+                                ),
                               ),
                               TextSpan(
                                 text: 'gets real.',
-                                style: AppTextStyles.headlineAccent,
+                                style: AppTextStyles.headlineAccent.copyWith(
+                                  fontSize: 23,
+                                ),
                               ),
                             ],
                           ),
                         ),
                         const SizedBox(height: 12),
-                         Text(
+                        Text(
                           'Connect read-only. We can never move money or change a '
                           'record, we only read, so we can tell you what\'s going '
                           'on. One minute, and your first read starts building.',
-                          style: AppTextStyles.body,
+                          style: AppTextStyles.body.copyWith(fontSize: 13),
                         ),
                         const SizedBox(height: 22),
                         const ConnectionCard(
@@ -77,22 +83,26 @@ class ConnectBooksScreen extends StatelessWidget {
                           'supported.',
                           style: AppTextStyles.small.copyWith(
                             color: AppColors.faintText,
+                            fontSize: 12,
                           ),
                         ),
                         const SizedBox(height: 20),
-                        const Text(
+                        Text(
                           'We already see 14 months of history.',
-                          style: TextStyle(
+                          style: AppTextStyles.small.copyWith(
                             color: AppColors.white,
-                            fontSize: 14.5,
+                            fontSize: 12.5,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                         const SizedBox(height: 4),
-                         Text(
+                        Text(
                           'Enough to start reading your margins and cash today, '
                           'not weeks from now. Syncing now.',
-                          style: AppTextStyles.body,
+                          style: AppTextStyles.body.copyWith(
+                            color: const Color(0xFFA6F5DC),
+                            fontSize: 12.5,
+                          ),
                         ),
                         const SizedBox(height: 24),
                         const Spacer(),

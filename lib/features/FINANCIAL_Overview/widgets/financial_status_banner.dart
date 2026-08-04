@@ -38,10 +38,17 @@ class FinancialStatusBanner extends StatelessWidget {
               children: [
                 Text(
                   headline,
-                  style: AppTextStyles.buttonLabel.copyWith(fontSize: 14),
+                  style: AppTextStyles.headlineAccent.copyWith(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 4),
-                Text(freshnessLabel, style: AppTextStyles.small),
+                Text(
+                  freshnessLabel,
+                  style: AppTextStyles.small.copyWith(fontSize: 11.5),
+                ),
               ],
             ),
           ),

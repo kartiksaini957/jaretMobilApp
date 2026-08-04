@@ -19,8 +19,7 @@ class FinancialMetricDetailCard extends StatefulWidget {
       _FinancialMetricDetailCardState();
 }
 
-class _FinancialMetricDetailCardState
-    extends State<FinancialMetricDetailCard> {
+class _FinancialMetricDetailCardState extends State<FinancialMetricDetailCard> {
   bool _vsPeers = false;
 
   @override
@@ -35,6 +34,7 @@ class _FinancialMetricDetailCardState
     MetricTone.bad => AppColors.critDot,
   };
 
+
   @override
   Widget build(BuildContext context) {
     final metric = widget.metric;
@@ -44,7 +44,7 @@ class _FinancialMetricDetailCardState
       decoration: BoxDecoration(
         color: AppColors.glassDark,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder),
+        // border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,25 +54,27 @@ class _FinancialMetricDetailCardState
               Expanded(
                 child: Text(
                   metric.label,
-                  style: AppTextStyles.buttonLabel.copyWith(fontSize: 15),
+                  style: AppTextStyles.headlineAccent.copyWith(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 9,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(
                   color: _toneColor.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   metric.statusLabel,
-                  style: TextStyle(
-                    color: _toneColor,
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: AppTextStyles.small.copyWith(color: _toneColor),
+                  // TextStyle(
+                  //   color: _toneColor,
+                  //   fontSize: 10.5,
+                  //   fontWeight: FontWeight.w800,
+                  // ),
                 ),
               ),
             ],
@@ -80,16 +82,21 @@ class _FinancialMetricDetailCardState
           const SizedBox(height: 6),
           Text(
             metric.value,
-            style: const TextStyle(
-              color: AppColors.white,
-              fontSize: 34,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.headlineAccent.copyWith(
+              fontSize: 38,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
             ),
+            // const TextStyle(
+            //   color: AppColors.white,
+            //   fontSize: 34,
+            //   fontWeight: FontWeight.w800,
+            // ),
           ),
           const SizedBox(height: 4),
           Text(metric.trendLabel, style: AppTextStyles.small),
           const SizedBox(height: 14),
-          FinancialBarChart(values: metric.chartValues),
+          const MiniBarChart(),
           const SizedBox(height: 6),
           Text(
             metric.chartCaption,
@@ -116,7 +123,7 @@ class _FinancialMetricDetailCardState
           const SizedBox(height: 12),
           Text(
             _vsPeers ? metric.vsPeersBody : metric.vsLastMonthBody,
-            style: AppTextStyles.small.copyWith(height: 1.5),
+            style: AppTextStyles.small.copyWith(height: 1.5, fontSize: 13.5),
           ),
           const SizedBox(height: 12),
           Container(
@@ -161,11 +168,12 @@ class _FinancialMetricDetailCardState
                   ),
                   child: Text(
                     metric.statusLabel,
-                    style: TextStyle(
-                      color: _toneColor,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                    ),
+                    style: AppTextStyles.small.copyWith(color: _toneColor),
+                    // TextStyle(
+                    //   color: _toneColor,
+                    //   fontSize: 10,
+                    //   fontWeight: FontWeight.w800,
+                    // ),
                   ),
                 ),
               ],
@@ -177,7 +185,10 @@ class _FinancialMetricDetailCardState
           for (var i = 0; i < metric.drivingFactors.length; i++)
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: _DrivingRow(index: i + 1, factor: metric.drivingFactors[i]),
+              child: _DrivingRow(
+                index: i + 1,
+                factor: metric.drivingFactors[i],
+              ),
             ),
           const SizedBox(height: 8),
           Row(
@@ -193,7 +204,7 @@ class _FinancialMetricDetailCardState
                     side: const BorderSide(color: AppColors.glassBorder),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: Text(
@@ -214,7 +225,7 @@ class _FinancialMetricDetailCardState
                     side: const BorderSide(color: AppColors.glassBorder),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: Text(
@@ -229,7 +240,7 @@ class _FinancialMetricDetailCardState
           Text(
             'Confidence: High (98% data coverage) · Square POS synced '
             '2h ago',
-            style: AppTextStyles.small.copyWith(fontSize: 10.5),
+            style: AppTextStyles.small.copyWith(fontSize: 11.5),
           ),
         ],
       ),
@@ -259,19 +270,20 @@ class _ToggleButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
           decoration: BoxDecoration(
-            color: selected ? AppColors.accent : Colors.transparent,
+            color: Colors.transparent,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: selected ? AppColors.accent : AppColors.glassBorder,
+              color: selected ? const Color(0x805FE0FF) : AppColors.glassBorder,
             ),
           ),
           child: Text(
             label,
-            style: TextStyle(
-              color: selected ? AppColors.ink : AppColors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
+            style: AppTextStyles.small,
+            // TextStyle(
+            //   color: AppColors.white,
+            //   fontSize: 12,
+            //   fontWeight: FontWeight.w700,
+            // ),
           ),
         ),
       ),
@@ -297,10 +309,7 @@ class _DrivingRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          width: 18,
-          child: Text('$index', style: AppTextStyles.small),
-        ),
+        SizedBox(width: 18, child: Text('$index', style: AppTextStyles.small)),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,8 +331,8 @@ class _DrivingRow extends StatelessWidget {
           factor.impact,
           style: TextStyle(
             color: _impactColor,
-            fontSize: 12.5,
-            fontWeight: FontWeight.w800,
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ],

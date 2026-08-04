@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_application_1/theme/app_theme.dart';
+import 'dart:math' show pi;
 import '../theme/business_health_colors.dart';
 
 /// Small grid tile used for each health category (Profitability, Cash,
@@ -34,102 +35,147 @@ class HealthCategoryCard extends StatelessWidget {
         : BusinessHealthColors.dotNeutral;
 
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: BusinessHealthColors.cardFill,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: BusinessHealthColors.cardBorder),
+        borderRadius: BorderRadius.circular(20),
+
+        // First Gradient
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          transform: GradientRotation(160 * pi / 180),
+          colors: const [
+            Color.fromRGBO(8, 40, 56, 0.34),
+            Color.fromRGBO(8, 40, 56, 0.30),
+          ],
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: BusinessHealthColors.faintText,
-              fontSize: 11.5,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.6,
-            ),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        // decoration: BoxDecoration(
+        //   color: BusinessHealthColors.cardFill,
+        //   borderRadius: BorderRadius.circular(16),
+        //   border: Border.all(color: BusinessHealthColors.cardBorder),
+        // ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+
+          // Border
+          border: Border.all(
+            color: const Color.fromRGBO(255, 255, 255, 0.30),
+            width: 1.25,
           ),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '$score',
-                style: const TextStyle(
-                  color: BusinessHealthColors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  height: 1,
-                ),
+
+          // Second Gradient
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            transform: GradientRotation(160 * pi / 180),
+            colors: const [
+              Color.fromRGBO(255, 255, 255, 0.14),
+              Color.fromRGBO(255, 255, 255, 0.05),
+              Color.fromRGBO(255, 255, 255, 0.03),
+            ],
+            stops: const [
+              0.0, // 0%
+              0.4, // 40%
+              1.0, // 100%
+            ],
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: AppTextStyles.body.copyWith(
+                color: BusinessHealthColors.faintText,
+                fontSize: 10.5,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.6,
               ),
-              if (deltaText != null) ...[
-                const SizedBox(width: 6),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 3),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '$score',
+                  style: AppTextStyles.headline.copyWith(
+                    color: BusinessHealthColors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w700,
+                    height: 1,
+                  ),
+                ),
+                if (deltaText != null) ...[
+                  const SizedBox(width: 6),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 3),
+                    child: Text(
+                      deltaText!,
+                      style: AppTextStyles.body.copyWith(
+                        color: deltaPositive
+                            ? BusinessHealthColors.goodText
+                            : BusinessHealthColors.negativeText,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: dotColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Expanded(
                   child: Text(
-                    deltaText!,
-                    style: TextStyle(
-                      color: deltaPositive
-                          ? BusinessHealthColors.goodText
-                          : BusinessHealthColors.negativeText,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                    statusText,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.body.copyWith(
+                      color: BusinessHealthColors.faintText,
+                      fontSize: 10.5,
                     ),
                   ),
                 ),
               ],
-            ],
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 5),
-              Expanded(
-                child: Text(
-                  statusText,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: BusinessHealthColors.faintText,
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return Stack(
-                  children: [
-                    Container(
-                      height: 4,
-                      width: constraints.maxWidth,
-                      color: BusinessHealthColors.trackFill,
-                    ),
-                    Container(
-                      height: 4,
-                      width: constraints.maxWidth * progress.clamp(0.0, 1.0),
-                      color: statusGood == true
-                          ? BusinessHealthColors.dotGood
-                          : BusinessHealthColors.white,
-                    ),
-                  ],
-                );
-              },
             ),
-          ),
-        ],
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Stack(
+                    children: [
+                      Container(
+                        height: 4,
+                        width: constraints.maxWidth,
+                        color: BusinessHealthColors.trackFill,
+                      ),
+                      Container(
+                        height: 4,
+                        width: constraints.maxWidth * progress.clamp(0.0, 1.0),
+                        color: statusGood == true
+                            ? BusinessHealthColors.dotGood
+                            : BusinessHealthColors.white,
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

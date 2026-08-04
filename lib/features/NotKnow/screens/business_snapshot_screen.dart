@@ -62,16 +62,22 @@ class _BusinessSnapshotScreenState extends State<BusinessSnapshotScreen> {
               children: [
                 const AppLogo(),
                 const SizedBox(height: 24),
-                 Text(
+
+                // const SizedBox(height: 10),
+                const StepProgressBar(step: 1, totalSteps: 3),
+                const SizedBox(height: 5),
+
+                Text(
                   'STEP 1 OF 3 · YOUR BUSINESS',
                   style: AppTextStyles.eyebrow,
                 ),
-                const SizedBox(height: 10),
-                const StepProgressBar(step: 1, totalSteps: 3),
                 const SizedBox(height: 20),
-                Text('Tell us the basics.', style: AppTextStyles.headline),
+                Text(
+                  'Tell us the basics.',
+                  style: AppTextStyles.headline.copyWith(fontSize: 23),
+                ),
                 const SizedBox(height: 8),
-                 Text(
+                Text(
                   'Just enough to recognize your business. We\'ll fill in '
                   'the rest ourselves.',
                   style: AppTextStyles.body,
@@ -98,12 +104,12 @@ class _BusinessSnapshotScreenState extends State<BusinessSnapshotScreen> {
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'What keeps you up at night?',
-                  style: TextStyle(
+                  style: AppTextStyles.body.copyWith(
                     color: AppColors.mutedText,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -124,13 +130,14 @@ class _BusinessSnapshotScreenState extends State<BusinessSnapshotScreen> {
                     children: [
                       TextSpan(
                         text: 'We found your Google listing. ',
-                        style: TextStyle(
+                        style: AppTextStyles.body.copyWith(
                           color: AppColors.white,
+                          fontSize: 12.5,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const TextSpan(
-                        style: TextStyle(
+                      TextSpan(
+                        style: AppTextStyles.body.copyWith(
                           color: AppColors.goodText,
                           fontWeight: FontWeight.w500,
                         ),

@@ -55,7 +55,7 @@ class GreetingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.glassDark,
         borderRadius: BorderRadius.circular(16),
@@ -66,24 +66,38 @@ class GreetingCard extends StatelessWidget {
         children: [
           Text(
             _today,
-            style: AppTextStyles.small.copyWith(color: AppColors.faintText),
+            style: AppTextStyles.small.copyWith(
+              color: AppColors.appfaintText,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
             '$_greeting, $_firstName',
-            style: AppTextStyles.headline.copyWith(fontSize: 22),
+            style: AppTextStyles.headline.copyWith(fontSize: 25),
           ),
-          const SizedBox(height: 18),
-          Divider(),
-          const SizedBox(height: 18),
+          const SizedBox(height: 10),
+          Divider(color: Colors.white, height: 0.1, thickness: 0.1),
+          const SizedBox(height: 10),
 
-          Text('YOUR BUSINESS RIGHT NOW', style: AppTextStyles.eyebrow),
+          Text(
+            'YOUR BUSINESS RIGHT NOW',
+            style: AppTextStyles.eyebrow.copyWith(
+              color: AppColors.mute,
+              fontSize: 11.0,
+              height: 1.54,
+            ),
+          ),
           const SizedBox(height: 8),
           Text(
             summary,
-            style: AppTextStyles.body.copyWith(
+            style: AppTextStyles.headline.copyWith(
               color: AppColors.white,
-              fontSize: 22.0,
+              height: 1.54,
+              // letterSpacing: -0.2,
+              fontSize: 20.0,
+              // height: 26.4,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

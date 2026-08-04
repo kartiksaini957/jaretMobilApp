@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/scenario_lab_colors.dart';
+import '../../opportunity/ScenarioLab/widgets/scenario_lab_colors.dart';
 
 /// "Recommended steps" detail panel used for the Steps category.
 class StepsDetailPanel extends StatelessWidget {

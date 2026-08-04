@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/features/opportunity/ScenarioLab/cenario_lab_screen.dart';
+import 'package:flutter_application_1/features/opportunity/opportunities_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../bottombar/app_bottom_bar.dart';
@@ -46,10 +48,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   static const _bottomItems = [
     BottomBarItem(icon: Icons.check_circle_outline, badgeCount: 1),
     BottomBarItem(icon: Icons.flag_outlined, badgeCount: 3),
-    BottomBarItem(icon: Icons.bolt_outlined, badgeCount: 1),
-    BottomBarItem(icon: Icons.show_chart, badgeCount: 3),
+    // BottomBarItem(icon: Icons.bolt, badgeCount: 1),
+    BottomBarItem(image: 'assets/images/light.png', badgeCount: 1),
+    // BottomBarItem(icon: Icons.show_chart, badgeCount: 3),
+    BottomBarItem(image: 'assets/images/infniti.png', badgeCount: 3),
+
     BottomBarItem(icon: Icons.bar_chart, badgeCount: 5),
-    BottomBarItem(icon: Icons.chat_bubble_outline),
+    BottomBarItem(icon: Icons.chat),
   ];
 
   late int _selectedTab = widget.initialTabIndex;
@@ -95,10 +100,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       ).push(MaterialPageRoute(builder: (_) => const BusinessHealthScreen()));
       return;
     }
+    if (index == 4) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const OpportunitiesScreen()));
+      return;
+    }
     if (index == 5) {
       Navigator.of(
         context,
-      ).push(MaterialPageRoute(builder: (_) => const ScenarioLabScreen()));
+      ).push(MaterialPageRoute(builder: (_) => const ScenariooLabScreen()));
       return;
     }
     if (index == 6) {
@@ -156,22 +167,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GreetingCard(
-                      name: ref.watch(loginControllerProvider).user?.name ?? _cachedName ?? '',
+                      name:
+                          ref.watch(loginControllerProvider).user?.name ??
+                          _cachedName ??
+                          '',
                       summary:
                           'Revenue up 18.5% MoM and margin holding — cash '
                           'runway at 8 months keeps you out of the danger '
                           'zone.',
                     ),
                     const SizedBox(height: 20),
-                    Text(
-                      'UPCOMING REMINDERS',
-                      style: AppTextStyles.eyebrow,
-                    ),
+                    Text('UPCOMING REMINDERS', style: AppTextStyles.eyebrow),
                     const SizedBox(height: 10),
                     const _RemindersSection(),
                     const SizedBox(height: 20),
                     AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 280),
+                      duration: const Duration(milliseconds: 160),
                       switchInCurve: Curves.easeOut,
                       switchOutCurve: Curves.easeIn,
                       child: _buildLowerSection(),
@@ -205,11 +216,11 @@ class _RemindersSection extends ConsumerWidget {
   Color _dotColorFor(String priority) {
     switch (priority) {
       case 'critical':
-        return AppColors.urgent;
+        return AppColors.crit;
       case 'high':
-        return AppColors.yellow;
+        return AppColors.warnDot;
       default:
-        return AppColors.faintText;
+        return Color(0x80FFFFFF);
     }
   }
 
@@ -257,7 +268,7 @@ class _RemindersSection extends ConsumerWidget {
             ),
             TextButton(
               onPressed: () => ref.refresh(dashboardRemindersProvider),
-              child: const Text('Retry'),
+              child: Text('Retry', style: AppTextStyles.body),
             ),
           ],
         ),
@@ -274,7 +285,11 @@ class _RemindersSection extends ConsumerWidget {
             ),
             child: Text(
               'Nothing pending right now.',
-              style: AppTextStyles.body.copyWith(color: AppColors.faintText),
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.faintText,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w400,
+              ),
             ),
           );
         }
@@ -307,7 +322,7 @@ class _WhatToActOnSection extends StatelessWidget {
         Text('WHAT TO ACT ON', style: AppTextStyles.eyebrow),
         const SizedBox(height: 10),
         const InsightCard(
-          dotColor: AppColors.yellow,
+          dotColor: AppColors.warnDot,
           label: 'THE ISSUE',
           headline:
               'Food cost crept to 31% of revenue — 3 pts above your '
@@ -315,12 +330,12 @@ class _WhatToActOnSection extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         const InsightCard(
-          dotColor: AppColors.accent,
+          dotColor: Color(0xFFA6F5DC),
           label: 'THE MOVE',
           body:
               'Lock a produce contract. Restaurant Depot is \$42/case on '
               'avocados vs your current \$49.',
-          bodyColor: AppColors.accent,
+          bodyColor: Color(0xFFA6F5DC),
         ),
       ],
     );
@@ -332,8 +347,8 @@ class _FlagsSection extends StatelessWidget {
 
   static const _flags = [
     (AppColors.goodText, 'Revenue ahead of target by 12%'),
-    (AppColors.yellow, 'Food cost up 3.1 pts vs Dec'),
-    (AppColors.yellow, '17 invoices overdue (\$9,240)'),
+    (AppColors.warnDot, 'Food cost up 3.1 pts vs Dec'),
+    (AppColors.warnDot, '17 invoices overdue (\$9,240)'),
   ];
 
   @override
@@ -366,7 +381,7 @@ class _FlagTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.glassDark,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        // border: Border.all(color: AppColors.glassBorder),
       ),
       child: Row(
         children: [
@@ -379,11 +394,15 @@ class _FlagTile extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
-                color: AppColors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
+              style: AppTextStyles.body.copyWith(
+                fontSize: 13.5,
+                color: Colors.white,
               ),
+              //  const TextStyle(
+              //   color: AppColors.white,
+              //   fontSize: 14,
+              //   fontWeight: FontWeight.w700,
+              // ),
             ),
           ),
         ],
@@ -403,7 +422,7 @@ class _OpportunitiesSection extends StatelessWidget {
         Text('OPPORTUNITIES', style: AppTextStyles.eyebrow),
         const SizedBox(height: 10),
         const InsightCard(
-          dotColor: AppColors.accent,
+          dotColor: Color(0xFF5FE0FF),
           label: 'OPPORTUNITY',
           headline: 'Catering inquiries up 40%',
           body:
@@ -454,7 +473,7 @@ class _ChangeTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.glassDark,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        // border: Border.all(color: AppColors.glassBorder),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -463,18 +482,25 @@ class _ChangeTile extends StatelessWidget {
             width: 82,
             child: Text(
               label,
-              style: const TextStyle(
-                color: AppColors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
+              style: AppTextStyles.eyebrow.copyWith(
+                fontSize: 13.5,
+                color: AppColors.mutedText,
               ),
+              // const TextStyle(
+              //   color: AppColors.white,
+              //   fontSize: 14,
+              //   fontWeight: FontWeight.w700,
+              // ),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               detail,
-              style: AppTextStyles.body.copyWith(color: AppColors.mutedText),
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.mutedText,
+                fontSize: 13.5,
+              ),
             ),
           ),
         ],
@@ -786,17 +812,23 @@ class _AskAiSection extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: () {},
               icon: const Icon(
-                Icons.chat_bubble_outline,
+                Icons.chat_outlined,
                 size: 15,
                 color: AppColors.white,
               ),
-              label: const Text(
+              label: Text(
                 'Chats',
-                style: TextStyle(
+                style: AppTextStyles.body.copyWith(
+                  fontSize: 13.0,
                   color: AppColors.white,
-                  fontSize: 13,
+                  // fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
+                // TextStyle(
+                //   color: AppColors.white,
+                //   fontSize: 13,
+                //   fontWeight: FontWeight.w600,
+                // ),
               ),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.glassBorder),
@@ -809,11 +841,12 @@ class _AskAiSection extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: () {},
               icon: const Icon(Icons.add, size: 15, color: AppColors.white),
-              label: const Text(
+              label: Text(
                 'New',
-                style: TextStyle(
+                style: AppTextStyles.body.copyWith(
+                  fontSize: 13.0,
                   color: AppColors.white,
-                  fontSize: 13,
+                  // fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -832,52 +865,53 @@ class _AskAiSection extends StatelessWidget {
             'Ask anything about your business to start a conversation. '
             'Follow-ups stay in the same thread.',
             textAlign: TextAlign.center,
-            style: AppTextStyles.body.copyWith(color: AppColors.faintText),
+            style: AppTextStyles.body.copyWith(color: Color(0xFFA7DCF0)),
           ),
         ),
         const SizedBox(height: 36),
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.glassDark,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.glassBorder),
-                ),
-                child: const Text(
-                  'Ask anything about your business...',
-                  style: TextStyle(color: AppColors.faintText, fontSize: 13),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.glassBorder),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 14,
-                ),
-              ),
-              child: const Text(
-                'Ask',
-                style: TextStyle(
-                  color: AppColors.white,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ],
-        ),
+
+        // Row(
+        //   children: [
+        //     Expanded(
+        //       child: Container(
+        //         padding: const EdgeInsets.symmetric(
+        //           horizontal: 14,
+        //           vertical: 12,
+        //         ),
+        //         decoration: BoxDecoration(
+        //           color: AppColors.glassDark,
+        //           borderRadius: BorderRadius.circular(24),
+        //           border: Border.all(color: AppColors.glassBorder),
+        //         ),
+        //         child: const Text(
+        //           'Ask anything about your business...',
+        //           style: TextStyle(color: AppColors.faintText, fontSize: 13),
+        //         ),
+        //       ),
+        //     ),
+        //     const SizedBox(width: 10),
+        //     OutlinedButton(
+        //       onPressed: () {},
+        //       style: OutlinedButton.styleFrom(
+        //         side: const BorderSide(color: AppColors.glassBorder),
+        //         shape: RoundedRectangleBorder(
+        //           borderRadius: BorderRadius.circular(24),
+        //         ),
+        //         padding: const EdgeInsets.symmetric(
+        //           horizontal: 20,
+        //           vertical: 14,
+        //         ),
+        //       ),
+        //       child: const Text(
+        //         'Ask',
+        //         style: TextStyle(
+        //           color: AppColors.white,
+        //           fontWeight: FontWeight.w700,
+        //         ),
+        //       ),
+        //     ),
+        //   ],
+        // ),
       ],
     );
   }

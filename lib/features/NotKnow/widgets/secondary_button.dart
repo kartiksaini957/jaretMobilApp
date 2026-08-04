@@ -5,7 +5,11 @@ import '../../../theme/app_theme.dart';
 /// Outline "Back"-style button used next to [PrimaryButton] in step
 /// navigation rows.
 class SecondaryButton extends StatelessWidget {
-  const SecondaryButton({super.key, required this.label, required this.onPressed});
+  const SecondaryButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+  });
 
   final String label;
   final VoidCallback? onPressed;

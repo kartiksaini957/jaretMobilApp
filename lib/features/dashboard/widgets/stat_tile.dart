@@ -51,9 +51,10 @@ class StatTile extends StatelessWidget {
                     child: Text(
                       label,
                       style: AppTextStyles.small.copyWith(
-                        color: AppColors.faintText,
+                        color: Colors.white,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.4,
+                        fontSize: 11.0,
                       ),
                     ),
                   ),
@@ -64,18 +65,24 @@ class StatTile extends StatelessWidget {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: (tagColor ?? AppColors.accent).withValues(
+                        color: (tagColor ?? Color(0xFFA6F5DC)).withValues(
                           alpha: 0.18,
                         ),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         tagLabel!,
-                        style: TextStyle(
-                          color: tagColor ?? AppColors.accent,
-                          fontSize: 10,
+                        style: AppTextStyles.small.copyWith(
+                          color: tagColor ?? Color(0xFFA6F5DC),
                           fontWeight: FontWeight.w700,
+                          letterSpacing: 0.4,
+                          fontSize: 9.0,
                         ),
+                        // TextStyle(
+                        //   color: tagColor ?? AppColors.accent,
+                        //   fontSize: 10,
+                        //   fontWeight: FontWeight.w700,
+                        // ),
                       ),
                     ),
                 ],
@@ -83,11 +90,16 @@ class StatTile extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 value,
-                style: TextStyle(
-                  color: valueColor,
-                  fontSize: 21,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.logo.copyWith(
+                  fontSize: 29,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
                 ),
+                // TextStyle(
+                //   color: valueColor,
+                //   fontSize: 21,
+                //   fontWeight: FontWeight.w800,
+                // ),
               ),
               if (delta != null) ...[
                 const SizedBox(height: 4),
@@ -98,14 +110,15 @@ class StatTile extends StatelessWidget {
                     Text(
                       delta!,
                       style: AppTextStyles.small.copyWith(
-                        color: AppColors.faintText,
+                        color: AppColors.white,
+                        fontSize: 12.0,
                       ),
                     ),
                     if (showTrendArrow)
                       const Icon(
                         Icons.keyboard_arrow_down,
                         size: 20,
-                        color: AppColors.faintText,
+                        color: AppColors.white,
                       ),
                   ],
                 ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/theme/app_theme.dart';
 
-import '../theme/scenario_lab_colors.dart';
+import '../../opportunity/ScenarioLab/widgets/scenario_lab_colors.dart';
 import '../scenario_lab_state.dart';
 
 /// Pill segmented control for switching between Results / Empty /
@@ -62,7 +63,7 @@ class _TabButton extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: TextStyle(
+            style: AppTextStyles.body.copyWith(
               color: selected
                   ? const Color(0xFF0A2A57)
                   : ScenarioLabColors.mutedText,

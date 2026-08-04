@@ -36,16 +36,18 @@ class AppTextField extends StatelessWidget {
         Text.rich(
           TextSpan(
             text: label,
-            style: const TextStyle(
+            style: AppTextStyles.body.copyWith(
               color: AppColors.mutedText,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
             ),
             children: required
-                ? const [
+                ? [
                     TextSpan(
                       text: ' *',
-                      style: TextStyle(color: AppColors.accent),
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.accent,
+                      ),
                     ),
                   ]
                 : null,
@@ -59,12 +61,18 @@ class AppTextField extends StatelessWidget {
           textInputAction: textInputAction,
           validator: validator,
           autovalidateMode: autovalidateMode,
-          style: const TextStyle(color: AppColors.white, fontSize: 15),
+          style: AppTextStyles.body.copyWith(
+            color: AppColors.white,
+            fontSize: 15,
+          ),
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: const TextStyle(color: AppColors.faintText),
+            hintStyle: AppTextStyles.body.copyWith(
+              color: AppColors.faintText,
+              fontSize: 15,
+            ),
             filled: true,
-            fillColor: AppColors.glassDark,
+            fillColor: AppColors.white.withOpacity(0.06),
             suffixIcon: suffixIcon,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
@@ -73,7 +81,7 @@ class AppTextField extends StatelessWidget {
             errorStyle: const TextStyle(color: AppColors.urgent, fontSize: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.glassBorder),
+              borderSide: BorderSide(color: AppColors.white.withOpacity(0.18)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

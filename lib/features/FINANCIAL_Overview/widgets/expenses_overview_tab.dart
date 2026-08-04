@@ -18,9 +18,8 @@ class ExpensesOverviewTab extends StatefulWidget {
 class _ExpensesOverviewTabState extends State<ExpensesOverviewTab> {
   int? _selectedIndex;
 
-  void _select(int index) => setState(
-    () => _selectedIndex = _selectedIndex == index ? null : index,
-  );
+  void _select(int index) =>
+      setState(() => _selectedIndex = _selectedIndex == index ? null : index);
 
   @override
   Widget build(BuildContext context) {
@@ -34,14 +33,17 @@ class _ExpensesOverviewTabState extends State<ExpensesOverviewTab> {
       decoration: BoxDecoration(
         color: AppColors.glassDark,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder),
+        // border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Where the money goes',
-            style: AppTextStyles.buttonLabel.copyWith(fontSize: 17),
+            style: AppTextStyles.headlineAccent.copyWith(
+              fontSize: 17,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
@@ -51,13 +53,17 @@ class _ExpensesOverviewTabState extends State<ExpensesOverviewTab> {
           const SizedBox(height: 16),
           Text('TOTAL JANUARY SPEND', style: AppTextStyles.eyebrow),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             expenseTotalLabel,
-            style: TextStyle(
-              color: AppColors.white,
-              fontSize: 30,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.headline.copyWith(
+              fontSize: 44,
+              color: Colors.white,
             ),
+            //  TextStyle(
+            //   color: AppColors.white,
+            //   fontSize: 30,
+            //   fontWeight: FontWeight.w800,
+            // ),
           ),
           const SizedBox(height: 12),
           Padding(

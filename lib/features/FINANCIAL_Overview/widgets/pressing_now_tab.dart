@@ -47,11 +47,11 @@ class _PressingNowTabState extends State<PressingNowTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '${_cards.length} things need you this week',
-          style: AppTextStyles.buttonLabel.copyWith(fontSize: 14),
-        ),
-        const SizedBox(height: 12),
+        // Text(
+        //   '${_cards.length} things need you this week',
+        //   style: AppTextStyles.buttonLabel.copyWith(fontSize: 14),
+        // ),
+        // const SizedBox(height: 12),
         HomeStoryCarousel(
           cards: _cards,
           selectedIndex: _selectedIndex,

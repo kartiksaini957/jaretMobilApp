@@ -31,7 +31,7 @@ class HomeSummaryCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: AppColors.warnDot.withValues(alpha: 0.15),
+              color: AppColors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -49,7 +49,10 @@ class HomeSummaryCard extends StatelessWidget {
             text: TextSpan(
               style: AppTextStyles.headline.copyWith(fontSize: 40),
               children: [
-                const TextSpan(text: homeSummaryHeadlineLead),
+                TextSpan(
+                  text: homeSummaryHeadlineLead,
+                  style: AppTextStyles.headline.copyWith(fontSize: 40),
+                ),
                 TextSpan(
                   text: homeSummaryHeadlineAccent,
                   style: const TextStyle(color: AppColors.accent, fontSize: 40),
@@ -63,7 +66,7 @@ class HomeSummaryCard extends StatelessWidget {
           Text(
             homeSummaryBody,
             textAlign: TextAlign.center,
-            style: AppTextStyles.small.copyWith(height: 1.5),
+            style: AppTextStyles.small.copyWith(height: 1.5, fontSize: 14.5),
           ),
           const SizedBox(height: 16),
           Material(
@@ -101,14 +104,15 @@ class HomeSummaryCard extends StatelessWidget {
                         children: [
                           Text(
                             topCard.headline,
-                            style: AppTextStyles.buttonLabel.copyWith(
-                              fontSize: 13,
+                            style: AppTextStyles.headline.copyWith(
+                              fontSize: 14.5,
+                              color: Colors.white,
                             ),
                           ),
                           const SizedBox(height: 3),
                           Text(
                             topCard.statLabel,
-                            style: AppTextStyles.small.copyWith(fontSize: 11),
+                            style: AppTextStyles.small.copyWith(fontSize: 12),
                           ),
                         ],
                       ),

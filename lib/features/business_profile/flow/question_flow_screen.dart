@@ -11,10 +11,6 @@ import 'widgets/flow_header.dart';
 import 'widgets/flow_progress_dots.dart';
 import 'widgets/step_slider_input.dart';
 
-/// One-question-at-a-time flow for a single Business Profile section: an
-/// intro card (title, description, progress, Later/Continue) followed by
-/// one card per question (chips or a step slider), Skip/Continue footer,
-/// and "Save & finish later" on the last question.
 class QuestionFlowScreen extends StatefulWidget {
   const QuestionFlowScreen({super.key, required this.flow});
 
@@ -100,7 +96,7 @@ class _QuestionFlowScreenState extends State<QuestionFlowScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.glassDark,
+        color: AppColors.glassDark.withOpacity(0.2),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.glassBorder),
       ),
@@ -109,7 +105,7 @@ class _QuestionFlowScreenState extends State<QuestionFlowScreen> {
         children: [
           Text(
             widget.flow.sectionTitle,
-            style: AppTextStyles.buttonLabel.copyWith(fontSize: 18),
+            style: AppTextStyles.headline.copyWith(fontSize: 19),
           ),
           const SizedBox(height: 8),
           Text(widget.flow.sectionDescription, style: AppTextStyles.small),
@@ -137,7 +133,7 @@ class _QuestionFlowScreenState extends State<QuestionFlowScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.glassDark,
+        color: AppColors.glassDark.withOpacity(0.2),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.glassBorder),
       ),
@@ -146,7 +142,7 @@ class _QuestionFlowScreenState extends State<QuestionFlowScreen> {
         children: [
           Text(
             question.title,
-            style: AppTextStyles.buttonLabel.copyWith(fontSize: 17),
+            style: AppTextStyles.buttonLabel.copyWith(fontSize: 19),
           ),
           const SizedBox(height: 6),
           Text(question.subtitle, style: AppTextStyles.small),
@@ -175,7 +171,9 @@ class _QuestionFlowScreenState extends State<QuestionFlowScreen> {
           FlowFooterButtons(
             secondaryLabel: 'Skip',
             onSecondary: () => _advanceOrFinish(wasAnswered: false),
-            primaryLabel: _isLastQuestion ? 'Save & finish later →' : 'Continue →',
+            primaryLabel: _isLastQuestion
+                ? 'Save & finish later →'
+                : 'Continue →',
             onPrimary: () => _advanceOrFinish(wasAnswered: true),
           ),
         ],

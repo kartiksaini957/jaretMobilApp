@@ -23,9 +23,12 @@ class ConnectionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.glassDark,
+        color: AppColors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(
+          color: const Color(0xFF7BEFD0).withValues(alpha: 0.4),
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,9 +38,9 @@ class ConnectionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   name,
-                  style: const TextStyle(
+                  style: AppTextStyles.body.copyWith(
                     color: AppColors.white,
-                    fontSize: 14.5,
+                    fontSize: 14,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -58,6 +61,7 @@ class ConnectionCard extends StatelessWidget {
                       'Connected',
                       style: AppTextStyles.small.copyWith(
                         color: AppColors.goodText,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -77,11 +81,11 @@ class ConnectionCard extends StatelessWidget {
                     ),
                     minimumSize: Size.zero,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Connect',
-                    style: TextStyle(
+                    style: AppTextStyles.body.copyWith(
                       color: AppColors.white,
-                      fontSize: 12.5,
+                      fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -91,7 +95,10 @@ class ConnectionCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             description,
-            style: AppTextStyles.small.copyWith(color: AppColors.mutedText),
+            style: AppTextStyles.small.copyWith(
+              color: AppColors.mutedText,
+              fontSize: 12,
+            ),
           ),
         ],
       ),

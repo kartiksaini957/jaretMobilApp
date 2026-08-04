@@ -59,12 +59,13 @@ class _HomeDetailCardState extends State<HomeDetailCard> {
               const SizedBox(width: 8),
               Text(
                 card.status.label,
-                style: TextStyle(
-                  color: card.status.color,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.4,
-                ),
+                style: AppTextStyles.small.copyWith(fontSize: 10),
+                // TextStyle(
+                //   color: card.status.color,
+                //   fontSize: 11,
+                //   fontWeight: FontWeight.w800,
+                //   letterSpacing: 0.4,
+                // ),
               ),
             ],
           ),
@@ -72,7 +73,7 @@ class _HomeDetailCardState extends State<HomeDetailCard> {
           Text(
             card.headline,
             style: AppTextStyles.buttonLabel.copyWith(
-              fontSize: 18,
+              fontSize: 19,
               height: 1.3,
             ),
           ),
@@ -99,7 +100,10 @@ class _HomeDetailCardState extends State<HomeDetailCard> {
                 const SizedBox(width: 8),
                 Text(
                   card.statLabel,
-                  style: AppTextStyles.buttonLabel.copyWith(fontSize: 13.5),
+                  style: AppTextStyles.headlineAccent.copyWith(
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
                 ),
               ],
             ),
@@ -267,7 +271,7 @@ class _Section extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: AppTextStyles.buttonLabel.copyWith(fontSize: 13.5),
+                    style: AppTextStyles.buttonLabel.copyWith(fontSize: 14),
                   ),
                 ),
                 Icon(
@@ -279,7 +283,8 @@ class _Section extends StatelessWidget {
             ),
           ),
         ),
-        if (expanded) Padding(padding: const EdgeInsets.only(bottom: 10), child: child),
+        if (expanded)
+          Padding(padding: const EdgeInsets.only(bottom: 10), child: child),
         if (showDivider)
           const Divider(height: 1, color: AppColors.glassBorderSoft),
       ],

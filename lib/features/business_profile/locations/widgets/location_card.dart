@@ -28,9 +28,20 @@ class LocationCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 2),
-            child: Icon(Icons.location_on, size: 16, color: AppColors.accent),
+            child: Container(
+              decoration: BoxDecoration(
+                // color: AppColors.accent,
+                border: Border.all(color: AppColors.glassBorder),
+                shape: BoxShape.circle,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: Text("📍"),
+              ),
+            ),
+            // Icon(Icons.location_on, size: 16, color: AppColors.critDot),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -44,7 +55,7 @@ class LocationCard extends StatelessWidget {
                   children: [
                     Text(
                       location.name,
-                      style: AppTextStyles.buttonLabel.copyWith(fontSize: 14),
+                      style: AppTextStyles.buttonLabel.copyWith(fontSize: 13.5),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -53,14 +64,16 @@ class LocationCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.glassBorder),
+                        border: Border.all(
+                          color: AppColors.white.withOpacity(0.24),
+                        ),
                       ),
                       child: Text(
                         location.type.badgeLabel,
-                        style: const TextStyle(
-                          color: AppColors.faintText,
+                        style: AppTextStyles.buttonLabel.copyWith(
+                          color: AppColors.white,
                           fontSize: 9.5,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           letterSpacing: 0.3,
                         ),
                       ),
@@ -69,17 +82,27 @@ class LocationCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 if (location.isPending) ...[
-                  Text('Address pending', style: AppTextStyles.small),
+                  Text(
+                    'Address pending',
+                    style: AppTextStyles.small.copyWith(fontSize: 12),
+                  ),
                   Text(
                     'Geocoding…',
                     style: AppTextStyles.small.copyWith(
-                      color: AppColors.warnDot,
+                      fontSize: 11,
+                      // color: AppColors.warnDot,
                     ),
                   ),
                 ] else ...[
-                  Text(location.address!, style: AppTextStyles.small),
+                  Text(
+                    location.address!,
+                    style: AppTextStyles.small.copyWith(fontSize: 12),
+                  ),
                   if (location.details != null)
-                    Text(location.details!, style: AppTextStyles.small),
+                    Text(
+                      location.details!,
+                      style: AppTextStyles.small.copyWith(fontSize: 11),
+                    ),
                 ],
               ],
             ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/scenario_lab_colors.dart';
+import '../../opportunity/ScenarioLab/widgets/scenario_lab_colors.dart';
 
 /// Glass card-shaped skeleton with a moving highlight sweep — used for
 /// the Loading state, which shows shimmer only, no real content.

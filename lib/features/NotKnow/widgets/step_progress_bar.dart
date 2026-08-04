@@ -1,24 +1,41 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
 
-/// Thin rounded progress track used under the "STEP X OF Y" eyebrow on
-/// each onboarding screen.
 class StepProgressBar extends StatelessWidget {
-  const StepProgressBar({super.key, required this.step, required this.totalSteps});
+  const StepProgressBar({
+    super.key,
+    required this.step,
+    required this.totalSteps,
+  });
 
   final int step;
   final int totalSteps;
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(4),
-      child: LinearProgressIndicator(
-        value: (step / totalSteps).clamp(0.0, 1.0),
-        minHeight: 4,
-        backgroundColor: AppColors.glassBorderSoft,
-        color: AppColors.accent,
+    return SizedBox(
+      height: 4,
+      child: Row(
+        children: List.generate(totalSteps, (index) {
+          final isCompleted = index < step;
+
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(
+                right: index == totalSteps - 1 ? 0 : 6, // gap between segments
+              ),
+              child: Container(
+                height: 4,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: isCompleted
+                      ? AppColors.accent
+                      : AppColors.white.withOpacity(0.16), // Inactive color
+                ),
+              ),
+            ),
+          );
+        }),
       ),
     );
   }

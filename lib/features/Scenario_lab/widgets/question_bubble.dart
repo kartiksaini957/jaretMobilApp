@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/scenario_lab_colors.dart';
+import '../../opportunity/ScenarioLab/widgets/scenario_lab_colors.dart';
 
 /// The asked question, shown as a right-aligned translucent bubble.
 class QuestionBubble extends StatelessWidget {

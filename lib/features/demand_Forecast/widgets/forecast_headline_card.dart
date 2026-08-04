@@ -45,41 +45,61 @@ class _ForecastHeadlineCardState extends State<ForecastHeadlineCard> {
               const SizedBox(width: 8),
               Text(
                 '${data.status.badgeText} · ${data.dateRangeLabel}',
-                style: AppTextStyles.eyebrow,
+                style: AppTextStyles.eyebrow.copyWith(
+                  fontSize: 11,
+                  color: Colors.white,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 10),
           Text(
             data.headline,
-            style: AppTextStyles.buttonLabel.copyWith(
-              fontSize: 19,
+            style: AppTextStyles.headlineAccent.copyWith(
+              fontSize: 24,
               height: 1.3,
+              color: Colors.white,
             ),
           ),
-          const SizedBox(height: 16),
-          Text('EXPECTED · ${data.expectedLabel}', style: AppTextStyles.eyebrow),
+          const SizedBox(height: 8),
+          Divider(color: Colors.white, thickness: .1),
+          const SizedBox(height: 8),
+
+          Text(
+            'EXPECTED · ${data.expectedLabel}',
+            style: AppTextStyles.eyebrow.copyWith(
+              fontSize: 11,
+              color: Colors.white,
+            ),
+          ),
           const SizedBox(height: 6),
           Text(
             data.expectedValue,
-            style: const TextStyle(
-              color: AppColors.white,
+            style: AppTextStyles.headlineAccent.copyWith(
               fontSize: 34,
-              fontWeight: FontWeight.w800,
+              height: 1.3,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 6),
           Row(
             children: [
-              Text(data.normalValue, style: AppTextStyles.small),
+              Text(
+                data.normalValue,
+                style: AppTextStyles.small.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: (data.deltaPositive
-                          ? AppColors.goodDot
-                          : AppColors.critDot)
-                      .withValues(alpha: 0.18),
+                  color:
+                      (data.deltaPositive
+                              ? AppColors.goodDot
+                              : AppColors.critDot)
+                          .withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -108,18 +128,20 @@ class _ForecastHeadlineCardState extends State<ForecastHeadlineCard> {
                       ? Icons.keyboard_arrow_down
                       : Icons.chevron_right,
                   size: 16,
-                  color: AppColors.accent,
+                  color: Colors.white,
                 ),
                 Text(
                   'how we get this number',
                   style: AppTextStyles.small.copyWith(
-                    color: AppColors.accent,
+                    color: Colors.white,
+
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
           ),
+
           if (_showHowWeGetThisNumber) ...[
             const SizedBox(height: 8),
             _BreakdownLine(label: 'Committed', value: data.breakdown.committed),
@@ -136,8 +158,14 @@ class _ForecastHeadlineCardState extends State<ForecastHeadlineCard> {
               value: data.breakdown.externalAdjustment,
             ),
           ],
-          const SizedBox(height: 18),
-          Text('CONFIDENCE', style: AppTextStyles.eyebrow),
+          const SizedBox(height: 8),
+          Divider(color: Colors.white, thickness: .1),
+          const SizedBox(height: 8),
+
+          Text(
+            'CONFIDENCE',
+            style: AppTextStyles.eyebrow.copyWith(color: Colors.white),
+          ),
           const SizedBox(height: 6),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -158,6 +186,8 @@ class _ForecastHeadlineCardState extends State<ForecastHeadlineCard> {
                   data.confidenceLabel,
                   style: AppTextStyles.small.copyWith(
                     fontWeight: FontWeight.w700,
+                    fontSize: 10.5,
+                    color: const Color(0xFFA6F5DC),
                   ),
                 ),
               ),
@@ -166,36 +196,14 @@ class _ForecastHeadlineCardState extends State<ForecastHeadlineCard> {
           const SizedBox(height: 8),
           Text(
             data.confidenceBody,
-            style: AppTextStyles.small.copyWith(height: 1.5),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.warnDot.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.warnDot.withValues(alpha: 0.4)),
-            ),
-            child: RichText(
-              text: TextSpan(
-                style: AppTextStyles.small.copyWith(
-                  color: AppColors.mutedText,
-                  height: 1.5,
-                ),
-                children: [
-                  const TextSpan(
-                    text: '⚡ Biggest swing factor: ',
-                    style: TextStyle(
-                      color: AppColors.warnDot,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  TextSpan(text: data.swingFactorBody),
-                ],
-              ),
+            style: AppTextStyles.small.copyWith(
+              fontWeight: FontWeight.w700,
+              // fontSize: 10.5,
+              height: 1.5,
+              color: Colors.white,
             ),
           ),
+          const SizedBox(height: 8),
         ],
       ),
     );
