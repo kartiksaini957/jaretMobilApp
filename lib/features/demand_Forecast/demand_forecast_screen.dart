@@ -15,6 +15,7 @@ import 'data/demand_forecast_data.dart';
 import 'widgets/forecast_full_read_section.dart';
 import 'widgets/forecast_headline_card.dart';
 import 'widgets/forecast_tab_pills.dart';
+import '../../widgets/app_nav_destinations.dart';
 
 /// Demand Forecast screen: This weekend / Rest of month / $ per slice,
 /// each with a headline forecast card and "THE FULL READ" breakdown.
@@ -31,42 +32,7 @@ class _DemandForecastScreenState extends State<DemandForecastScreen> {
   int _selectedTab = 0;
 
   void _onDrawerItemSelected(int index) {
-    if (index == 1) return; // Demand Forecast — already here.
-    if (index == 2) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const FinancialOverviewScreen()),
-      );
-      return;
-    }
-    if (index == 3) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const BusinessHealthScreen()));
-      return;
-    }
-     if (index == 4) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const OpportunitiesScreen()));
-      return;
-    }
-    if (index == 5) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const ScenariooLabScreen()));
-      return;
-    }
-    if (index == 6) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const BusinessProfileScreen()));
-      return;
-    }
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => DashboardScreen(initialDrawerIndex: index),
-      ),
-    );
+    openNavDestination(context, index, currentIndex: AppNavIndex.demandForecast);
   }
 
   Widget _buildTabContent() {

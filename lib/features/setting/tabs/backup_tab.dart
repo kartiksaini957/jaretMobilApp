@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../theme/app_theme.dart';
 import '../../../widgets/customToast.dart';
 import '../provider/backup_provider.dart';
 import '../theme/settings_colors.dart';
@@ -24,7 +25,11 @@ class BackupTab extends ConsumerWidget {
           actions: [
             SettingsPillButton(
               label: 'Create backup',
-              onPressed: controller.createBackup,
+              tone: SettingsButtonTone.primary,
+              onPressed: () {
+                controller.createBackup();
+                CustomToast.showSuccess(context, 'Backup created.');
+              },
             ),
           ],
         ),
@@ -41,36 +46,25 @@ class BackupTab extends ConsumerWidget {
         ),
         const SettingsGroupLabel('Snapshots'),
         for (final snapshot in backup.snapshots)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${snapshot.timestamp} · ${snapshot.label}',
-                    style: const TextStyle(
-                      color: SettingsColors.white,
-                      fontSize: 12.5,
-                    ),
-                  ),
-                ),
-                SettingsPillButton(
-                  label: 'Restore',
-                  onPressed: () =>
-                      CustomToast.showInfo(context, 'Restoring snapshot…'),
-                ),
-                const SizedBox(width: 8),
-                SettingsPillButton(
-                  label: 'Delete',
-                  danger: true,
-                  onPressed: () => controller.deleteSnapshot(snapshot.id),
-                ),
-              ],
-            ),
+          SettingsListRow(
+            text: '${snapshot.timestamp} · ${snapshot.label}',
+            trailing: [
+              SettingsPillButton(
+                label: 'Restore',
+                compact: true,
+                onPressed: () =>
+                    CustomToast.showInfo(context, 'Restoring snapshot…'),
+              ),
+              SettingsPillButton(
+                label: 'Delete',
+                tone: SettingsButtonTone.danger,
+                compact: true,
+                onPressed: () => controller.deleteSnapshot(snapshot.id),
+              ),
+            ],
           ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 14),
         Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
             SettingsStatusDot(
               color: backup.cloudSyncOk
@@ -78,11 +72,13 @@ class BackupTab extends ConsumerWidget {
                   : SettingsColors.danger,
             ),
             const SizedBox(width: 6),
-            Text(
-              'Cloud sync: S3 · ${backup.cloudSyncOk ? 'ok' : 'error'}',
-              style: const TextStyle(
-                color: SettingsColors.faintText,
-                fontSize: 12,
+            Expanded(
+              child: Text(
+                backup.cloudSyncLabel,
+                style: AppTextStyles.body.copyWith(
+                  color: SettingsColors.soft,
+                  fontSize: 11.5,
+                ),
               ),
             ),
           ],

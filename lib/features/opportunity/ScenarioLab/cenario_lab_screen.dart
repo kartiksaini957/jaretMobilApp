@@ -18,6 +18,7 @@ import 'package:flutter_application_1/widgets/gradient_background.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import '../opportunities_screen.dart';
+import '../../../widgets/app_nav_destinations.dart';
 
 class LS {
   static const fg = Color(0xFFFFFFFF);
@@ -542,57 +543,7 @@ class _ScenarioLabScreenState extends ConsumerState<ScenariooLabScreen> {
   static const _settingsIndex = 7;
 
   void _onDrawerItemSelected(BuildContext context, int index) {
-    Navigator.of(context).pop(); // close drawer first
-    if (index == _scenarioLabIndex) return; // already here
-    if (index == _demandForecastIndex) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const DemandForecastScreen()));
-      return;
-    }
-    if (index == _financialOverviewIndex) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const FinancialOverviewScreen()),
-      );
-      return;
-    }
-    if (index == _dashboardIndex) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const DashboardScreen()));
-      return;
-    }
-    if (index == _settingsIndex) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
-      return;
-    }
-
-    if (index == _businessHealthIndex) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const BusinessHealthScreen()));
-      return;
-    }
-    if (index == _opportunitiesIndex) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => OpportunitiesScreen()));
-      return;
-    }
-    if (index == _scenarioLabIndex) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => ScenariooLabScreen()));
-      return;
-    }
-    if (index == _businessProfileIndex) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const BusinessProfileScreen()));
-      return;
-    }
+    openNavDestination(context, index, currentIndex: AppNavIndex.scenarioLab);
   }
 
   void _toggleTile(String key) =>

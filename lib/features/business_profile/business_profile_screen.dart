@@ -22,6 +22,7 @@ import 'widgets/profile_insight_banner.dart';
 import 'widgets/profile_sections_list.dart';
 import 'widgets/understanding_meter_card.dart';
 import 'dart:math' show pi;
+import '../../widgets/app_nav_destinations.dart';
 
 /// Business Profile hub: completion snapshot, an AI insight, quick links
 /// into the classification/notes views, and the full section list. Every
@@ -77,42 +78,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   }
 
   void _onDrawerItemSelected(int index) {
-    if (index == 6) return; // Business Profile — already here.
-    if (index == 1) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const DemandForecastScreen()));
-      return;
-    }
-    if (index == 2) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const FinancialOverviewScreen()),
-      );
-      return;
-    }
-    if (index == 3) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const BusinessHealthScreen()));
-      return;
-    }
-    if (index == 4) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const OpportunitiesScreen()));
-      return;
-    }
-    if (index == 5) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const ScenariooLabScreen()));
-      return;
-    }
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => DashboardScreen(initialDrawerIndex: index),
-      ),
-    );
+    openNavDestination(context, index, currentIndex: AppNavIndex.businessProfile);
   }
 
   @override

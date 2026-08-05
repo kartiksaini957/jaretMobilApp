@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../widgets/customToast.dart';
 import '../provider/billing_provider.dart';
-import '../theme/settings_colors.dart';
 import '../widgets/settings_row_controls.dart';
 import '../widgets/settings_section_card.dart';
 
@@ -20,60 +19,40 @@ class BillingTab extends ConsumerWidget {
       children: [
         SettingsActionRow(
           label: billing.planName,
-          subtitle:
-              'Renews ${billing.renewsOn} · next payment ${billing.nextPaymentOn}',
+          subtitle: billing.renewalLabel,
           actions: [
             SettingsPillButton(
               label: 'Open billing portal',
+              tone: SettingsButtonTone.primary,
               onPressed: () =>
                   CustomToast.showInfo(context, 'Opening billing portal…'),
             ),
           ],
         ),
         const SettingsDivider(),
-        Row(
-          children: [
-            const Expanded(
-              child: Text(
-                'Payment method',
-                style: TextStyle(
-                  color: SettingsColors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-            Text(
-              '${billing.cardBrand} —${billing.cardLast4} · exp ${billing.cardExpiry}',
-              style: const TextStyle(
-                color: SettingsColors.faintText,
-                fontSize: 12.5,
-              ),
+        SettingsActionRow(
+          label: 'Payment method',
+          subtitle: billing.cardLabel,
+          actions: [
+            SettingsPillButton(
+              label: 'Update',
+              onPressed: () =>
+                  CustomToast.showInfo(context, 'Opening payment methods…'),
             ),
           ],
         ),
         const SettingsGroupLabel('Invoices'),
         for (final invoice in billing.invoices)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${invoice.date} · ${invoice.amount.toStringAsFixed(2)} ${invoice.currency}',
-                    style: const TextStyle(
-                      color: SettingsColors.white,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-                SettingsPillButton(
-                  label: 'View',
-                  onPressed: () =>
-                      CustomToast.showInfo(context, 'Opening invoice…'),
-                ),
-              ],
-            ),
+          SettingsListRow(
+            text: '${invoice.date} · ${invoice.amount}',
+            trailing: [
+              SettingsPillButton(
+                label: 'View',
+                compact: true,
+                onPressed: () =>
+                    CustomToast.showInfo(context, 'Opening invoice…'),
+              ),
+            ],
           ),
       ],
     );

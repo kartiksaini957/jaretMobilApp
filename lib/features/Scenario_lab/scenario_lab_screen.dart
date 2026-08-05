@@ -20,6 +20,7 @@ import 'widgets/scenario_actions.dart';
 import 'widgets/shimmer_box.dart';
 import 'widgets/state_tabs.dart';
 import 'widgets/verdict_card.dart';
+import '../../widgets/app_nav_destinations.dart';
 
 /// Scenario Lab — "what-if" scenario analysis. The Results/Empty/Loading
 /// pill at the top lets you preview each state; asking a question (or
@@ -49,36 +50,7 @@ class _ScenarioLabScreenState extends State<ScenarioLabScreen> {
   }
 
   void _onDrawerItemSelected(int index) {
-    if (index == 5) return; // Scenario Lab — already here.
-    if (index == 1) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const DemandForecastScreen()));
-      return;
-    }
-    if (index == 2) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const FinancialOverviewScreen()),
-      );
-      return;
-    }
-    if (index == 3) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const BusinessHealthScreen()));
-      return;
-    }
-    if (index == 6) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const BusinessProfileScreen()));
-      return;
-    }
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => DashboardScreen(initialDrawerIndex: index),
-      ),
-    );
+    openNavDestination(context, index, currentIndex: AppNavIndex.scenarioLab);
   }
 
   Widget _buildBody() {

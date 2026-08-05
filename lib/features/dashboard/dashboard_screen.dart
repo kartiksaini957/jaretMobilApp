@@ -25,6 +25,7 @@ import 'widgets/metric_detail_sheet.dart';
 import 'widgets/reminders_card.dart';
 import 'widgets/stat_tile.dart';
 import '../../utils/pref_utils.dart';
+import '../../widgets/app_nav_destinations.dart';
 
 /// Dashboard — the home screen. Until the other drawer destinations
 /// exist, drawer items just reopen this same screen. The bottom-bar tabs
@@ -82,49 +83,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   void _onDrawerItemSelected(int index) {
-    if (index == 1) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const DemandForecastScreen()));
-      return;
-    }
-    if (index == 2) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const FinancialOverviewScreen()),
-      );
-      return;
-    }
-    if (index == 3) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const BusinessHealthScreen()));
-      return;
-    }
-    if (index == 4) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const OpportunitiesScreen()));
-      return;
-    }
-    if (index == 5) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const ScenariooLabScreen()));
-      return;
-    }
-    if (index == 6) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const BusinessProfileScreen()));
-      return;
-    }
-    if (index == 7) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
-      return;
-    }
-    _reopenDashboard(drawerIndex: index);
+    openNavDestination(context, index, currentIndex: AppNavIndex.dashboard);
   }
 
   Widget _buildLowerSection() {

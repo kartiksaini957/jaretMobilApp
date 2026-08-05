@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../widgets/customToast.dart';
 import '../provider/security_team_provider.dart';
-import '../theme/settings_colors.dart';
 import '../widgets/settings_row_controls.dart';
 import '../widgets/settings_section_card.dart';
 
@@ -22,6 +21,17 @@ class _SecurityTeamTabState extends ConsumerState<SecurityTeamTab> {
   void dispose() {
     _inviteController.dispose();
     super.dispose();
+  }
+
+  void _invite() {
+    final email = _inviteController.text.trim();
+    if (email.isEmpty) {
+      CustomToast.showError(context, 'Enter an email to invite.');
+      return;
+    }
+    ref.read(securityTeamProvider.notifier).inviteMember(email, _inviteRole);
+    _inviteController.clear();
+    CustomToast.showSuccess(context, 'Invite sent to $email.');
   }
 
   @override
@@ -52,138 +62,92 @@ class _SecurityTeamTabState extends ConsumerState<SecurityTeamTab> {
         ),
         const SettingsGroupLabel('Active sessions'),
         for (final session in security.sessions)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${session.device} · ${session.location} · ${session.lastActive}',
-                    style: const TextStyle(
-                      color: SettingsColors.white,
-                      fontSize: 13,
-                    ),
-                  ),
+          SettingsListRow(
+            text:
+                '${session.device} · ${session.location} · '
+                '${session.lastActive}',
+            trailing: [
+              if (session.isCurrent)
+                const SettingsRowNote('current')
+              else
+                SettingsPillButton(
+                  label: 'Sign out',
+                  compact: true,
+                  onPressed: () => controller.signOutSession(session.id),
                 ),
-                if (session.isCurrent)
-                  const Text(
-                    'current',
-                    style: TextStyle(
-                      color: SettingsColors.faintText,
-                      fontSize: 12,
-                    ),
-                  )
-                else
-                  SettingsPillButton(
-                    label: 'Sign out',
-                    onPressed: () => controller.signOutSession(session.id),
-                  ),
-              ],
-            ),
+            ],
           ),
-        const SizedBox(height: 10),
-        SettingsPillButton(
-          label: 'Sign out everywhere',
-          danger: true,
-          onPressed: controller.signOutEverywhere,
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: SettingsPillButton(
+            label: 'Sign out everywhere',
+            tone: SettingsButtonTone.danger,
+            onPressed: controller.signOutEverywhere,
+          ),
         ),
         const SettingsGroupLabel('Team'),
         for (final member in security.teamMembers)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    member.name,
-                    style: const TextStyle(
-                      color: SettingsColors.white,
-                      fontSize: 13,
-                    ),
-                  ),
+          SettingsListRow(
+            text: '${member.name} · ${member.role}',
+            trailing: [
+              if (member.isOwner)
+                const SettingsRowNote('full access')
+              else
+                SettingsPillButton(
+                  label: 'Remove',
+                  compact: true,
+                  onPressed: () => controller.removeMember(member.id),
                 ),
-                Text(
-                  member.isOwner ? '${member.role} · full access' : member.role,
-                  style: const TextStyle(
-                    color: SettingsColors.faintText,
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                if (!member.isOwner)
-                  SettingsPillButton(
-                    label: 'Remove',
-                    onPressed: () => controller.removeMember(member.id),
-                  ),
-              ],
-            ),
+            ],
           ),
-        const SizedBox(height: 10),
-        Row(
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Expanded(
-              child: SettingsTextField(
-                controller: _inviteController,
-                hintText: 'email@...',
+            SettingsTextField(
+              controller: _inviteController,
+              hintText: 'email@...',
+              width: 220,
+              onSubmitted: (_) => _invite(),
+            ),
+            SizedBox(
+              width: 140,
+              child: SettingsDropdown<String>(
+                value: _inviteRole,
+                options: SecurityTeamState.roles,
+                onChanged: (v) => setState(() => _inviteRole = v),
               ),
             ),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: SettingsColors.cardFillStrong,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: SettingsColors.cardBorder),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _inviteRole,
-                  isDense: true,
-                  dropdownColor: const Color(0xFF0A4A63),
-                  style: const TextStyle(
-                    color: SettingsColors.white,
-                    fontSize: 13,
-                  ),
-                  items: [
-                    for (final role in SecurityTeamState.roles)
-                      DropdownMenuItem(value: role, child: Text(role)),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) setState(() => _inviteRole = value);
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
             SettingsPillButton(
               label: 'Invite',
-              onPressed: () {
-                controller.inviteMember(_inviteController.text, _inviteRole);
-                _inviteController.clear();
-              },
+              tone: SettingsButtonTone.primary,
+              onPressed: _invite,
             ),
           ],
         ),
-        const SettingsGroupLabel('Advisor view link'),
-        Text(
-          security.advisorLink ??
-              'A read-only link to your Financial Overview and Business Health for your accountant — no account needed. Expires in 30 days.',
-          style: const TextStyle(
-            color: SettingsColors.faintText,
-            fontSize: 12,
-            height: 1.35,
-          ),
-        ),
-        const SizedBox(height: 10),
-        SettingsPillButton(
-          label: security.advisorLink == null ? 'Create link' : 'Copy link',
-          onPressed: () {
-            if (security.advisorLink == null) {
-              controller.createAdvisorLink();
-            } else {
-              CustomToast.showSuccess(context, 'Link copied.');
-            }
-          },
+        const SettingsDivider(),
+        SettingsActionRow(
+          label: 'Advisor view link',
+          subtitle:
+              security.advisorLink ??
+              'A read-only link to your Financial Overview and Business '
+                  'Health for your accountant — no account needed. Expires '
+                  'in 30 days.',
+          actions: [
+            SettingsPillButton(
+              label: security.advisorLink == null ? 'Create link' : 'Copy link',
+              onPressed: () {
+                if (security.advisorLink == null) {
+                  controller.createAdvisorLink();
+                  return;
+                }
+                CustomToast.showSuccess(context, 'Link copied.');
+              },
+            ),
+          ],
         ),
       ],
     );

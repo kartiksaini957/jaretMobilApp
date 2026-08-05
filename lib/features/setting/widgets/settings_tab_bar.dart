@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../theme/app_theme.dart';
+import '../../../theme/lightsignal/ls_css.dart';
 import '../theme/settings_colors.dart';
 
 class SettingsTab {
@@ -8,8 +10,8 @@ class SettingsTab {
   final String label;
 }
 
-/// Wrapping row of pill buttons — one per settings tab — matching the
-/// "General / Integrations / Data & Privacy / ..." selector in the mock.
+/// `.stabs` — the wrapping row of `.stab` pills that selects the visible
+/// settings panel.
 class SettingsTabBar extends StatelessWidget {
   const SettingsTabBar({
     super.key,
@@ -50,31 +52,59 @@ class _TabPill extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
+  /// `.stab` — `rgba(8,40,56,.30→.28)` over `rgba(255,255,255,.10→.04)`,
+  /// pre-composited into the single gradient Flutter paints.
+  static final Gradient _restFill = LsCss.linearGradient(
+    degrees: 160,
+    colors: const [Color(0x5E37515E), Color(0x4F1F3C4B)],
+  );
+
+  /// `.stab.on` — the same dark layer over the accent sheen.
+  static final Gradient _selectedFill = LsCss.linearGradient(
+    degrees: 160,
+    colors: const [Color(0x822C748A), Color(0x541B5164)],
+  );
+
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: selected
-              ? SettingsColors.pillFillSelected
-              : SettingsColors.pillFill,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected
-                ? SettingsColors.pillBorderSelected
-                : SettingsColors.pillBorder,
-            width: selected ? 1.4 : 1,
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(99),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(99),
+        splashColor: SettingsColors.white.withValues(alpha: 0.10),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: selected ? _selectedFill : _restFill,
+            borderRadius: BorderRadius.circular(99),
+            border: Border.all(
+              color: selected
+                  ? SettingsColors.pillBorderSelected
+                  : SettingsColors.pillBorder,
+            ),
           ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: SettingsColors.white,
-            fontSize: 12.5,
-            fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+          // `Center(widthFactor: 1)` rather than `Container(alignment:)` —
+          // an aligned Container expands to the full width the Wrap offers,
+          // which would put every pill on its own line.
+          child: SizedBox(
+            height: 40,
+            child: Center(
+              widthFactor: 1,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                child: Text(
+                  label,
+                  style: AppTextStyles.body.copyWith(
+                    color: selected
+                        ? SettingsColors.white
+                        : SettingsColors.soft,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),

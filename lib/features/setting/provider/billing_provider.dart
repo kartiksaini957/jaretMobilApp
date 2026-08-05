@@ -1,27 +1,25 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class InvoiceItem {
-  const InvoiceItem({
-    required this.date,
-    required this.amount,
-    required this.currency,
-  });
+  const InvoiceItem({required this.date, required this.amount});
 
+  /// Already formatted for display — "Jun 1, 2026".
   final String date;
-  final double amount;
-  final String currency;
+
+  /// Already formatted for display — "$199".
+  final String amount;
 }
 
 class BillingState {
   const BillingState({
     this.planName = 'Pro plan',
-    this.renewsOn = '2026-01-01',
-    this.nextPaymentOn = '2025-11-01',
+    this.renewsOn = 'Jan 1, 2027',
+    this.nextPaymentOn = 'Dec 1, 2026',
     this.cardBrand = 'Visa',
     this.cardLast4 = '4242',
-    this.cardExpiry = '12/27',
     this.invoices = const [
-      InvoiceItem(date: '2025-10-01', amount: 199.00, currency: 'USD'),
+      InvoiceItem(date: 'Jun 1, 2026', amount: '\$199'),
+      InvoiceItem(date: 'May 1, 2026', amount: '\$199'),
     ],
   });
 
@@ -30,8 +28,14 @@ class BillingState {
   final String nextPaymentOn;
   final String cardBrand;
   final String cardLast4;
-  final String cardExpiry;
   final List<InvoiceItem> invoices;
+
+  /// "Renews Jan 1, 2027 · next payment Dec 1, 2026".
+  String get renewalLabel =>
+      'Renews $renewsOn · next payment $nextPaymentOn';
+
+  /// "Visa ····4242".
+  String get cardLabel => '$cardBrand ····$cardLast4';
 }
 
 /// Billing tab is read-mostly — plan/payment/invoices come from the

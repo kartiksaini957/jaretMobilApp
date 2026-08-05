@@ -18,48 +18,40 @@ class AiCorrectionsTab extends ConsumerWidget {
     return SettingsSectionCard(
       title: 'AI & Corrections',
       subtitle:
-          'Everything you\'ve told LightSignal it got wrong — and what it\'s learned. Your corrections always win.',
+          'Everything you\'ve told LightSignal it got wrong — and what it\'s '
+          'learned. Your corrections always win.',
       children: [
-        const SettingsGroupLabel('Your corrections', topPadding: 4),
+        const SettingsGroupLabel('Your corrections', topPadding: 0),
         for (final correction in ai.corrections)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          SettingsListRow(
+            richText: TextSpan(
               children: [
-                Expanded(
-                  child: RichText(
-                    text: TextSpan(
-                      style: const TextStyle(
-                        color: SettingsColors.white,
-                        fontSize: 13,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: correction.title,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                        TextSpan(
-                          text:
-                              ' — ${correction.description} · ${correction.date}',
-                        ),
-                      ],
-                    ),
+                TextSpan(
+                  text: correction.title,
+                  style: const TextStyle(
+                    color: SettingsColors.white,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(width: 10),
-                SettingsPillButton(
-                  label: correction.applied ? 'Undo' : 'Restore',
-                  onPressed: () => controller.toggleApplied(correction.id),
+                TextSpan(
+                  text: ' — ${correction.description} · ${correction.date}',
                 ),
               ],
             ),
+            trailing: [
+              SettingsPillButton(
+                // Undo pulls a correction back; Restore re-applies one that
+                // was already undone (the only path to un-dismiss).
+                label: correction.applied ? 'Undo' : 'Restore',
+                compact: true,
+                onPressed: () => controller.toggleApplied(correction.id),
+              ),
+            ],
           ),
-        const SettingsGroupLabel(
-          'What LightSignal has learned about your business',
-        ),
+        const SettingsDivider(),
         SettingsActionRow(
-          label: 'The living summary every agent reads before answering.',
+          label: 'What LightSignal has learned about your business',
+          subtitle: 'The living summary every agent reads before answering.',
           actions: [
             SettingsPillButton(
               label: 'View summary',
@@ -68,10 +60,12 @@ class AiCorrectionsTab extends ConsumerWidget {
             ),
           ],
         ),
-        const SettingsGroupLabel('Business classification'),
+        const SettingsDivider(),
         SettingsActionRow(
-          label:
-              'Last run ${ai.lastClassificationRun} · next scheduled run with your monthly refresh.',
+          label: 'Business classification',
+          subtitle:
+              'Last run ${ai.lastClassificationRun} · next scheduled run '
+              'with your monthly refresh.',
           actions: [
             SettingsPillButton(
               label: 'Re-run now',

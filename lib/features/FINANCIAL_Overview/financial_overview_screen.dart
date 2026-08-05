@@ -19,6 +19,7 @@ import 'widgets/financial_status_banner.dart';
 import 'widgets/expenses_overview_tab.dart';
 import 'widgets/home_overview_tab.dart';
 import 'widgets/pressing_now_tab.dart';
+import '../../widgets/app_nav_destinations.dart';
 
 /// Financial Overview: a status banner, category tabs (Home / Pressing
 /// now / Ratios / Expenses), and — on Ratios — a metric pill row driving
@@ -41,42 +42,7 @@ class _FinancialOverviewScreenState extends State<FinancialOverviewScreen> {
   int _selectedMetric = 0;
 
   void _onDrawerItemSelected(int index) {
-    if (index == 2) return; // Financial Overview — already here.
-    if (index == 1) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const DemandForecastScreen()));
-      return;
-    }
-    if (index == 3) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const BusinessHealthScreen()));
-      return;
-    }
-     if (index == 4) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const OpportunitiesScreen()));
-      return;
-    }
-    if (index == 5) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const ScenariooLabScreen()));
-      return;
-    }
-    if (index == 6) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const BusinessProfileScreen()));
-      return;
-    }
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => DashboardScreen(initialDrawerIndex: index),
-      ),
-    );
+    openNavDestination(context, index, currentIndex: AppNavIndex.financialOverview);
   }
 
   Widget _buildCategoryContent() {

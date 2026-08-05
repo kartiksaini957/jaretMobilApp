@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../theme/app_theme.dart';
 import '../../../widgets/customToast.dart';
-import '../../../widgets/tag_chip.dart';
 import '../provider/data_privacy_provider.dart';
 import '../theme/settings_colors.dart';
 import '../widgets/settings_row_controls.dart';
@@ -42,32 +42,25 @@ class DataPrivacyTab extends ConsumerWidget {
           value: privacy.photoPermissions,
           onChanged: controller.setPhotoPermissions,
         ),
-        if (privacy.photoPermissions) ...[
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _SourceChip(
-                label: 'Google Business Profile',
-                enabled: privacy.googleBusinessProfile,
-                onTap: () => controller.setGoogleBusinessProfile(
-                  !privacy.googleBusinessProfile,
-                ),
-              ),
-              _SourceChip(
-                label: 'Website',
-                enabled: privacy.website,
-                onTap: () => controller.setWebsite(!privacy.website),
-              ),
-              _SourceChip(
-                label: 'Facebook page',
-                enabled: privacy.facebookPage,
-                onTap: () => controller.setFacebookPage(!privacy.facebookPage),
-              ),
-            ],
-          ),
-        ],
+        // The per-source consent gate. It stays visible when the master
+        // toggle is off — greyed out — so the owner can always see exactly
+        // which sources the agent would be allowed to read.
+        _PhotoSourcesRow(
+          enabled: privacy.photoPermissions,
+          sources: [
+            (
+              'Google Business Profile',
+              privacy.googleBusinessProfile,
+              controller.setGoogleBusinessProfile,
+            ),
+            ('Website', privacy.website, controller.setWebsite),
+            (
+              'Facebook page',
+              privacy.facebookPage,
+              controller.setFacebookPage,
+            ),
+          ],
+        ),
         const SettingsDivider(),
         SettingsDropdownRow<int>(
           label: 'Data retention',
@@ -96,7 +89,7 @@ class DataPrivacyTab extends ConsumerWidget {
           actions: [
             SettingsPillButton(
               label: 'Start deletion',
-              danger: true,
+              tone: SettingsButtonTone.danger,
               onPressed: () => _confirmDeletion(context),
             ),
           ],
@@ -111,36 +104,84 @@ class DataPrivacyTab extends ConsumerWidget {
   }
 }
 
-class _SourceChip extends StatelessWidget {
-  const _SourceChip({
+/// The indented "Sources:" row of per-source checkboxes under the photo
+/// permissions toggle.
+class _PhotoSourcesRow extends StatelessWidget {
+  const _PhotoSourcesRow({required this.enabled, required this.sources});
+
+  final bool enabled;
+  final List<(String, bool, ValueChanged<bool>)> sources;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 22, top: 4, bottom: 8),
+      child: Opacity(
+        opacity: enabled ? 1 : 0.45,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Sources:',
+              style: AppTextStyles.body.copyWith(
+                color: SettingsColors.soft,
+                fontSize: 11.5,
+              ),
+            ),
+            const SizedBox(height: 4),
+            // Stacked rather than inline: these labels are long enough that
+            // a single narrow column is the only layout that survives both
+            // a 320pt phone and a large text scale.
+            for (final (label, checked, onChanged) in sources)
+              _SourceCheckbox(
+                label: label,
+                checked: checked,
+                onChanged: enabled ? onChanged : null,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SourceCheckbox extends StatelessWidget {
+  const _SourceCheckbox({
     required this.label,
-    required this.enabled,
-    required this.onTap,
+    required this.checked,
+    required this.onChanged,
   });
 
   final String label;
-  final bool enabled;
-  final VoidCallback onTap;
+  final bool checked;
+  final ValueChanged<bool>? onChanged;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Opacity(
-        opacity: enabled ? 1 : 0.45,
+      onTap: onChanged == null ? null : () => onChanged!(!checked),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              enabled ? Icons.check_circle : Icons.radio_button_unchecked,
-              size: 14,
-              color: enabled
-                  ? SettingsColors.statusConnected
-                  : SettingsColors.faintText,
+              checked ? Icons.check_box : Icons.check_box_outline_blank,
+              size: 18,
+              color: checked
+                  ? SettingsColors.accent
+                  : SettingsColors.soft.withValues(alpha: 0.6),
             ),
             const SizedBox(width: 6),
-            TagChip(label: label),
+            Expanded(
+              child: Text(
+                label,
+                style: AppTextStyles.body.copyWith(
+                  color: SettingsColors.soft,
+                  fontSize: 12,
+                ),
+              ),
+            ),
           ],
         ),
       ),

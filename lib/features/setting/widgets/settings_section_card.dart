@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../../theme/app_theme.dart';
+import '../../../widgets/glass_card.dart';
 import '../theme/settings_colors.dart';
 
-/// Frosted glass card used as the single content panel for each settings
-/// tab: a title, an optional subtitle, then a column of rows.
+/// The `.panel.ls-glass.glassrim` surface from the v2 reference — a title, an
+/// optional description, then a column of rows on frosted glass with the
+/// gradient rim.
 class SettingsSectionCard extends StatelessWidget {
   const SettingsSectionCard({
     super.key,
@@ -18,22 +21,19 @@ class SettingsSectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: SettingsColors.cardFill,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: SettingsColors.cardBorder),
-      ),
+    return GlassCard(
+      surface: GlassSurface.panel,
+      // `.panel { border-radius:20px; padding:24px 26px }`
+      borderRadius: const BorderRadius.all(Radius.circular(20)),
+      padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
-              color: SettingsColors.white,
-              fontSize: 20,
+            // `.panel h2 { font-size:17px; font-weight:800 }`
+            style: AppTextStyles.logo.copyWith(
+              fontSize: 17,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -41,10 +41,11 @@ class SettingsSectionCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               subtitle!,
-              style: const TextStyle(
-                color: SettingsColors.faintText,
+              // `.panel .pd { font-size:12.5px; color:soft; line-height:1.55 }`
+              style: AppTextStyles.body.copyWith(
+                color: SettingsColors.soft,
                 fontSize: 12.5,
-                height: 1.4,
+                height: 1.55,
               ),
             ),
           ],
@@ -56,8 +57,8 @@ class SettingsSectionCard extends StatelessWidget {
   }
 }
 
-/// Small uppercase section label used to break a card into sub-groups
-/// (e.g. "CHANNELS", "ACCOUNTING", "ACTIVE SESSIONS").
+/// `.gtitle` — small uppercase label breaking a panel into sub-groups
+/// ("CHANNELS", "ACCOUNTING", "ACTIVE SESSIONS").
 class SettingsGroupLabel extends StatelessWidget {
   const SettingsGroupLabel(this.text, {super.key, this.topPadding = 20});
 
@@ -67,29 +68,29 @@ class SettingsGroupLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: topPadding, bottom: 8),
+      padding: EdgeInsets.only(top: topPadding, bottom: 10),
       child: Text(
         text.toUpperCase(),
-        style: const TextStyle(
-          color: SettingsColors.faintText,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.0,
+        style: AppTextStyles.eyebrow.copyWith(
+          color: SettingsColors.soft,
+          fontSize: 11.5,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.4,
         ),
       ),
     );
   }
 }
 
-/// Thin translucent divider between rows within a card.
+/// The `border-top` between `.frow`s.
 class SettingsDivider extends StatelessWidget {
   const SettingsDivider({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 12),
-      child: Divider(height: 1, color: SettingsColors.cardBorder),
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Divider(height: 1, thickness: 1, color: SettingsColors.rowDivider),
     );
   }
 }

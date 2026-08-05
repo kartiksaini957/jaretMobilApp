@@ -20,6 +20,7 @@ import 'widgets/overall_health_card.dart';
 import 'widgets/previous_snapshot_card.dart';
 import 'widgets/snapshot_dropdown_pill.dart';
 import 'widgets/snapshot_history_sheet.dart';
+import '../../widgets/app_nav_destinations.dart';
 
 /// Business Health screen: overall score and the category breakdown grid.
 class BusinessHealthScreen extends StatefulWidget {
@@ -33,42 +34,7 @@ class _BusinessHealthScreenState extends State<BusinessHealthScreen> {
   bool _showJan11Snapshot = true;
 
   void _onDrawerItemSelected(int index) {
-    if (index == 3) return; // Business Health — already here.
-    if (index == 1) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const DemandForecastScreen()));
-      return;
-    }
-    if (index == 2) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const FinancialOverviewScreen()),
-      );
-      return;
-    }
-     if (index == 4) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const OpportunitiesScreen()));
-      return;
-    }
-    if (index == 5) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const ScenariooLabScreen()));
-      return;
-    }
-    if (index == 6) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const BusinessProfileScreen()));
-      return;
-    }
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => DashboardScreen(initialDrawerIndex: index),
-      ),
-    );
+    openNavDestination(context, index, currentIndex: AppNavIndex.businessHealth);
   }
 
   @override

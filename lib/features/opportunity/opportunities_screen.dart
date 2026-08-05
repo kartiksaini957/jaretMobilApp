@@ -24,59 +24,13 @@ import 'FilterChip.dart';
 import 'ScenarioLab/cenario_lab_screen.dart';
 import 'metric_card.dart';
 import 'opportunities_provider.dart';
+import '../../widgets/app_nav_destinations.dart';
 
 class OpportunitiesScreen extends ConsumerWidget {
   const OpportunitiesScreen({super.key});
 
   void _onDrawerItemSelected(BuildContext context, int index) {
-    if (index == 4) return; // Opportunities already open
-
-    if (index == 1) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const DemandForecastScreen()));
-      return;
-    }
-
-    if (index == 2) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const FinancialOverviewScreen()),
-      );
-      return;
-    }
-
-    if (index == 3) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const BusinessHealthScreen()));
-      return;
-    }
-    if (index == 4) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const OpportunitiesScreen()));
-      return;
-    }
-
-    if (index == 5) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const ScenariooLabScreen()));
-      return;
-    }
-
-    if (index == 6) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const BusinessProfileScreen()));
-      return;
-    }
-
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => DashboardScreen(initialDrawerIndex: index),
-      ),
-    );
+    openNavDestination(context, index, currentIndex: AppNavIndex.opportunities);
   }
 
   void _openPortfolioSheet(BuildContext context) {
@@ -259,18 +213,19 @@ class OpportunitiesScreen extends ConsumerWidget {
 
                 const SizedBox(height: 12),
 
-                Row(
-                  children: [
-                    FilterChipWidget(text: "Type"),
-
-                    const SizedBox(width: 8),
-
-                    FilterChipWidget(text: "Distance"),
-
-                    const SizedBox(width: 8),
-
-                    FilterChipWidget(text: "Risk"),
-                  ],
+                // The chips stay on one line and scroll sideways — a plain
+                // Row overflows once they outgrow a narrow phone.
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: const [
+                      FilterChipWidget(text: "Type"),
+                      SizedBox(width: 8),
+                      FilterChipWidget(text: "Distance"),
+                      SizedBox(width: 8),
+                      FilterChipWidget(text: "Risk"),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 24),
 

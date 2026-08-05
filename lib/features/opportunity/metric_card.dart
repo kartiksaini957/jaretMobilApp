@@ -31,20 +31,41 @@ class MetricCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-              Text(title, style: AppTextStyles.eyebrow),
-
-              const Spacer(),
-
               Text(
-                value,
-                style: GoogleFonts.spaceGrotesk(
-                  color: Colors.white,
-                  fontSize: 27,
-                  fontWeight: FontWeight.bold,
+                title,
+                style: AppTextStyles.eyebrow,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+
+              const SizedBox(height: 6),
+
+              // The grid cell is a fixed height, so on a narrow phone — or
+              // at a large text scale — the three lines can outgrow it.
+              // Giving the value the leftover space and letting it scale
+              // down keeps the card intact instead of overflowing.
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.bottomLeft,
+                  child: Text(
+                    value,
+                    maxLines: 1,
+                    style: GoogleFonts.spaceGrotesk(
+                      color: Colors.white,
+                      fontSize: 27,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
 
-              Text(subtitle, style: AppTextStyles.small.copyWith(fontSize: 12)),
+              Text(
+                subtitle,
+                style: AppTextStyles.small.copyWith(fontSize: 12),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
 

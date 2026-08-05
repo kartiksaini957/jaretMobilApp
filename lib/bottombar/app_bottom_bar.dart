@@ -100,10 +100,17 @@ class AppBottomBar extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: List.generate(items.length, (index) {
-                  return _BottomBarButton(
-                    item: items[index],
-                    isSelected: index == selectedIndex,
-                    onTap: () => onTap(index),
+                  // Each slot is 54px at rest (46 + 4 padding a side). Six of
+                  // them plus the bar's own padding outgrow a ~360pt screen,
+                  // so let them share the width and shrink a little rather
+                  // than overflow — the SizedBox inside clamps to whatever
+                  // the Flexible offers.
+                  return Flexible(
+                    child: _BottomBarButton(
+                      item: items[index],
+                      isSelected: index == selectedIndex,
+                      onTap: () => onTap(index),
+                    ),
                   );
                 }),
               ),

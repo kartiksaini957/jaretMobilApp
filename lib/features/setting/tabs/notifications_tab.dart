@@ -170,13 +170,14 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
               onRemove: () => controller.removeThreshold(threshold.id),
             ),
           ),
-        Row(
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
           children: [
             SettingsPillButton(
               label: '+ Add threshold',
               onPressed: controller.addThreshold,
             ),
-            const SizedBox(width: 8),
             SettingsPillButton(
               label: 'Send test email',
               onPressed: () =>
@@ -287,7 +288,10 @@ class _ThresholdRowState extends State<_ThresholdRow> {
         const SizedBox(width: 8),
         SettingsPillButton(
           label: _editing ? 'Remove' : 'Edit',
-          danger: _editing,
+          tone: _editing
+              ? SettingsButtonTone.danger
+              : SettingsButtonTone.neutral,
+          compact: true,
           onPressed: () {
             if (_editing) {
               widget.onRemove();

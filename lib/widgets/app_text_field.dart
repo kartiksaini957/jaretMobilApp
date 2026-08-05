@@ -15,6 +15,7 @@ class AppTextField extends StatelessWidget {
     this.required = false,
     this.validator,
     this.autovalidateMode,
+    this.enabled = true,
   });
 
   final String label;
@@ -27,6 +28,10 @@ class AppTextField extends StatelessWidget {
   final bool required;
   final FormFieldValidator<String>? validator;
   final AutovalidateMode? autovalidateMode;
+
+  /// Greys the field out and blocks editing — used for read-back states such
+  /// as the email you just submitted a reset link to.
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -61,8 +66,9 @@ class AppTextField extends StatelessWidget {
           textInputAction: textInputAction,
           validator: validator,
           autovalidateMode: autovalidateMode,
+          enabled: enabled,
           style: AppTextStyles.body.copyWith(
-            color: AppColors.white,
+            color: enabled ? AppColors.white : AppColors.faintText,
             fontSize: 15,
           ),
           decoration: InputDecoration(
@@ -86,6 +92,10 @@ class AppTextField extends StatelessWidget {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: AppColors.glassBorder),
+            ),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.glassBorderSoft),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

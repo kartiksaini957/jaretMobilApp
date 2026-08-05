@@ -26,8 +26,8 @@ class NotificationsState {
     this.quietHours = '9 PM – 7 AM',
     this.alsoSendTo = const [],
     this.customThresholds = const [
-      ThresholdItem(id: 'cash', label: 'Cash < \$10k'),
-      ThresholdItem(id: 'permit', label: 'Permit expires < 30 days'),
+      ThresholdItem(id: 'cash', label: 'Cash below \$10,000'),
+      ThresholdItem(id: 'permit', label: 'Permit expires within 30 days'),
     ],
   });
 
