@@ -35,14 +35,38 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  static const _bottomItems = [
-    BottomBarItem(icon: Icons.check_circle_outline, badgeCount: 1),
-    BottomBarItem(icon: Icons.flag_outlined, badgeCount: 3),
-    BottomBarItem(image: 'assets/images/light.png', badgeCount: 1),
-    BottomBarItem(image: 'assets/images/infniti.png', badgeCount: 3),
-    BottomBarItem(icon: Icons.bar_chart, badgeCount: 5),
-    BottomBarItem(icon: Icons.chat),
-  ];
+  /// Hides the badge when there's nothing to count — while insights are
+  /// still loading (null) or when a section came back empty.
+  static int? _badge(int? count) =>
+      (count == null || count == 0) ? null : count;
+
+  /// The first four tabs badge how many items their section will show, so
+  /// the counts come straight from the dashboard-insights response.
+  List<BottomBarItem> _buildBottomItems(
+    AsyncValue<BusinessHealthResponse> insights,
+  ) {
+    final data = insights.value?.data;
+    return [
+      BottomBarItem(
+        icon: Icons.check_circle_outline,
+        badgeCount: _badge(data?.insightPairs.length),
+      ),
+      BottomBarItem(
+        icon: Icons.flag_outlined,
+        badgeCount: _badge(data?.alerts.length),
+      ),
+      BottomBarItem(
+        image: 'assets/images/light.png',
+        badgeCount: _badge(data?.opportunities.length),
+      ),
+      BottomBarItem(
+        image: 'assets/images/infniti.png',
+        badgeCount: _badge(data?.whatChanged.length),
+      ),
+      const BottomBarItem(icon: Icons.bar_chart, badgeCount: 5),
+      const BottomBarItem(icon: Icons.chat),
+    ];
+  }
 
   late int _selectedTab = widget.initialTabIndex;
   String? _cachedName;
@@ -132,7 +156,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 right: 20,
                 bottom: 16,
                 child: AppBottomBar(
-                  items: _bottomItems,
+                  items: _buildBottomItems(dashboardInsights),
                   selectedIndex: _selectedTab,
                   onTap: (index) => setState(() => _selectedTab = index),
                 ),
