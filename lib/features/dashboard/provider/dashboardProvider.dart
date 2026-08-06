@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_application_1/features/dashboard/model/dashboardTabsModel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// `KeepAliveLink` lives here rather than in the main barrel file.
+import 'package:flutter_riverpod/misc.dart';
 
 import '../../../core/api_services.dart';
 import '../../../utils/pref_utils.dart';
@@ -39,19 +43,49 @@ final dashboardInsightsProvider =
     accessToken: token,
   );
 });
+/// Holds an autoDispose provider's value for [duration] after its last
+/// listener goes away, instead of tearing it down immediately. Leaving a
+/// screen and coming back inside that window reuses the cached response
+/// rather than re-hitting the API.
+KeepAliveLink _cacheFor(Ref ref, Duration duration) {
+  final link = ref.keepAlive();
+  Timer? timer;
+
+  ref.onDispose(() => timer?.cancel());
+  // No listeners left — start the countdown to disposal.
+  ref.onCancel(() => timer = Timer(duration, link.close));
+  // Someone re-subscribed before it expired — call the countdown off.
+  ref.onResume(() {
+    timer?.cancel();
+    timer = null;
+  });
+
+  return link;
+}
+
 final dashboardKpisProvider = FutureProvider.autoDispose<DashboardKpiResponse>((
-    ref,
-    ) async {
-  // Get saved access token
-  final token = await PrefUtils.getAccessToken();
+  ref,
+) async {
+  // Cached for a minute, so flipping back to the Numbers tab doesn't re-hit
+  // the API. Failures drop out of the cache immediately (see below) so the
+  // next tap is a real retry.
+  final link = _cacheFor(ref, const Duration(minutes: 1));
 
-  // If user is not logged in
-  if (token == null || token.isEmpty) {
-    throw ApiException('Not signed in.');
+  try {
+    // Get saved access token
+    final token = await PrefUtils.getAccessToken();
+
+    // If user is not logged in
+    if (token == null || token.isEmpty) {
+      throw ApiException('Not signed in.');
+    }
+
+    // Call API
+    return await ApiService().getDashboardKpis(accessToken: token);
+  } catch (_) {
+    link.close();
+    rethrow;
   }
-
-  // Call API
-  return ApiService().getDashboardKpis(accessToken: token);
 });
 
 /// Identifies one KPI for `POST /dashboard/kpi-explain`. Doubles as the
