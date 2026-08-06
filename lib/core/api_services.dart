@@ -421,21 +421,20 @@ class ApiService {
     final uri = Uri.parse(ApiConstants.dashboardNumber);
 
     debugPrint('================ Dashboard Number API ================');
-    debugPrint('POST : ${uri.toString()}');
+    debugPrint('GET : ${uri.toString()}');
     debugPrint('TOKEN : $accessToken');
 
     late final http.Response response;
 
     try {
-      response = await http
-          .post(
-            uri,
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer $accessToken',
-            },
-          )
-          .timeout(const Duration(seconds: 20));
+      response = await http.get(
+  uri,
+  headers: {
+    'Authorization': 'Bearer $accessToken',
+    'Accept': 'application/json',
+  },
+)
+          .timeout(const Duration(seconds: 40));
     } catch (e) {
       debugPrint('Network Error : $e');
       throw ApiException('Could not reach the server: $e');
@@ -486,4 +485,8 @@ class ApiService {
 
     return result;
   }
+
+// dashboard number detail
+
+
 }

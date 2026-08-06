@@ -108,7 +108,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           '',
                       summary: dashboardInsights.when(
                         loading: () => 'Loading...',
-                        error: (error, _) => 'Unable to load summary.',
+                        error: (error, _) =>
+                            'No insights available yet — check back once your data has synced.',
                         data: (data) => data.data.summary,
                       ),
                     ),
@@ -194,7 +195,7 @@ class _RemindersSection extends ConsumerWidget {
           children: [
             Expanded(
               child: Text(
-                'Couldn\'t load reminders.',
+                'No reminders right now.',
                 style: AppTextStyles.body.copyWith(color: AppColors.faintText),
               ),
             ),
@@ -343,7 +344,7 @@ class _WhatToActOnSection extends StatelessWidget {
     return _InsightsSection<InsightPair>(
       title: 'WHAT TO ACT ON',
       select: (data) => data.insightPairs,
-      emptyText: 'Nothing to act on right now.',
+      emptyText: 'Nothing needs action right now.',
       shimmerCount: 2,
       shimmerHeight: 92,
       builder: (context, pairs) => Column(
@@ -459,7 +460,7 @@ class _OpportunitiesSection extends StatelessWidget {
     return _InsightsSection<String>(
       title: 'OPPORTUNITIES',
       select: (data) => data.opportunities,
-      emptyText: 'No opportunities surfaced yet.',
+      emptyText: 'No opportunities surfaced right now.',
       shimmerCount: 2,
       shimmerHeight: 76,
       builder: (context, items) => Column(
@@ -601,7 +602,7 @@ class _NumbersSection extends ConsumerWidget {
             ],
           ),
           error: (error, stackTrace) => _InsightsMessageTile(
-            text: 'Couldn\'t load numbers.',
+            text: 'No KPI data available yet.',
             onRetry: () => ref.refresh(dashboardKpisProvider),
           ),
           data: (response) => _buildTiles(context, response.data.kpis),
@@ -677,6 +678,7 @@ class _NumbersSection extends ConsumerWidget {
       ],
     );
   }
+
   static const _revenue = MetricDetail(
     title: 'Revenue MTD',
     value: '\$45,230',
@@ -896,7 +898,6 @@ class _NumbersSection extends ConsumerWidget {
     ],
     confidence: 'High (97% data coverage)',
   );
-
 }
 
 class _AskAiSection extends StatelessWidget {
