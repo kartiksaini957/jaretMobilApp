@@ -8,6 +8,7 @@ import '../../widgets/customAppbar.dart';
 import '../../widgets/gradient_background.dart';
 import '../../widgets/shimmer_box.dart';
 import 'model/dashboardModel.dart';
+import 'model/dashboardTabsModel.dart';
 import 'provider/dashboardProvider.dart';
 import 'widgets/greeting_card.dart';
 import 'widgets/health_score_tile.dart';
@@ -241,63 +242,177 @@ class _RemindersSection extends ConsumerWidget {
   }
 }
 
+/// Wraps a lower-tab section that reads from `dashboardInsightsProvider`:
+/// eyebrow title first, then shimmer while loading, a retry row on error,
+/// or an empty-state line when the API returns nothing for that field.
+class _InsightsSection<T> extends ConsumerWidget {
+  const _InsightsSection({
+    super.key,
+    required this.title,
+    required this.select,
+    required this.builder,
+    required this.emptyText,
+    this.shimmerCount = 3,
+    this.shimmerHeight = 44,
+  });
+
+  final String title;
+  final List<T> Function(BusinessHealthData data) select;
+  final Widget Function(BuildContext context, List<T> items) builder;
+  final String emptyText;
+  final int shimmerCount;
+  final double shimmerHeight;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final insights = ref.watch(dashboardInsightsProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: AppTextStyles.eyebrow),
+        const SizedBox(height: 10),
+        insights.when(
+          loading: () => Column(
+            children: [
+              for (var i = 0; i < shimmerCount; i++) ...[
+                if (i > 0) const SizedBox(height: 10),
+                ShimmerBox(height: shimmerHeight, borderRadius: 14),
+              ],
+            ],
+          ),
+          error: (error, stackTrace) => _InsightsMessageTile(
+            text: 'Couldn\'t load insights.',
+            onRetry: () => ref.refresh(dashboardInsightsProvider),
+          ),
+          data: (response) {
+            final items = select(response.data);
+            if (items.isEmpty) {
+              return _InsightsMessageTile(text: emptyText);
+            }
+            return builder(context, items);
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _InsightsMessageTile extends StatelessWidget {
+  const _InsightsMessageTile({required this.text, this.onRetry});
+  final String text;
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppColors.glassDark,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.glassBorder),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              text,
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.faintText,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+          if (onRetry != null)
+            TextButton(
+              onPressed: onRetry,
+              child: Text('Retry', style: AppTextStyles.body),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class _WhatToActOnSection extends StatelessWidget {
   const _WhatToActOnSection({super.key});
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('WHAT TO ACT ON', style: AppTextStyles.eyebrow),
-        const SizedBox(height: 10),
-        const InsightCard(
-          dotColor: AppColors.warnDot,
-          label: 'THE ISSUE',
-          headline:
-              'Food cost crept to 31% of revenue — 3 pts above your '
-              'healthy range, driven by produce price spikes.',
-        ),
-        const SizedBox(height: 12),
-        const InsightCard(
-          dotColor: Color(0xFFA6F5DC),
-          label: 'THE MOVE',
-          body:
-              'Lock a produce contract. Restaurant Depot is \$42/case on '
-              'avocados vs your current \$49.',
-          bodyColor: Color(0xFFA6F5DC),
-        ),
-      ],
+    return _InsightsSection<InsightPair>(
+      title: 'WHAT TO ACT ON',
+      select: (data) => data.insightPairs,
+      emptyText: 'Nothing to act on right now.',
+      shimmerCount: 2,
+      shimmerHeight: 92,
+      builder: (context, pairs) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < pairs.length; i++) ...[
+            if (i > 0) const SizedBox(height: 20),
+            InsightCard(
+              dotColor: AppColors.warnDot,
+              label: 'THE ISSUE',
+              headline: pairs[i].problem,
+            ),
+            const SizedBox(height: 12),
+            InsightCard(
+              dotColor: AppColors.goodText,
+              label: 'THE MOVE',
+              body: pairs[i].solution,
+              bodyColor: AppColors.goodText,
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
 
 class _FlagsSection extends StatelessWidget {
   const _FlagsSection({super.key});
-  static const _flags = [
-    (AppColors.goodText, 'Revenue ahead of target by 12%'),
-    (AppColors.warnDot, 'Food cost up 3.1 pts vs Dec'),
-    (AppColors.warnDot, '17 invoices overdue (\$9,240)'),
-  ];
+
+  /// Positive alerts read green regardless of severity; otherwise the
+  /// severity drives the dot: high → red, medium → amber, low → soft.
+  static Color _dotColorFor(AlertModel alert) {
+    if (alert.type == 'positive') return AppColors.goodText;
+    switch (alert.severity) {
+      case 'high':
+        return AppColors.critDot;
+      case 'medium':
+        return AppColors.warnDot;
+      default:
+        return AppColors.soft;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('FLAGS', style: AppTextStyles.eyebrow),
-        const SizedBox(height: 10),
-        for (var i = 0; i < _flags.length; i++) ...[
-          if (i > 0) const SizedBox(height: 10),
-          _FlagTile(dotColor: _flags[i].$1, text: _flags[i].$2),
+    return _InsightsSection<AlertModel>(
+      title: 'FLAGS',
+      select: (data) => data.alerts,
+      emptyText: 'No flags right now.',
+      builder: (context, alerts) => Column(
+        children: [
+          for (var i = 0; i < alerts.length; i++) ...[
+            if (i > 0) const SizedBox(height: 10),
+            _FlagTile(
+              dotColor: _dotColorFor(alerts[i]),
+              // icon: alerts[i].icon,
+              text: alerts[i].message,
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
 
 class _FlagTile extends StatelessWidget {
-  const _FlagTile({required this.dotColor, required this.text});
+  const _FlagTile({required this.dotColor, required this.text, this.icon});
   final Color dotColor;
   final String text;
+  final String? icon;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -308,13 +423,19 @@ class _FlagTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 8,
             height: 8,
+            margin: const EdgeInsets.only(top: 5),
             decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
           ),
           const SizedBox(width: 10),
+          if (icon != null && icon!.isNotEmpty) ...[
+            Text(icon!, style: const TextStyle(fontSize: 13.5)),
+            const SizedBox(width: 8),
+          ],
           Expanded(
             child: Text(
               text,
@@ -334,50 +455,50 @@ class _OpportunitiesSection extends StatelessWidget {
   const _OpportunitiesSection({super.key});
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('OPPORTUNITIES', style: AppTextStyles.eyebrow),
-        const SizedBox(height: 10),
-        const InsightCard(
-          dotColor: Color(0xFF5FE0FF),
-          label: 'OPPORTUNITY',
-          headline: 'Catering inquiries up 40%',
-          body:
-              'A fixed catering menu could capture demand you\'re turning '
-              'away.',
-        ),
-      ],
+    return _InsightsSection<String>(
+      title: 'OPPORTUNITIES',
+      select: (data) => data.opportunities,
+      emptyText: 'No opportunities surfaced yet.',
+      shimmerCount: 2,
+      shimmerHeight: 76,
+      builder: (context, items) => Column(
+        children: [
+          for (var i = 0; i < items.length; i++) ...[
+            if (i > 0) const SizedBox(height: 12),
+            InsightCard(
+              dotColor: AppColors.accent,
+              label: 'OPPORTUNITY',
+              body: items[i],
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
 
 class _TrendsSection extends StatelessWidget {
   const _TrendsSection({super.key});
-  static const _changes = [
-    ('Revenue', '+\$7,080 vs Jan, led by weekend dinner covers'),
-    ('Food cost', '+3.1 pts on produce'),
-    ('Overdue', '17 clients moved past 30 days'),
-  ];
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('WHAT CHANGED', style: AppTextStyles.eyebrow),
-        const SizedBox(height: 10),
-        for (var i = 0; i < _changes.length; i++) ...[
-          if (i > 0) const SizedBox(height: 10),
-          _ChangeTile(label: _changes[i].$1, detail: _changes[i].$2),
+    return _InsightsSection<String>(
+      title: 'WHAT CHANGED',
+      select: (data) => data.whatChanged,
+      emptyText: 'Nothing changed since the last period.',
+      builder: (context, items) => Column(
+        children: [
+          for (var i = 0; i < items.length; i++) ...[
+            if (i > 0) const SizedBox(height: 10),
+            _ChangeTile(detail: items[i]),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
 
 class _ChangeTile extends StatelessWidget {
-  const _ChangeTile({required this.label, required this.detail});
-  final String label;
+  const _ChangeTile({required this.detail});
   final String detail;
   @override
   Widget build(BuildContext context) {
@@ -391,17 +512,16 @@ class _ChangeTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 82,
-            child: Text(
-              label,
-              style: AppTextStyles.eyebrow.copyWith(
-                fontSize: 13.5,
-                color: AppColors.mutedText,
-              ),
+          Container(
+            width: 8,
+            height: 8,
+            margin: const EdgeInsets.only(top: 5),
+            decoration: const BoxDecoration(
+              color: AppColors.accent,
+              shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               detail,
