@@ -3,6 +3,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_application_1/features/dashboard/model/dashboardModel.dart';
 import 'package:flutter_application_1/features/dashboard/model/dashboardNumber.dart';
+// Prefixed: this model declares its own `ActionItem`, which would otherwise
+// clash with the reminders one in dashboardModel.dart.
+import 'package:flutter_application_1/features/dashboard/model/dashboardNumberDetail.dart'
+    as kpi_detail;
 import 'package:flutter_application_1/features/dashboard/model/dashboardTabsModel.dart';
 import 'package:http/http.dart' as http;
 
@@ -486,7 +490,81 @@ class ApiService {
     return result;
   }
 
-// dashboard number detail
+  // dashboard number detail (KPI explain) — powers the metric bottom sheet
+  Future<kpi_detail.dashboardNumberDetail> getKpiExplain({
+    required String accessToken,
+    required String kpiName,
+    required num currentValue,
+    required num priorValue,
+    required String formatType,
+    Map<String, dynamic> optionalContext = const {},
+  }) async {
+    final uri = Uri.parse(ApiConstants.dashboardNumberdetail);
+    final body = {
+      'kpi_name': kpiName,
+      'current_value': currentValue,
+      'prior_value': priorValue,
+      'format_type': formatType,
+      'optional_context': optionalContext,
+    };
 
+    debugPrint('================ KPI Explain API ================');
+    debugPrint('POST : ${uri.toString()}');
+    debugPrint('BODY : ${jsonEncode(body)}');
 
+    late final http.Response response;
+
+    try {
+      response = await http
+          .post(
+            uri,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $accessToken',
+            },
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 30));
+    } catch (e) {
+      debugPrint('Network Error : $e');
+      throw ApiException('Could not reach the server: $e');
+    }
+
+    debugPrint('Status Code : ${response.statusCode}');
+    debugPrint('Response : ${response.body}');
+
+    Map<String, dynamic> decoded;
+
+    try {
+      decoded = jsonDecode(response.body) as Map<String, dynamic>;
+    } catch (e) {
+      throw ApiException(
+        'Unexpected response from server.',
+        statusCode: response.statusCode,
+      );
+    }
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ApiException(
+        decoded['message'] ?? decoded['error'] ?? 'Failed to load KPI details.',
+        statusCode: response.statusCode,
+      );
+    }
+
+    final result = kpi_detail.dashboardNumberDetail.fromJson(decoded);
+
+    debugPrint('================ KPI Explain parsed ================');
+    debugPrint('Verdict : ${result.data.verdict}');
+    debugPrint('Status  : ${result.data.status}');
+    debugPrint('Change  : ${result.data.comparison.vsLastPeriod.changeText}');
+    debugPrint('Drivers : ${result.data.drivers.length}');
+    debugPrint('Actions : ${result.data.actions.length}');
+    debugPrint(
+      'Confidence : ${result.data.dataConfidence.label} '
+      '(${result.data.dataConfidence.score})',
+    );
+    debugPrint('================ End =================');
+
+    return result;
+  }
 }

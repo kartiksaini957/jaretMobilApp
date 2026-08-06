@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../theme/app_theme.dart';
 import '../../../widgets/gradient_background.dart';
+import '../../../widgets/shimmer_box.dart';
+import '../model/dashboardNumberDetail.dart' as kpi_detail;
+import '../provider/dashboardProvider.dart';
 
 enum ActionSeverity { high, med, low }
 
@@ -24,20 +28,28 @@ class MetricDriver {
     required this.title,
     required this.subtitle,
     required this.delta,
-    required this.isPositive,
+    this.isPositive,
   });
 
   final String title;
   final String subtitle;
   final String delta;
-  final bool isPositive;
+
+  /// Null when the source has no direction for this driver (the KPI-explain
+  /// API describes impact in prose), which renders the text neutral.
+  final bool? isPositive;
 }
 
 class SuggestedAction {
-  const SuggestedAction({required this.severity, required this.text});
+  const SuggestedAction({
+    required this.severity,
+    required this.text,
+    this.effort,
+  });
 
   final ActionSeverity severity;
   final String text;
+  final String? effort;
 }
 
 /// One "Vs Last Month" / "Vs Peers" view: its own body copy and change
@@ -53,7 +65,9 @@ class ComparisonView {
   final String label;
   final String body;
   final String changeText;
-  final bool changeIsPositive;
+
+  /// Null means flat — shown with a dash instead of an up/down arrow.
+  final bool? changeIsPositive;
 }
 
 /// Everything needed to render a [MetricDetailSheet] for one stat tile.
@@ -79,13 +93,257 @@ class MetricDetail {
   final String confidence;
 }
 
-Future<void> showMetricDetailSheet(BuildContext context, MetricDetail detail) {
+/// Opens the metric sheet for [args] and fetches its explanation from
+/// `/dashboard/kpi-explain` — the request only fires here, on tap.
+/// [title] and [value] are the tile's own label and formatted number, shown
+/// immediately so the header isn't blank while the call is in flight.
+Future<void> showMetricDetailSheet(
+  BuildContext context, {
+  required String title,
+  required String value,
+  required KpiExplainArgs args,
+}) {
   return showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
-    builder: (context) => MetricDetailSheet(detail: detail),
+    builder: (context) =>
+        _MetricDetailLoader(title: title, value: value, args: args),
   );
+}
+
+/// Maps one KPI-explain response onto the sheet's render model.
+MetricDetail _toMetricDetail({
+  required String title,
+  required String value,
+  required kpi_detail.RevenueInsightData data,
+}) {
+  final lastPeriod = data.comparison.vsLastPeriod;
+  final comparisons = <ComparisonView>[
+    ComparisonView(
+      label: 'Vs Last Month',
+      body: data.verdict,
+      changeText: lastPeriod.changeText,
+      changeIsPositive: switch (lastPeriod.direction) {
+        'up' => true,
+        'down' => false,
+        _ => null,
+      },
+    ),
+  ];
+
+  // Peer and target blocks come back all-null when the backend has no
+  // benchmark for this KPI — skip the chip entirely in that case.
+  final peers = data.comparison.vsPeers;
+  final peerGap = peers.gapText?.toString();
+  if (peerGap != null && peerGap.isNotEmpty) {
+    comparisons.add(
+      ComparisonView(
+        label: 'Vs Peers',
+        body: peerGap,
+        changeText: peers.position?.toString() ?? peerGap,
+        changeIsPositive:
+            !(peers.position?.toString().toLowerCase().contains('below') ??
+                false),
+      ),
+    );
+  }
+
+  final target = data.comparison.vsTarget;
+  final targetGap = target.gapText?.toString();
+  if (targetGap != null && targetGap.isNotEmpty) {
+    comparisons.add(
+      ComparisonView(
+        label: 'Vs Target',
+        body: targetGap,
+        changeText: targetGap,
+        changeIsPositive: target.onTrack == true,
+      ),
+    );
+  }
+
+  final confidence = data.dataConfidence;
+  return MetricDetail(
+    title: title,
+    value: value,
+    badgeLabel: _statusLabel(data.status),
+    badgeColor: _statusColor(data.status),
+    comparisons: comparisons,
+    drivers: [
+      for (final driver in data.drivers)
+        MetricDriver(
+          title: driver.description,
+          subtitle: driver.category,
+          delta: driver.impact,
+        ),
+    ],
+    actions: [
+      for (final action in data.actions)
+        SuggestedAction(
+          severity: _severityOf(action.priority),
+          text: action.description,
+          effort: action.effort,
+        ),
+    ],
+    confidence: confidence.label.isEmpty
+        ? '${confidence.score}% data coverage'
+        : '${confidence.label} (${confidence.score}% data coverage)',
+  );
+}
+
+String _statusLabel(String status) =>
+    status.isEmpty ? '—' : status.replaceAll('_', ' ').toUpperCase();
+
+Color _statusColor(String status) => switch (status) {
+  'critical' => AppColors.urgent,
+  'watch' => AppColors.yellow,
+  'good' || 'healthy' || 'strong' => AppColors.goodText,
+  'insufficient_data' => AppColors.faintText,
+  _ => AppColors.accent,
+};
+
+ActionSeverity _severityOf(String priority) => switch (priority) {
+  'high' || 'critical' || 'urgent' => ActionSeverity.high,
+  'medium' || 'med' => ActionSeverity.med,
+  _ => ActionSeverity.low,
+};
+
+/// Holds the sheet chrome steady while the explanation loads, so the header
+/// and close button are usable from the first frame.
+class _MetricDetailLoader extends ConsumerWidget {
+  const _MetricDetailLoader({
+    required this.title,
+    required this.value,
+    required this.args,
+  });
+
+  final String title;
+  final String value;
+  final KpiExplainArgs args;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final explanation = ref.watch(kpiExplainProvider(args));
+    return explanation.when(
+      loading: () => _MetricSheetShell(
+        title: title,
+        value: value,
+        child: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ShimmerBox(height: 72, borderRadius: 14),
+            SizedBox(height: 14),
+            ShimmerBox(height: 36, borderRadius: 20),
+            SizedBox(height: 14),
+            ShimmerBox(height: 52, borderRadius: 14),
+            SizedBox(height: 18),
+            ShimmerBox(height: 96, borderRadius: 14),
+          ],
+        ),
+      ),
+      error: (error, stackTrace) => _MetricSheetShell(
+        title: title,
+        value: value,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Couldn\'t load this metric right now.',
+              style: AppTextStyles.body.copyWith(color: AppColors.faintText),
+            ),
+            const SizedBox(height: 10),
+            OutlinedButton(
+              onPressed: () => ref.invalidate(kpiExplainProvider(args)),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppColors.glassBorder),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: Text(
+                'Retry',
+                style: AppTextStyles.body.copyWith(color: AppColors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+      data: (response) => MetricDetailSheet(
+        detail: _toMetricDetail(
+          title: title,
+          value: value,
+          data: response.data,
+        ),
+      ),
+    );
+  }
+}
+
+/// The sheet's outer frame (rounded gradient panel, grab handle, title and
+/// value header) reused by the loading and error states.
+class _MetricSheetShell extends StatelessWidget {
+  const _MetricSheetShell({
+    required this.title,
+    required this.value,
+    required this.child,
+  });
+
+  final String title;
+  final String value;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return FractionallySizedBox(
+      heightFactor: 0.86,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        child: GradientBackground(
+          child: SafeArea(
+            top: false,
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.glassBorder,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: AppTextStyles.headlineAccent.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15.0,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          value,
+                          style: AppTextStyles.headline.copyWith(fontSize: 38.0),
+                        ),
+                        const SizedBox(height: 16),
+                        child,
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class MetricDetailSheet extends StatefulWidget {
@@ -200,13 +458,17 @@ class _MetricDetailSheetState extends State<MetricDetailSheet> {
                           child: Row(
                             children: [
                               Icon(
-                                comparison.changeIsPositive
-                                    ? Icons.arrow_upward
-                                    : Icons.arrow_downward,
+                                switch (comparison.changeIsPositive) {
+                                  true => Icons.arrow_upward,
+                                  false => Icons.arrow_downward,
+                                  null => Icons.remove,
+                                },
                                 size: 16,
-                                color: comparison.changeIsPositive
-                                    ? AppColors.goodText
-                                    : AppColors.yellow,
+                                color: switch (comparison.changeIsPositive) {
+                                  true => AppColors.goodText,
+                                  false => AppColors.yellow,
+                                  null => AppColors.faintText,
+                                },
                               ),
                               const SizedBox(width: 8),
                               Expanded(
@@ -501,28 +763,38 @@ class _DriverRow extends StatelessWidget {
                   //   fontWeight: FontWeight.w700,
                   // ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  driver.subtitle,
-                  style: AppTextStyles.small.copyWith(
-                    color: AppColors.faintText,
-                    fontSize: 11.0,
+                if (driver.subtitle.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    driver.subtitle,
+                    style: AppTextStyles.small.copyWith(
+                      color: AppColors.faintText,
+                      fontSize: 11.0,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
           const SizedBox(width: 8),
-          Text(
-            driver.delta,
-            style: AppTextStyles.body.copyWith(
-              color: driver.isPositive ? Color(0xFFA6F5DC) : Color(0xFFFFD466),
+          // The API describes impact in prose, so this side needs to wrap
+          // rather than sit as a short right-aligned delta.
+          Expanded(
+            child: Text(
+              driver.delta,
+              style: AppTextStyles.body.copyWith(
+                color: switch (driver.isPositive) {
+                  true => const Color(0xFFA6F5DC),
+                  false => const Color(0xFFFFD466),
+                  null => AppColors.mutedText,
+                },
+              ),
+              //  TextStyle(
+              //   color: driver.isPositive ? AppColors.goodText : AppColors.yellow,
+              //   fontSize: 13.5,
+              //   fontWeight: FontWeight.w700,
+              // ),
             ),
-            //  TextStyle(
-            //   color: driver.isPositive ? AppColors.goodText : AppColors.yellow,
-            //   fontSize: 13.5,
-            //   fontWeight: FontWeight.w700,
-            // ),
           ),
         ],
       ),
@@ -556,9 +828,26 @@ class _ActionRow extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(
-                  action.text,
-                  style: AppTextStyles.body.copyWith(color: AppColors.white),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      action.text,
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.white,
+                      ),
+                    ),
+                    if (action.effort != null && action.effort!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        'Effort: ${action.effort}',
+                        style: AppTextStyles.small.copyWith(
+                          color: AppColors.faintText,
+                          fontSize: 11.0,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ],

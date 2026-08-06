@@ -538,9 +538,6 @@ class _ChangeTile extends StatelessWidget {
     );
   }
 }
-
-/// Formats a KPI amount as `$45,230` / `-$1,240` — no `intl` dependency in
-/// this project, so the thousands separators are grouped by hand.
 String _formatCurrency(num amount) {
   final rounded = amount.round();
   final digits = rounded.abs().toString();
@@ -611,9 +608,37 @@ class _NumbersSection extends ConsumerWidget {
     );
   }
 
+  /// Opens the metric sheet for one KPI — this is what triggers the
+  /// `/dashboard/kpi-explain` call.
+  static void _openDetail(
+    BuildContext context, {
+    required String title,
+    required String value,
+    required String kpiName,
+    required KpiValue kpi,
+    required String formatType,
+  }) {
+    showMetricDetailSheet(
+      context,
+      title: title,
+      value: value,
+      args: KpiExplainArgs(
+        kpiName: kpiName,
+        currentValue: kpi.value,
+        priorValue: kpi.priorValue,
+        formatType: formatType,
+      ),
+    );
+  }
+
   Widget _buildTiles(BuildContext context, DashboardKpis kpis) {
     final margin = kpis.netMarginPct;
     final runway = kpis.runwayMonths;
+    final revenueValue = _formatCurrency(kpis.revenueMtd.value);
+    final marginValue = '${margin.value.toStringAsFixed(1)}%';
+    final cashValue = _formatCurrency(kpis.cash.value);
+    final runwayValue = '${runway.value.toStringAsFixed(1)} mo';
+    final healthValue = kpis.aiHealthScore.value.round().toString();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -622,16 +647,23 @@ class _NumbersSection extends ConsumerWidget {
             Expanded(
               child: StatTile(
                 label: 'REVENUE MTD',
-                value: _formatCurrency(kpis.revenueMtd.value),
+                value: revenueValue,
                 delta: _percentDelta(kpis.revenueMtd) ?? 'no prior period',
-                onTap: () => showMetricDetailSheet(context, _revenue),
+                onTap: () => _openDetail(
+                  context,
+                  title: 'Revenue MTD',
+                  value: revenueValue,
+                  kpiName: 'revenue_mtd',
+                  kpi: kpis.revenueMtd,
+                  formatType: 'currency',
+                ),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: StatTile(
                 label: 'NET MARGIN',
-                value: '${margin.value.toStringAsFixed(1)}%',
+                value: marginValue,
                 delta: _formatSigned(margin.value - margin.priorValue, ' pts'),
                 tagLabel: margin.value >= margin.priorValue
                     ? 'Ahead of prior'
@@ -639,7 +671,14 @@ class _NumbersSection extends ConsumerWidget {
                 tagColor: margin.value >= margin.priorValue
                     ? AppColors.goodText
                     : AppColors.yellow,
-                onTap: () => showMetricDetailSheet(context, _netMargin),
+                onTap: () => _openDetail(
+                  context,
+                  title: 'Net Margin %',
+                  value: marginValue,
+                  kpiName: 'net_margin_pct',
+                  kpi: margin,
+                  formatType: 'percent',
+                ),
               ),
             ),
           ],
@@ -650,21 +689,35 @@ class _NumbersSection extends ConsumerWidget {
             Expanded(
               child: StatTile(
                 label: 'CASH',
-                value: _formatCurrency(kpis.cash.value),
+                value: cashValue,
                 delta:
                     '${_formatSignedCurrency(kpis.cash.value - kpis.cash.priorValue)} vs prior',
-                onTap: () => showMetricDetailSheet(context, _cashFlow),
+                onTap: () => _openDetail(
+                  context,
+                  title: 'Cash',
+                  value: cashValue,
+                  kpiName: 'cash',
+                  kpi: kpis.cash,
+                  formatType: 'currency',
+                ),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: StatTile(
                 label: 'RUNWAY',
-                value: '${runway.value.toStringAsFixed(1)} mo',
+                value: runwayValue,
                 delta: 'at current burn',
                 tagLabel: runway.value < 3 ? 'Watch cash' : null,
                 tagColor: runway.value < 3 ? AppColors.yellow : null,
-                onTap: () => showMetricDetailSheet(context, _runway),
+                onTap: () => _openDetail(
+                  context,
+                  title: 'Runway',
+                  value: runwayValue,
+                  kpiName: 'runway_months',
+                  kpi: runway,
+                  formatType: 'number',
+                ),
               ),
             ),
           ],
@@ -672,232 +725,20 @@ class _NumbersSection extends ConsumerWidget {
         const SizedBox(height: 12),
         HealthScoreTile(
           label: 'HEALTH SCORE',
-          value: kpis.aiHealthScore.value.round().toString(),
+          value: healthValue,
           rangeLabel: '0–100 overall',
+          onTap: () => _openDetail(
+            context,
+            title: 'Health Score',
+            value: healthValue,
+            kpiName: 'ai_health_score',
+            kpi: kpis.aiHealthScore,
+            formatType: 'number',
+          ),
         ),
       ],
     );
   }
-
-  static const _revenue = MetricDetail(
-    title: 'Revenue MTD',
-    value: '\$45,230',
-    badgeLabel: 'Top tier',
-    badgeColor: AppColors.goodText,
-    comparisons: [
-      ComparisonView(
-        label: 'Vs Last Month',
-        body:
-            'Revenue is pacing 18.5% ahead of January and on track for a '
-            'record month, carried by weekend dinner covers.',
-        changeText: 'Up \$7,080 (\$38.2K → \$45.2K)',
-      ),
-      ComparisonView(
-        label: 'Vs Peer.s',
-        body:
-            'At \$45.2K month-to-date you\'re running ahead of the \$38K '
-            'median for similar businesses by size and industry — top '
-            'quartile for the month so far.',
-        changeText: '\$45.2K vs \$38K peer median · top quartile',
-      ),
-    ],
-    drivers: [
-      MetricDriver(
-        title: 'Weekend dinner covers up 22%',
-        subtitle: 'Traffic mix',
-        delta: '+\$5,100',
-        isPositive: true,
-      ),
-      MetricDriver(
-        title: 'Catering pickup orders',
-        subtitle: 'New channel',
-        delta: '+\$1,600',
-        isPositive: true,
-      ),
-      MetricDriver(
-        title: 'Two soft weekday lunches',
-        subtitle: 'Daypart',
-        delta: '-\$620',
-        isPositive: false,
-      ),
-    ],
-    actions: [
-      SuggestedAction(
-        severity: ActionSeverity.high,
-        text:
-            'Lock in the weekend staffing that\'s driving covers before '
-            'demand outruns the kitchen.',
-      ),
-      SuggestedAction(
-        severity: ActionSeverity.med,
-        text:
-            'Formalize catering as a standing menu line — it\'s already material.',
-      ),
-    ],
-    confidence: 'High (98% data coverage · POS synced 2h ago)',
-  );
-
-  static const _netMargin = MetricDetail(
-    title: 'Net Margin %',
-    value: '13.8%',
-    badgeLabel: 'Above avg',
-    badgeColor: AppColors.goodText,
-    comparisons: [
-      ComparisonView(
-        label: 'Vs Last Month',
-        body:
-            'Net margin rose 1.2 points to 13.8% — above your target '
-            'band, as revenue growth outpaced cost creep.',
-        changeText: 'Up 1.2 pts (12.6% → 13.8%)',
-      ),
-      ComparisonView(
-        label: 'Vs Peers',
-        body:
-            'Your 13.8% net margin sits above the 11.5% median for '
-            'similar businesses by size and industry — top third for '
-            'the category.',
-        changeText: '13.8% vs 11.5% peer median · top third',
-      ),
-    ],
-    drivers: [
-      MetricDriver(
-        title: 'Revenue grew faster than fixed cost',
-        subtitle: 'Operating leverage',
-        delta: '+1.6 pts',
-        isPositive: true,
-      ),
-      MetricDriver(
-        title: 'Produce price spikes',
-        subtitle: 'Food cost',
-        delta: '-0.7 pts',
-        isPositive: false,
-      ),
-      MetricDriver(
-        title: 'Lower card-processing fees',
-        subtitle: 'Payments',
-        delta: '+0.3 pts',
-        isPositive: true,
-      ),
-    ],
-    actions: [
-      SuggestedAction(
-        severity: ActionSeverity.med,
-        text:
-            'Hold the line on food cost — it\'s the only thing pulling margin down.',
-      ),
-      SuggestedAction(
-        severity: ActionSeverity.low,
-        text: 'Bank the processing-fee win; renegotiate again at renewal.',
-      ),
-    ],
-    confidence: 'High (95% data coverage)',
-  );
-
-  static const _cashFlow = MetricDetail(
-    title: 'Cash Flow MTD',
-    value: '+\$8,410',
-    badgeLabel: 'Above avg',
-    badgeColor: AppColors.goodText,
-    comparisons: [
-      ComparisonView(
-        label: 'Vs Last Month',
-        body:
-            'Cash flow is positive at +\$8,410 month-to-date, with '
-            'collections outpacing outflows even after payroll.',
-        changeText: 'Up \$6,120 (+\$2,290 → +\$8,410)',
-      ),
-    ],
-    drivers: [
-      MetricDriver(
-        title: 'Faster customer collections',
-        subtitle: 'Receivables',
-        delta: '+\$5,400',
-        isPositive: true,
-      ),
-      MetricDriver(
-        title: 'Deferred a supplier payment',
-        subtitle: 'Payables timing',
-        delta: '+\$2,100',
-        isPositive: true,
-      ),
-      MetricDriver(
-        title: 'Quarterly tax set-aside',
-        subtitle: 'Reserve',
-        delta: '-\$1,900',
-        isPositive: false,
-      ),
-    ],
-    actions: [
-      SuggestedAction(
-        severity: ActionSeverity.med,
-        text: 'Keep the collections cadence that pulled receivables in early.',
-      ),
-      SuggestedAction(
-        severity: ActionSeverity.low,
-        text:
-            'Set the tax reserve aside weekly so it doesn\'t bunch up at quarter-end.',
-      ),
-    ],
-    confidence: 'High (96% data coverage)',
-  );
-
-  static const _runway = MetricDetail(
-    title: 'Runway',
-    value: '8.0 mo',
-    badgeLabel: 'Below avg',
-    badgeColor: AppColors.yellow,
-    comparisons: [
-      ComparisonView(
-        label: 'Vs Last Month',
-        body:
-            'At the current burn you have about 8 months of runway — '
-            'workable, but thinner than the cushion most peers carry, so '
-            'keep an eye on it.',
-        changeText: 'Down 0.6 mo (8.6 → 8.0 mo)',
-        changeIsPositive: false,
-      ),
-      ComparisonView(
-        label: 'Vs Peers',
-        body:
-            'Your 8.0 months of runway is below the 10.5-month median '
-            'most peers in your category carry — worth tightening up.',
-        changeText: '8.0 mo vs 10.5 mo peer median · below avg',
-        changeIsPositive: false,
-      ),
-    ],
-    drivers: [
-      MetricDriver(
-        title: 'Burn ticked up on seasonal hiring',
-        subtitle: 'Payroll',
-        delta: '-0.5 mo',
-        isPositive: false,
-      ),
-      MetricDriver(
-        title: 'One-off equipment purchase',
-        subtitle: 'Capex',
-        delta: '-0.3 mo',
-        isPositive: false,
-      ),
-      MetricDriver(
-        title: 'Positive cash flow offset some',
-        subtitle: 'Operations',
-        delta: '+0.2 mo',
-        isPositive: true,
-      ),
-    ],
-    actions: [
-      SuggestedAction(
-        severity: ActionSeverity.high,
-        text:
-            'Rebuild the buffer toward 10–11 months before the next slow season.',
-      ),
-      SuggestedAction(
-        severity: ActionSeverity.med,
-        text: 'Convert the equipment spend to a lease to smooth the hit.',
-      ),
-    ],
-    confidence: 'High (97% data coverage)',
-  );
 }
 
 class _AskAiSection extends StatelessWidget {
