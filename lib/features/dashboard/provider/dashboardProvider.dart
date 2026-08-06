@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api_services.dart';
 import '../../../utils/pref_utils.dart';
 import '../model/dashboardModel.dart';
+import '../model/dashboardNumber.dart';
 
 /// Upcoming reminders shown on the dashboard — fetched from
 /// `GET /api/dashboard/reminders` using the saved access token. Re-runs
@@ -34,4 +35,18 @@ final dashboardInsightsProvider =
   return ApiService().getDashboardInsights(
     accessToken: token,
   );
+});
+final dashboardKpisProvider = FutureProvider.autoDispose<DashboardKpiResponse>((
+    ref,
+    ) async {
+  // Get saved access token
+  final token = await PrefUtils.getAccessToken();
+
+  // If user is not logged in
+  if (token == null || token.isEmpty) {
+    throw ApiException('Not signed in.');
+  }
+
+  // Call API
+  return ApiService().getDashboardKpis(accessToken: token);
 });

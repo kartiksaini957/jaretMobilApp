@@ -8,6 +8,7 @@ import '../../widgets/customAppbar.dart';
 import '../../widgets/gradient_background.dart';
 import '../../widgets/shimmer_box.dart';
 import 'model/dashboardModel.dart';
+import 'model/dashboardNumber.dart';
 import 'model/dashboardTabsModel.dart';
 import 'provider/dashboardProvider.dart';
 import 'widgets/greeting_card.dart';
@@ -537,8 +538,145 @@ class _ChangeTile extends StatelessWidget {
   }
 }
 
-class _NumbersSection extends StatelessWidget {
+/// Formats a KPI amount as `$45,230` / `-$1,240` — no `intl` dependency in
+/// this project, so the thousands separators are grouped by hand.
+String _formatCurrency(num amount) {
+  final rounded = amount.round();
+  final digits = rounded.abs().toString();
+  final buffer = StringBuffer();
+  for (var i = 0; i < digits.length; i++) {
+    if (i > 0 && (digits.length - i) % 3 == 0) buffer.write(',');
+    buffer.write(digits[i]);
+  }
+  return '${rounded < 0 ? '-' : ''}\$$buffer';
+}
+
+String _formatSignedCurrency(num amount) =>
+    amount >= 0 ? '+${_formatCurrency(amount)}' : _formatCurrency(amount);
+
+String _formatSigned(num value, String suffix, {int decimals = 1}) {
+  final text = value.abs().toStringAsFixed(decimals);
+  return '${value < 0 ? '-' : '+'}$text$suffix';
+}
+
+class _NumbersSection extends ConsumerWidget {
   const _NumbersSection({super.key});
+
+  /// Percent change vs the prior period. Returns null when the prior value
+  /// is zero, since there's no meaningful base to compare against.
+  static String? _percentDelta(KpiValue kpi) {
+    if (kpi.priorValue == 0) return null;
+    final change = (kpi.value - kpi.priorValue) / kpi.priorValue.abs() * 100;
+    return '${_formatSigned(change, '%')} vs prior';
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final kpis = ref.watch(dashboardKpisProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('NUMBERS', style: AppTextStyles.eyebrow),
+        const SizedBox(height: 10),
+        kpis.when(
+          loading: () => const Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(child: ShimmerBox(height: 92, borderRadius: 14)),
+                  SizedBox(width: 12),
+                  Expanded(child: ShimmerBox(height: 92, borderRadius: 14)),
+                ],
+              ),
+              SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(child: ShimmerBox(height: 92, borderRadius: 14)),
+                  SizedBox(width: 12),
+                  Expanded(child: ShimmerBox(height: 92, borderRadius: 14)),
+                ],
+              ),
+              SizedBox(height: 12),
+              ShimmerBox(height: 72, borderRadius: 14),
+            ],
+          ),
+          error: (error, stackTrace) => _InsightsMessageTile(
+            text: 'Couldn\'t load numbers.',
+            onRetry: () => ref.refresh(dashboardKpisProvider),
+          ),
+          data: (response) => _buildTiles(context, response.data.kpis),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTiles(BuildContext context, DashboardKpis kpis) {
+    final margin = kpis.netMarginPct;
+    final runway = kpis.runwayMonths;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: StatTile(
+                label: 'REVENUE MTD',
+                value: _formatCurrency(kpis.revenueMtd.value),
+                delta: _percentDelta(kpis.revenueMtd) ?? 'no prior period',
+                onTap: () => showMetricDetailSheet(context, _revenue),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: StatTile(
+                label: 'NET MARGIN',
+                value: '${margin.value.toStringAsFixed(1)}%',
+                delta: _formatSigned(margin.value - margin.priorValue, ' pts'),
+                tagLabel: margin.value >= margin.priorValue
+                    ? 'Ahead of prior'
+                    : 'Below prior',
+                tagColor: margin.value >= margin.priorValue
+                    ? AppColors.goodText
+                    : AppColors.yellow,
+                onTap: () => showMetricDetailSheet(context, _netMargin),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: StatTile(
+                label: 'CASH',
+                value: _formatCurrency(kpis.cash.value),
+                delta:
+                    '${_formatSignedCurrency(kpis.cash.value - kpis.cash.priorValue)} vs prior',
+                onTap: () => showMetricDetailSheet(context, _cashFlow),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: StatTile(
+                label: 'RUNWAY',
+                value: '${runway.value.toStringAsFixed(1)} mo',
+                delta: 'at current burn',
+                tagLabel: runway.value < 3 ? 'Watch cash' : null,
+                tagColor: runway.value < 3 ? AppColors.yellow : null,
+                onTap: () => showMetricDetailSheet(context, _runway),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        HealthScoreTile(
+          label: 'HEALTH SCORE',
+          value: kpis.aiHealthScore.value.round().toString(),
+          rangeLabel: '0–100 overall',
+        ),
+      ],
+    );
+  }
   static const _revenue = MetricDetail(
     title: 'Revenue MTD',
     value: '\$45,230',
@@ -759,69 +897,6 @@ class _NumbersSection extends StatelessWidget {
     confidence: 'High (97% data coverage)',
   );
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('NUMBERS', style: AppTextStyles.eyebrow),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: StatTile(
-                label: 'REVENUE MTD',
-                value: '\$45,230',
-                delta: '+18.5% vs Jan',
-                onTap: () => showMetricDetailSheet(context, _revenue),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: StatTile(
-                label: 'NET MARGIN',
-                value: '13.8%',
-                delta: '+1.2 pts',
-                tagLabel: 'Ahead of target',
-                tagColor: AppColors.goodText,
-                onTap: () => showMetricDetailSheet(context, _netMargin),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: StatTile(
-                label: 'CASH FLOW MTD',
-                value: '+\$8,410',
-                delta: 'inflow positive',
-                onTap: () => showMetricDetailSheet(context, _cashFlow),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: StatTile(
-                label: 'RUNWAY',
-                value: '8.0 mo',
-                delta: 'at current burn',
-                tagLabel: 'Watch cash',
-                tagColor: AppColors.yellow,
-                onTap: () => showMetricDetailSheet(context, _runway),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        const HealthScoreTile(
-          label: 'HEALTH SCORE',
-          value: '78',
-          rangeLabel: '0–100 overall',
-        ),
-      ],
-    );
-  }
 }
 
 class _AskAiSection extends StatelessWidget {
