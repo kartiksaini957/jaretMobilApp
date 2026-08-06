@@ -133,18 +133,17 @@ MetricDetail _toMetricDetail({
   ];
 
   // Peer and target blocks come back all-null when the backend has no
-  // benchmark for this KPI — skip the chip entirely in that case.
+  // benchmark for this KPI — skip the chip entirely in that case. The
+  // verdict stays put across chips; only the change row below swaps.
   final peers = data.comparison.vsPeers;
   final peerGap = peers.gapText?.toString();
   if (peerGap != null && peerGap.isNotEmpty) {
     comparisons.add(
       ComparisonView(
         label: 'Vs Peers',
-        body: peerGap,
-        changeText: peers.position?.toString() ?? peerGap,
-        changeIsPositive:
-            !(peers.position?.toString().toLowerCase().contains('below') ??
-                false),
+        body: data.verdict,
+        changeText: peerGap,
+        changeIsPositive: null,
       ),
     );
   }
@@ -155,9 +154,13 @@ MetricDetail _toMetricDetail({
     comparisons.add(
       ComparisonView(
         label: 'Vs Target',
-        body: targetGap,
+        body: data.verdict,
         changeText: targetGap,
-        changeIsPositive: target.onTrack == true,
+        changeIsPositive: switch (target.onTrack) {
+          true => true,
+          false => false,
+          _ => null,
+        },
       ),
     );
   }
