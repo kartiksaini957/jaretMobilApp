@@ -13,4 +13,7 @@ class ApiConstants {
 
   static const String dashboard = "$apiBaseUrl/ai/dashboard-insights";
 
+  static const String dashboardNumber = "$apiBaseUrl/dashboard/kpis";
+
+
 }

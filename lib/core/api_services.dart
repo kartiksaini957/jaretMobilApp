@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_application_1/features/dashboard/model/dashboardModel.dart';
+import 'package:flutter_application_1/features/dashboard/model/dashboardNumber.dart';
 import 'package:flutter_application_1/features/dashboard/model/dashboardTabsModel.dart';
 import 'package:http/http.dart' as http;
 
@@ -408,6 +409,79 @@ class ApiService {
       debugPrint(item);
     }
 
+    debugPrint('================ End =================');
+
+    return result;
+  }
+
+  // dashboard number
+  Future<DashboardKpiResponse> getDashboardKpis({
+    required String accessToken,
+  }) async {
+    final uri = Uri.parse(ApiConstants.dashboardNumber);
+
+    debugPrint('================ Dashboard Number API ================');
+    debugPrint('POST : ${uri.toString()}');
+    debugPrint('TOKEN : $accessToken');
+
+    late final http.Response response;
+
+    try {
+      response = await http
+          .post(
+            uri,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $accessToken',
+            },
+          )
+          .timeout(const Duration(seconds: 20));
+    } catch (e) {
+      debugPrint('Network Error : $e');
+      throw ApiException('Could not reach the server: $e');
+    }
+
+    debugPrint('Status Code : ${response.statusCode}');
+    debugPrint('Response : ${response.body}');
+
+    Map<String, dynamic> decoded;
+
+    try {
+      decoded = jsonDecode(response.body) as Map<String, dynamic>;
+    } catch (e) {
+      throw ApiException(
+        'Unexpected response from server.',
+        statusCode: response.statusCode,
+      );
+    }
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ApiException(
+        decoded['message'] ??
+            decoded['error'] ??
+            'Failed to load dashboard numbers.',
+        statusCode: response.statusCode,
+      );
+    }
+
+    final result = DashboardKpiResponse.fromJson(decoded);
+
+    debugPrint('================ API numbers start  ================');
+    debugPrint('Success : ${result.success}');
+    debugPrint('Revenue MTD : ${result.data.kpis.revenueMtd.value}');
+    debugPrint('Revenue Prior : ${result.data.kpis.revenueMtd.priorValue}');
+    debugPrint('Net Margin : ${result.data.kpis.netMarginPct.value}');
+    debugPrint(
+      'Net Margin Prior : ${result.data.kpis.netMarginPct.priorValue}',
+    );
+    debugPrint('Cash : ${result.data.kpis.cash.value}');
+    debugPrint('Cash Prior : ${result.data.kpis.cash.priorValue}');
+    debugPrint('Runway : ${result.data.kpis.runwayMonths.value}');
+    debugPrint('Runway Prior : ${result.data.kpis.runwayMonths.priorValue}');
+    debugPrint('AI Health Score : ${result.data.kpis.aiHealthScore.value}');
+    debugPrint(
+      'AI Health Score Prior : ${result.data.kpis.aiHealthScore.priorValue}',
+    );
     debugPrint('================ End =================');
 
     return result;
