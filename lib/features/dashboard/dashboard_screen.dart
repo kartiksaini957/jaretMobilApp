@@ -1,21 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/features/opportunity/ScenarioLab/cenario_lab_screen.dart';
-import 'package:flutter_application_1/features/opportunity/opportunities_screen.dart';
+import 'package:flutter_application_1/features/auth/providers/login_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../bottombar/app_bottom_bar.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app_nav_drawer.dart';
 import '../../widgets/customAppbar.dart';
 import '../../widgets/gradient_background.dart';
 import '../../widgets/shimmer_box.dart';
-import '../FINANCIAL_Overview/financial_overview_screen.dart';
-import '../business_health/business_health_screen.dart';
-import '../demand_Forecast/demand_forecast_screen.dart';
-import '../Scenario_lab/scenario_lab_screen.dart';
-import '../auth/providers/login_provider.dart';
-import '../business_profile/business_profile_screen.dart';
-import '../setting/settings_screen.dart';
 import 'model/dashboardModel.dart';
 import 'provider/dashboardProvider.dart';
 import 'widgets/greeting_card.dart';
@@ -27,10 +18,6 @@ import 'widgets/stat_tile.dart';
 import '../../utils/pref_utils.dart';
 import '../../widgets/app_nav_destinations.dart';
 
-/// Dashboard — the home screen. Until the other drawer destinations
-/// exist, drawer items just reopen this same screen. The bottom-bar tabs
-/// stay on this screen and only swap the section below the reminders
-/// card, with an animated cross-fade instead of a hard cut.
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({
     super.key,
@@ -49,11 +36,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   static const _bottomItems = [
     BottomBarItem(icon: Icons.check_circle_outline, badgeCount: 1),
     BottomBarItem(icon: Icons.flag_outlined, badgeCount: 3),
-    // BottomBarItem(icon: Icons.bolt, badgeCount: 1),
     BottomBarItem(image: 'assets/images/light.png', badgeCount: 1),
-    // BottomBarItem(icon: Icons.show_chart, badgeCount: 3),
     BottomBarItem(image: 'assets/images/infniti.png', badgeCount: 3),
-
     BottomBarItem(icon: Icons.bar_chart, badgeCount: 5),
     BottomBarItem(icon: Icons.chat),
   ];
@@ -69,17 +53,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         setState(() => _cachedName = name);
       }
     });
-  }
-
-  void _reopenDashboard({int? drawerIndex}) {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => DashboardScreen(
-          initialTabIndex: _selectedTab,
-          initialDrawerIndex: drawerIndex ?? widget.initialDrawerIndex,
-        ),
-      ),
-    );
   }
 
   void _onDrawerItemSelected(int index) {
@@ -105,6 +78,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final dashboardInsights = ref.watch(dashboardInsightsProvider);
     return Scaffold(
       extendBody: true,
       appBar: const CustomAppBar(
@@ -130,10 +104,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           ref.watch(loginControllerProvider).user?.name ??
                           _cachedName ??
                           '',
-                      summary:
-                          'Revenue up 18.5% MoM and margin holding — cash '
-                          'runway at 8 months keeps you out of the danger '
-                          'zone.',
+                      summary: dashboardInsights.when(
+                        loading: () => 'Loading...',
+                        error: (error, _) => 'Unable to load summary.',
+                        data: (data) => data.data.summary,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     Text('UPCOMING REMINDERS', style: AppTextStyles.eyebrow),
@@ -167,11 +142,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 }
 
-/// Upcoming reminders — shimmer while the API call is in flight, the
-/// real card once it resolves, or a compact retry row on failure.
 class _RemindersSection extends ConsumerWidget {
   const _RemindersSection();
-
   Color _dotColorFor(String priority) {
     switch (priority) {
       case 'critical':
@@ -198,7 +170,6 @@ class _RemindersSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final reminders = ref.watch(dashboardRemindersProvider);
-
     return reminders.when(
       loading: () => const Column(
         children: [
@@ -272,7 +243,6 @@ class _RemindersSection extends ConsumerWidget {
 
 class _WhatToActOnSection extends StatelessWidget {
   const _WhatToActOnSection({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -303,13 +273,11 @@ class _WhatToActOnSection extends StatelessWidget {
 
 class _FlagsSection extends StatelessWidget {
   const _FlagsSection({super.key});
-
   static const _flags = [
     (AppColors.goodText, 'Revenue ahead of target by 12%'),
     (AppColors.warnDot, 'Food cost up 3.1 pts vs Dec'),
     (AppColors.warnDot, '17 invoices overdue (\$9,240)'),
   ];
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -328,10 +296,8 @@ class _FlagsSection extends StatelessWidget {
 
 class _FlagTile extends StatelessWidget {
   const _FlagTile({required this.dotColor, required this.text});
-
   final Color dotColor;
   final String text;
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -340,7 +306,6 @@ class _FlagTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.glassDark,
         borderRadius: BorderRadius.circular(14),
-        // border: Border.all(color: AppColors.glassBorder),
       ),
       child: Row(
         children: [
@@ -357,11 +322,6 @@ class _FlagTile extends StatelessWidget {
                 fontSize: 13.5,
                 color: Colors.white,
               ),
-              //  const TextStyle(
-              //   color: AppColors.white,
-              //   fontSize: 14,
-              //   fontWeight: FontWeight.w700,
-              // ),
             ),
           ),
         ],
@@ -372,7 +332,6 @@ class _FlagTile extends StatelessWidget {
 
 class _OpportunitiesSection extends StatelessWidget {
   const _OpportunitiesSection({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -395,13 +354,11 @@ class _OpportunitiesSection extends StatelessWidget {
 
 class _TrendsSection extends StatelessWidget {
   const _TrendsSection({super.key});
-
   static const _changes = [
     ('Revenue', '+\$7,080 vs Jan, led by weekend dinner covers'),
     ('Food cost', '+3.1 pts on produce'),
     ('Overdue', '17 clients moved past 30 days'),
   ];
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -420,10 +377,8 @@ class _TrendsSection extends StatelessWidget {
 
 class _ChangeTile extends StatelessWidget {
   const _ChangeTile({required this.label, required this.detail});
-
   final String label;
   final String detail;
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -432,7 +387,6 @@ class _ChangeTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.glassDark,
         borderRadius: BorderRadius.circular(14),
-        // border: Border.all(color: AppColors.glassBorder),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,11 +399,6 @@ class _ChangeTile extends StatelessWidget {
                 fontSize: 13.5,
                 color: AppColors.mutedText,
               ),
-              // const TextStyle(
-              //   color: AppColors.white,
-              //   fontSize: 14,
-              //   fontWeight: FontWeight.w700,
-              // ),
             ),
           ),
           const SizedBox(width: 8),
@@ -470,7 +419,6 @@ class _ChangeTile extends StatelessWidget {
 
 class _NumbersSection extends StatelessWidget {
   const _NumbersSection({super.key});
-
   static const _revenue = MetricDetail(
     title: 'Revenue MTD',
     value: '\$45,230',
@@ -783,11 +731,6 @@ class _AskAiSection extends StatelessWidget {
                   // fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
-                // TextStyle(
-                //   color: AppColors.white,
-                //   fontSize: 13,
-                //   fontWeight: FontWeight.w600,
-                // ),
               ),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.glassBorder),
@@ -828,49 +771,6 @@ class _AskAiSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 36),
-
-        // Row(
-        //   children: [
-        //     Expanded(
-        //       child: Container(
-        //         padding: const EdgeInsets.symmetric(
-        //           horizontal: 14,
-        //           vertical: 12,
-        //         ),
-        //         decoration: BoxDecoration(
-        //           color: AppColors.glassDark,
-        //           borderRadius: BorderRadius.circular(24),
-        //           border: Border.all(color: AppColors.glassBorder),
-        //         ),
-        //         child: const Text(
-        //           'Ask anything about your business...',
-        //           style: TextStyle(color: AppColors.faintText, fontSize: 13),
-        //         ),
-        //       ),
-        //     ),
-        //     const SizedBox(width: 10),
-        //     OutlinedButton(
-        //       onPressed: () {},
-        //       style: OutlinedButton.styleFrom(
-        //         side: const BorderSide(color: AppColors.glassBorder),
-        //         shape: RoundedRectangleBorder(
-        //           borderRadius: BorderRadius.circular(24),
-        //         ),
-        //         padding: const EdgeInsets.symmetric(
-        //           horizontal: 20,
-        //           vertical: 14,
-        //         ),
-        //       ),
-        //       child: const Text(
-        //         'Ask',
-        //         style: TextStyle(
-        //           color: AppColors.white,
-        //           fontWeight: FontWeight.w700,
-        //         ),
-        //       ),
-        //     ),
-        //   ],
-        // ),
       ],
     );
   }

@@ -1,3 +1,4 @@
+import 'package:flutter_application_1/features/dashboard/model/dashboardTabsModel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api_services.dart';
@@ -15,5 +16,22 @@ final dashboardRemindersProvider = FutureProvider.autoDispose<List<ActionItem>>(
       throw ApiException('Not signed in.');
     }
     return ApiService().getDashboardReminders(accessToken: token);
+    
   },
+  
 );
+final dashboardInsightsProvider =
+    FutureProvider.autoDispose<BusinessHealthResponse>((ref) async {
+  // Get saved access token
+  final token = await PrefUtils.getAccessToken();
+
+  // If user is not logged in
+  if (token == null || token.isEmpty) {
+    throw ApiException('Not signed in.');
+  }
+
+  // Call API
+  return ApiService().getDashboardInsights(
+    accessToken: token,
+  );
+});

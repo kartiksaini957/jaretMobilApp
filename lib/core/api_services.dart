@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_application_1/features/dashboard/model/dashboardModel.dart';
+import 'package:flutter_application_1/features/dashboard/model/dashboardTabsModel.dart';
 import 'package:http/http.dart' as http;
 
 import 'api_endpoints.dart';
@@ -332,5 +333,83 @@ class ApiService {
     debugPrint('[ApiService] reminders loaded: ${result.data.length} items');
 
     return result.data;
+  }
+
+  // dashboard api
+  Future<BusinessHealthResponse> getDashboardInsights({
+    required String accessToken,
+  }) async {
+    final uri = Uri.parse(ApiConstants.dashboard);
+
+    debugPrint('================ Dashboard Insights API ================');
+    debugPrint('POST : ${uri.toString()}');
+    debugPrint('TOKEN : $accessToken');
+
+    late final http.Response response;
+
+    try {
+      response = await http
+          .post(
+            uri,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $accessToken',
+            },
+          )
+          .timeout(const Duration(seconds: 20));
+    } catch (e) {
+      debugPrint('Network Error : $e');
+      throw ApiException('Could not reach the server: $e');
+    }
+
+    debugPrint('Status Code : ${response.statusCode}');
+    debugPrint('Response : ${response.body}');
+
+    final Map<String, dynamic> decoded = jsonDecode(response.body);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ApiException(
+        decoded['message'] ??
+            decoded['error'] ??
+            'Failed to load dashboard insights.',
+        statusCode: response.statusCode,
+      );
+    }
+
+    final result = BusinessHealthResponse.fromJson(decoded);
+
+    debugPrint('================ Parsed Response ================');
+    debugPrint('Success : ${result.success}');
+    debugPrint('Summary : ${result.data.summary}');
+
+    debugPrint('\n----------- Alerts -----------');
+    for (final alert in result.data.alerts) {
+      debugPrint('Severity : ${alert.severity}');
+      debugPrint('Message  : ${alert.message}');
+      debugPrint('Icon     : ${alert.icon}');
+      debugPrint('Type     : ${alert.type}');
+      debugPrint('--------------------------------');
+    }
+
+    debugPrint('\n----------- Insight Pairs -----------');
+    for (final item in result.data.insightPairs) {
+      debugPrint('Problem  : ${item.problem}');
+      debugPrint('Solution : ${item.solution}');
+      debugPrint('--------------------------------');
+    }
+
+    debugPrint('\n----------- Opportunities -----------');
+    for (final item in result.data.opportunities) {
+      debugPrint(item);
+    }
+
+    debugPrint('\n----------- What Changed -----------');
+    for (final item in result.data.whatChanged) {
+      debugPrint(item);
+    }
+
+    debugPrint('================ End =================');
+
+    return result;
   }
 }

@@ -10,4 +10,7 @@ class ApiConstants {
   static const String signup = "$apiBaseUrl/signup/mobile";
 
   static const String dashboardReminders = "$apiBaseUrl/dashboard/reminders";
+
+  static const String dashboard = "$apiBaseUrl/ai/dashboard-insights";
+
 }

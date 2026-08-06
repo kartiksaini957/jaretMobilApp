@@ -175,12 +175,19 @@ class _ToastCardState extends State<_ToastCard>
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Container(
-                              width: 34,
-                              height: 34,
+                              width: 44,
+                              height: 44,
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
-                                color: accent.withValues(alpha: 0.16),
+                                color: accent.withValues(alpha: 0.01),
                                 shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: accent.withValues(alpha: 0.25),
+                                    blurRadius: 18,
+                                    spreadRadius: 4,
+                                  ),
+                                ],
                               ),
                               child: Icon(_icon, color: accent, size: 19),
                             ),
@@ -188,7 +195,7 @@ class _ToastCardState extends State<_ToastCard>
                             Expanded(
                               child: Text(
                                 widget.message,
-                                style: const TextStyle(
+                                style: AppTextStyles.body.copyWith(
                                   color: AppColors.white,
                                   fontSize: 13.5,
                                   fontWeight: FontWeight.w600,
@@ -204,7 +211,7 @@ class _ToastCardState extends State<_ToastCard>
                                 padding: const EdgeInsets.all(6),
                                 child: Icon(
                                   Icons.close_rounded,
-                                  size: 16,
+                                  size: 20,
                                   color: AppColors.faintText,
                                 ),
                               ),
