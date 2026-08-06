@@ -130,8 +130,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           ref.watch(loginControllerProvider).user?.name ??
                           _cachedName ??
                           '',
+                      isLoading: dashboardInsights.isLoading,
                       summary: dashboardInsights.when(
-                        loading: () => 'Loading...',
+                        loading: () => '',
                         error: (error, _) =>
                             'No insights available yet — check back once your data has synced.',
                         data: (data) => data.data.summary,
