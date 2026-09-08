@@ -5,9 +5,6 @@ import '../data/expense_breakdown_data.dart';
 import 'expense_donut_chart.dart';
 import 'expense_legend_list.dart';
 
-/// "Where the money goes": total spend, a tappable donut, and the
-/// category legend. Selecting a slice or legend row drills the center
-/// label into that category.
 class ExpensesOverviewTab extends StatefulWidget {
   const ExpensesOverviewTab({super.key});
 
@@ -26,7 +23,6 @@ class _ExpensesOverviewTabState extends State<ExpensesOverviewTab> {
     final selected = _selectedIndex == null
         ? null
         : expenseCategories[_selectedIndex!];
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -59,11 +55,6 @@ class _ExpensesOverviewTabState extends State<ExpensesOverviewTab> {
               fontSize: 44,
               color: Colors.white,
             ),
-            //  TextStyle(
-            //   color: AppColors.white,
-            //   fontSize: 30,
-            //   fontWeight: FontWeight.w800,
-            // ),
           ),
           const SizedBox(height: 12),
           Padding(

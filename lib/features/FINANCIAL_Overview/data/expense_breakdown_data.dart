@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/features/FINANCIAL_Overview/model/financialOverviewModel.dart';
 
 import '../../../theme/app_theme.dart';
-
-/// One slice of "Where the money goes".
 class ExpenseCategory {
   const ExpenseCategory({
     required this.label,
@@ -17,47 +16,45 @@ class ExpenseCategory {
   final Color color;
 }
 
-const expenseTotalLabel = '\$89.5K';
-const expensePeriodLabel = 'JANUARY SPEND';
-const expenseSummary =
-    'January operating spend — \$89.5K of costs against \$101.3K of '
-    'revenue';
+// import '../model/financialOverviewModel.dart';
 
-const expenseCategories = [
-  ExpenseCategory(
-    label: 'Food & ingredients',
-    percent: 37,
-    amount: '\$33.4K',
-    color: AppColors.accent,
-  ),
-  ExpenseCategory(
-    label: 'Labor',
-    percent: 32,
-    amount: '\$29.1K',
-    color: AppColors.blobBlueA,
-  ),
-  ExpenseCategory(
-    label: 'Insurance, software & other',
-    percent: 15,
-    amount: '\$13.3K',
-    color: AppColors.soft,
-  ),
-  ExpenseCategory(
-    label: 'Rent (5th Ave storefront)',
-    percent: 8,
-    amount: '\$6.8K',
-    color: AppColors.goodDot,
-  ),
-  ExpenseCategory(
-    label: 'Delivery-app fees',
-    percent: 6,
-    amount: '\$5.1K',
-    color: AppColors.blobBlueB,
-  ),
-  ExpenseCategory(
-    label: 'Utilities (winter gas)',
-    percent: 2,
-    amount: '\$1.9K',
-    color: AppColors.faintText,
-  ),
+String expenseTotalLabel = '\$0';
+String expensePeriodLabel = 'MONTHLY OPEX';
+String expenseSummary = '';
+List<ExpenseCategory> expenseCategories = [];
+
+const _expenseColors = [
+  AppColors.accent,
+  AppColors.blobBlueA,
+  AppColors.soft,
+  AppColors.goodDot,
+  AppColors.blobBlueB,
+  AppColors.faintText,
 ];
+
+String _formatMoney(double value) {
+  final abs = value.abs().toStringAsFixed(0);
+  final withCommas = abs.replaceAllMapped(
+    RegExp(r'\B(?=(\d{3})+(?!\d))'),
+    (m) => ',',
+  );
+  return '${value < 0 ? '-' : ''}\$$withCommas';
+}
+
+void applyFinancialOverviewToExpenses(FinancialOverviewResponse data) {
+  final breakdown = data.expenseBreakdown;
+  expenseTotalLabel = _formatMoney(breakdown.totalAmount);
+  expenseSummary =
+      "This month's operating spend — ${_formatMoney(breakdown.totalAmount)} "
+      'of costs against ${_formatMoney(data.kpis.revenueMtd)} of revenue';
+
+  expenseCategories = List.generate(breakdown.categories.length, (i) {
+    final c = breakdown.categories[i];
+    return ExpenseCategory(
+      label: c.category,
+      percent: c.percentage.round(),
+      amount: _formatMoney(c.amount),
+      color: _expenseColors[i % _expenseColors.length],
+    );
+  });
+}

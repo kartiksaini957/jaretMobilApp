@@ -28,9 +28,14 @@ class _Category {
 /// What's moving / The breakdown / Track record / World scan). Tapping a
 /// card opens a bottom sheet with its full detail.
 class ForecastFullReadSection extends StatelessWidget {
-  const ForecastFullReadSection({super.key, required this.data});
+  const ForecastFullReadSection({
+    super.key,
+    required this.data,
+    required this.onToggleAction,
+  });
 
   final ForecastTabData data;
+  final Future<void> Function(String actionId, bool newValue) onToggleAction;
 
   List<_Category> get _categories => [
     _Category(
@@ -38,8 +43,11 @@ class ForecastFullReadSection extends StatelessWidget {
       tone: data.doThisTone,
       count: '${data.doThisItems.length} actions',
       summary: data.doThisSummary,
-      builder: (_) =>
-          ForecastDoThisPanel(intro: data.doThisIntro, items: data.doThisItems),
+      builder: (_) => ForecastDoThisPanel(
+        intro: data.doThisIntro,
+        items: data.doThisItems,
+        onToggleAction: onToggleAction,
+      ),
     ),
     _Category(
       label: "What's moving",

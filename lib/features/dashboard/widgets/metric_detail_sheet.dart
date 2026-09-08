@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/api_services.dart';
 import '../../../theme/app_theme.dart';
+import '../../../utils/pref_utils.dart';
 import '../../../widgets/gradient_background.dart';
 import '../../../widgets/shimmer_box.dart';
 import '../model/dashboardNumberDetail.dart' as kpi_detail;
@@ -34,9 +35,6 @@ class MetricDriver {
   final String title;
   final String subtitle;
   final String delta;
-
-  /// Null when the source has no direction for this driver (the KPI-explain
-  /// API describes impact in prose), which renders the text neutral.
   final bool? isPositive;
 }
 
@@ -51,9 +49,6 @@ class SuggestedAction {
   final String text;
   final String? effort;
 }
-
-/// One "Vs Last Month" / "Vs Peers" view: its own body copy and change
-/// indicator, swapped in when its chip is tapped.
 class ComparisonView {
   const ComparisonView({
     required this.label,
@@ -65,8 +60,6 @@ class ComparisonView {
   final String label;
   final String body;
   final String changeText;
-
-  /// Null means flat — shown with a dash instead of an up/down arrow.
   final bool? changeIsPositive;
 }
 
@@ -93,10 +86,6 @@ class MetricDetail {
   final String confidence;
 }
 
-/// Opens the metric sheet for [args] and fetches its explanation from
-/// `/dashboard/kpi-explain` — the request only fires here, on tap.
-/// [title] and [value] are the tile's own label and formatted number, shown
-/// immediately so the header isn't blank while the call is in flight.
 Future<void> showMetricDetailSheet(
   BuildContext context, {
   required String title,
@@ -112,7 +101,6 @@ Future<void> showMetricDetailSheet(
   );
 }
 
-/// Maps one KPI-explain response onto the sheet's render model.
 MetricDetail _toMetricDetail({
   required String title,
   required String value,
@@ -132,9 +120,6 @@ MetricDetail _toMetricDetail({
     ),
   ];
 
-  // Peer and target blocks come back all-null when the backend has no
-  // benchmark for this KPI — skip the chip entirely in that case. The
-  // verdict stays put across chips; only the change row below swaps.
   final peers = data.comparison.vsPeers;
   final peerGap = peers.gapText?.toString();
   if (peerGap != null && peerGap.isNotEmpty) {
@@ -211,9 +196,7 @@ ActionSeverity _severityOf(String priority) => switch (priority) {
   _ => ActionSeverity.low,
 };
 
-/// Holds the sheet chrome steady while the explanation loads, so the header
-/// and close button are usable from the first frame.
-class _MetricDetailLoader extends ConsumerWidget {
+class _MetricDetailLoader extends StatefulWidget {
   const _MetricDetailLoader({
     required this.title,
     required this.value,
@@ -225,65 +208,172 @@ class _MetricDetailLoader extends ConsumerWidget {
   final KpiExplainArgs args;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final explanation = ref.watch(kpiExplainProvider(args));
-    return explanation.when(
-      loading: () => _MetricSheetShell(
-        title: title,
-        value: value,
-        child: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ShimmerBox(height: 72, borderRadius: 14),
-            SizedBox(height: 14),
-            ShimmerBox(height: 36, borderRadius: 20),
-            SizedBox(height: 14),
-            ShimmerBox(height: 52, borderRadius: 14),
-            SizedBox(height: 18),
-            ShimmerBox(height: 96, borderRadius: 14),
-          ],
-        ),
-      ),
-      error: (error, stackTrace) => _MetricSheetShell(
-        title: title,
-        value: value,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Couldn\'t load this metric right now.',
-              style: AppTextStyles.body.copyWith(color: AppColors.faintText),
+  State<_MetricDetailLoader> createState() => _MetricDetailLoaderState();
+}
+
+class _MetricDetailLoaderState extends State<_MetricDetailLoader> {
+  late Future<kpi_detail.dashboardNumberDetail> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = _fetchKpiExplain();
+  }
+
+  Future<kpi_detail.dashboardNumberDetail> _fetchKpiExplain() async {
+    final token = await PrefUtils.getAccessToken();
+    if (token == null || token.isEmpty) {
+      throw ApiException('Not signed in.');
+    }
+    return ApiService().getKpiExplain(
+      accessToken: token,
+      kpiName: widget.args.kpiName,
+      currentValue: widget.args.currentValue,
+      priorValue: widget.args.priorValue,
+      formatType: widget.args.formatType,
+    );
+  }
+
+  void _retry() {
+    setState(() {
+      _future = _fetchKpiExplain();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<kpi_detail.dashboardNumberDetail>(
+      future: _future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _MetricSheetShell(
+            title: widget.title,
+            value: widget.value,
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ShimmerBox(height: 72, borderRadius: 14),
+                SizedBox(height: 14),
+                ShimmerBox(height: 36, borderRadius: 20),
+                SizedBox(height: 14),
+                ShimmerBox(height: 52, borderRadius: 14),
+                SizedBox(height: 18),
+                ShimmerBox(height: 96, borderRadius: 14),
+              ],
             ),
-            const SizedBox(height: 10),
-            OutlinedButton(
-              onPressed: () => ref.invalidate(kpiExplainProvider(args)),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.glassBorder),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+          );
+        }
+
+        if (snapshot.hasError || !snapshot.hasData) {
+          final error = snapshot.error;
+          final errMsg = error is ApiException
+              ? error.message
+              : (error != null
+                  ? error.toString().replaceAll('Exception: ', '')
+                  : 'Couldn\'t load this metric right now.');
+
+          return _MetricSheetShell(
+            title: widget.title,
+            value: widget.value,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+              decoration: BoxDecoration(
+                color: AppColors.glassDark,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: AppColors.yellow.withValues(alpha: 0.3),
                 ),
               ),
-              child: Text(
-                'Retry',
-                style: AppTextStyles.body.copyWith(color: AppColors.white),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.yellow.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.warning_amber_rounded,
+                      color: AppColors.yellow,
+                      size: 32,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    'Analysis Unavailable',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.headlineAccent.copyWith(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    errMsg,
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.mutedText,
+                      fontSize: 13.0,
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  InkWell(
+                    onTap: _retry,
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 22,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.accent.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: AppColors.accent.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.refresh_rounded,
+                            size: 18,
+                            color: AppColors.accent,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Try Again',
+                            style: AppTextStyles.small.copyWith(
+                              color: AppColors.accent,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-      data: (response) => MetricDetailSheet(
-        detail: _toMetricDetail(
-          title: title,
-          value: value,
-          data: response.data,
-        ),
-      ),
+          );
+        }
+
+        return MetricDetailSheet(
+          detail: _toMetricDetail(
+            title: widget.title,
+            value: widget.value,
+            data: snapshot.data!.data,
+          ),
+        );
+      },
     );
   }
 }
 
-/// The sheet's outer frame (rounded gradient panel, grab handle, title and
-/// value header) reused by the loading and error states.
 class _MetricSheetShell extends StatelessWidget {
   const _MetricSheetShell({
     required this.title,
@@ -414,11 +504,6 @@ class _MetricDetailSheetState extends State<MetricDetailSheet> {
                           style: AppTextStyles.headline.copyWith(
                             fontSize: 38.0,
                           ),
-                          // const TextStyle(
-                          //   color: AppColors.white,
-                          //   fontSize: 30,
-                          //   fontWeight: FontWeight.w800,
-                          // ),
                         ),
                         const SizedBox(height: 10),
                         Text(
@@ -481,11 +566,6 @@ class _MetricDetailSheetState extends State<MetricDetailSheet> {
                                     color: AppColors.white,
                                     fontSize: 13.5,
                                   ),
-                                  // const TextStyle(
-                                  //   color: AppColors.white,
-                                  //   fontSize: 13,
-                                  //   fontWeight: FontWeight.w600,
-                                  // ),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -498,7 +578,6 @@ class _MetricDetailSheetState extends State<MetricDetailSheet> {
                         ),
                         const SizedBox(height: 16),
                         Divider(thickness: .1, color: Colors.white),
-
                         _CollapsibleSection(
                           title: 'Top drivers',
                           count: detail.drivers.length,
@@ -511,10 +590,8 @@ class _MetricDetailSheetState extends State<MetricDetailSheet> {
                           ],
                         ),
                         Divider(thickness: .1, color: Colors.white),
-
                         const SizedBox(height: 12),
                         Divider(thickness: .1, color: Colors.white),
-
                         _CollapsibleSection(
                           title: 'Suggested actions',
                           count: detail.actions.length,
@@ -561,11 +638,6 @@ class _Badge extends StatelessWidget {
       child: Text(
         label,
         style: AppTextStyles.body.copyWith(color: color, fontSize: 12.5),
-        // TextStyle(
-        //   color: color,
-        //   fontSize: 11,
-        //   fontWeight: FontWeight.w700,
-        // ),
       ),
     );
   }
@@ -605,11 +677,6 @@ class _CompareChip extends StatelessWidget {
             style: AppTextStyles.body.copyWith(
               color: selected ? AppColors.white : AppColors.faintText,
             ),
-            // TextStyle(
-            //   color: selected ? AppColors.white : AppColors.faintText,
-            //   fontSize: 12.5,
-            //   fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-            // ),
           ),
         ),
       ),
@@ -617,8 +684,6 @@ class _CompareChip extends StatelessWidget {
   }
 }
 
-/// Tappable header that expands/collapses [children] below it, with the
-/// chevron rotating to reflect the current state.
 class _CollapsibleSection extends StatefulWidget {
   const _CollapsibleSection({
     required this.title,
@@ -653,11 +718,6 @@ class _CollapsibleSectionState extends State<_CollapsibleSection> {
                   child: Text(
                     widget.title,
                     style: AppTextStyles.logo.copyWith(fontSize: 14.5),
-                    //  const TextStyle(
-                    //   color: AppColors.white,
-                    //   fontSize: 14.5,
-                    //   fontWeight: FontWeight.w700,
-                    // ),
                   ),
                 ),
                 Container(
@@ -726,11 +786,6 @@ class _DriverRow extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      // decoration: BoxDecoration(
-      // color: AppColors.glassDark,
-      // borderRadius: BorderRadius.circular(14),
-      // border: Border.all(color: AppColors.glassBorder),
-      // ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -760,11 +815,6 @@ class _DriverRow extends StatelessWidget {
                 Text(
                   driver.title,
                   style: AppTextStyles.body.copyWith(color: AppColors.white),
-                  // const TextStyle(
-                  //   color: AppColors.white,
-                  //   fontSize: 13.5,
-                  //   fontWeight: FontWeight.w700,
-                  // ),
                 ),
                 if (driver.subtitle.isNotEmpty) ...[
                   const SizedBox(height: 2),
@@ -780,8 +830,6 @@ class _DriverRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          // The API describes impact in prose, so this side needs to wrap
-          // rather than sit as a short right-aligned delta.
           Expanded(
             child: Text(
               driver.delta,
@@ -792,11 +840,6 @@ class _DriverRow extends StatelessWidget {
                   null => AppColors.mutedText,
                 },
               ),
-              //  TextStyle(
-              //   color: driver.isPositive ? AppColors.goodText : AppColors.yellow,
-              //   fontSize: 13.5,
-              //   fontWeight: FontWeight.w700,
-              // ),
             ),
           ),
         ],
@@ -814,12 +857,6 @@ class _ActionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      // padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      // decoration: BoxDecoration(
-      //   color: AppColors.glassDark,
-      //   borderRadius: BorderRadius.circular(14),
-      //   border: Border.all(color: AppColors.glassBorder),
-      // ),
       child: Column(
         children: [
           Row(
@@ -855,7 +892,6 @@ class _ActionRow extends StatelessWidget {
               ),
             ],
           ),
-          // SizedBox(height: 10),
           Divider(thickness: .1, color: Colors.white),
         ],
       ),

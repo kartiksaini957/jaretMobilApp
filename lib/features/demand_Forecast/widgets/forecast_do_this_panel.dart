@@ -3,33 +3,55 @@ import 'package:flutter/material.dart';
 import '../../../theme/app_theme.dart';
 import '../data/demand_forecast_data.dart';
 
-/// Checklist content for the "Do this" full-read panel: each item has an
-/// independent checked state (strikes it through) and an independent
+/// Checklist content for the "Do this" full-read panel: each item's checked
+/// state comes from the server (item.completed) and toggling calls the API
+/// via onToggleAction; each item also has an independent
 /// "why this, why now" expand state.
 class ForecastDoThisPanel extends StatefulWidget {
   const ForecastDoThisPanel({
     super.key,
     required this.intro,
     required this.items,
+    required this.onToggleAction, // 🔧 NEW
   });
 
   final String intro;
   final List<DoThisItem> items;
+  final Future<void> Function(String actionId, bool newValue)
+  onToggleAction; // 🔧 NEW
 
   @override
   State<ForecastDoThisPanel> createState() => _ForecastDoThisPanelState();
 }
 
 class _ForecastDoThisPanelState extends State<ForecastDoThisPanel> {
-  final Set<int> _checked = {};
+  // 🔧 REMOVED: _checked set — checked state ab widget.items[i].completed
+  // (server se aata hai) se aata hai, local tracking ki zaroorat nahi
   final Set<int> _expanded = {};
+  late Set<String> _localCompleted;
+
+  @override
+  void initState() {
+    super.initState();
+    // 🔧 NEW: initial state widget.items se le lo
+    _localCompleted = widget.items
+        .where((it) => it.completed)
+        .map((it) => it.id)
+        .toSet();
+  }
 
   @override
   void didUpdateWidget(covariant ForecastDoThisPanel oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.items != widget.items) {
-      _checked.clear();
       _expanded.clear();
+      // 🔧 NEW: agar kabhi naya `items` list parent se aaya (rare case,
+      // jaise sheet reopen), tab hi resync karo. Warna local state hi
+      // source of truth rahega jab tak sheet khuli hai.
+      _localCompleted = widget.items
+          .where((it) => it.completed)
+          .map((it) => it.id)
+          .toSet();
     }
   }
 
@@ -45,11 +67,27 @@ class _ForecastDoThisPanelState extends State<ForecastDoThisPanel> {
             padding: const EdgeInsets.only(bottom: 14),
             child: _DoThisRow(
               item: widget.items[i],
-              checked: _checked.contains(i),
+              // 🔧 CHANGED: ab widget.items[i].completed ki jagah
+              // local _localCompleted set se checked value liya
+              checked: _localCompleted.contains(widget.items[i].id),
               expanded: _expanded.contains(i),
-              onCheckToggle: () => setState(() {
-                _checked.contains(i) ? _checked.remove(i) : _checked.add(i);
-              }),
+              onCheckToggle: () {
+                final id = widget.items[i].id;
+                final newValue = !_localCompleted.contains(id);
+
+                // 🔧 NEW: turant local UI update — ye hi fix hai jo
+                // "bottom sheet close-open" wali problem hata dega
+                setState(() {
+                  if (newValue) {
+                    _localCompleted.add(id);
+                  } else {
+                    _localCompleted.remove(id);
+                  }
+                });
+
+                // API call / parent state update background me chalta rahega
+                widget.onToggleAction(id, newValue);
+              },
               onExpandToggle: () => setState(() {
                 _expanded.contains(i) ? _expanded.remove(i) : _expanded.add(i);
               }),
@@ -117,14 +155,6 @@ class _DoThisRow extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                 ),
-                // TextStyle(
-                //   color: textColor,
-                //   fontSize: 13.5,
-                //   fontWeight: FontWeight.w700,
-                //   height: 1.35,
-                //   decoration: checked ? TextDecoration.lineThrough : null,
-                //   decorationColor: AppColors.faintText,
-                // ),
               ),
               const SizedBox(height: 5),
               Wrap(
@@ -140,12 +170,6 @@ class _DoThisRow extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       decoration: checked ? TextDecoration.lineThrough : null,
                     ),
-                    // TextStyle(
-                    //   color: checked ? AppColors.faintText : AppColors.warnDot,
-                    //   fontSize: 11.5,
-                    //   fontWeight: FontWeight.w600,
-                    //   decoration: checked ? TextDecoration.lineThrough : null,
-                    // ),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -163,11 +187,6 @@ class _DoThisRow extends StatelessWidget {
                         fontSize: 9.5,
                         fontWeight: FontWeight.w600,
                       ),
-                      //  TextStyle(
-                      //   color: _priorityColor,
-                      //   fontSize: 9.5,
-                      //   fontWeight: FontWeight.w800,
-                      // ),
                     ),
                   ),
                   Container(
@@ -237,14 +256,6 @@ class _DoThisRow extends StatelessWidget {
                       height: 1.5,
                       decoration: checked ? TextDecoration.lineThrough : null,
                     ),
-                    // TextStyle(
-                    //   color: checked
-                    //       ? AppColors.faintText
-                    //       : AppColors.mutedText,
-                    //   fontSize: 12.5,
-                    //   height: 1.5,
-                    //   decoration: checked ? TextDecoration.lineThrough : null,
-                    // ),
                   ),
                 ],
               ],

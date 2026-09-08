@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-
+import '../../../core/api_services.dart';
 import '../../../theme/app_theme.dart';
+import '../../../utils/pref_utils.dart';
+import '../../../widgets/customToast.dart';
 import '../data/home_overview_data.dart';
 
-/// Detail panel for the selected Home carousel card: badge + headline,
-/// a stat pill, and the What's going on / Why it matters now / What to
-/// do (/ Expected outcome) expandable sections.
 class HomeDetailCard extends StatefulWidget {
   const HomeDetailCard({super.key, required this.card});
 
@@ -19,16 +18,117 @@ class _HomeDetailCardState extends State<HomeDetailCard> {
   late List<bool> _expanded = _initialExpanded();
   bool _viewed = false;
   bool _snoozed = false;
+  bool _isLoadingPrimary = false;
+  bool _isLoadingSecondary = false;
 
   List<bool> _initialExpanded() => [true, false, false, false];
+
+  @override
+  void initState() {
+    super.initState();
+    _viewed = widget.card.isAcknowledged;
+    _snoozed = widget.card.isSnoozed;
+  }
 
   @override
   void didUpdateWidget(covariant HomeDetailCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.card != widget.card) {
       _expanded = _initialExpanded();
-      _viewed = false;
-      _snoozed = false;
+      _viewed = widget.card.isAcknowledged;
+      _snoozed = widget.card.isSnoozed;
+    }
+  }
+
+  Future<void> _handlePrimaryAction() async {
+    if (_isLoadingPrimary || _isLoadingSecondary) return;
+
+    final insightId = widget.card.id.isNotEmpty
+        ? widget.card.id
+        : 'margin_compression';
+
+    setState(() {
+      _isLoadingPrimary = true;
+    });
+
+    try {
+      final token = await PrefUtils.getAccessToken();
+      await ApiService().acknowledgeFinancialInsight(
+        accessToken: token ?? '',
+        insightId: insightId,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _viewed = true;
+        _snoozed = false;
+        widget.card.isAcknowledged = true;
+        widget.card.isSnoozed = false;
+      });
+
+      CustomToast.showSuccess(context, 'Marked as drafted / acknowledged.');
+    } catch (e) {
+      if (!mounted) return;
+      CustomToast.showError(
+        context,
+        e
+            .toString()
+            .replaceAll('ApiException: ', '')
+            .replaceAll('Exception: ', ''),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingPrimary = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleSecondaryAction() async {
+    if (_isLoadingPrimary || _isLoadingSecondary) return;
+
+    final insightId = widget.card.id.isNotEmpty
+        ? widget.card.id
+        : 'margin_compression';
+
+    setState(() {
+      _isLoadingSecondary = true;
+    });
+
+    try {
+      final token = await PrefUtils.getAccessToken();
+      await ApiService().snoozeFinancialInsight(
+        accessToken: token ?? '',
+        insightId: insightId,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _snoozed = true;
+        _viewed = false;
+        widget.card.isSnoozed = true;
+        widget.card.isAcknowledged = false;
+      });
+
+      CustomToast.showSuccess(context, 'Insight snoozed.');
+    } catch (e) {
+      if (!mounted) return;
+      CustomToast.showError(
+        context,
+        e
+            .toString()
+            .replaceAll('ApiException: ', '')
+            .replaceAll('Exception: ', ''),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingSecondary = false;
+        });
+      }
     }
   }
 
@@ -60,12 +160,6 @@ class _HomeDetailCardState extends State<HomeDetailCard> {
               Text(
                 card.status.label,
                 style: AppTextStyles.small.copyWith(fontSize: 10),
-                // TextStyle(
-                //   color: card.status.color,
-                //   fontSize: 11,
-                //   fontWeight: FontWeight.w800,
-                //   letterSpacing: 0.4,
-                // ),
               ),
             ],
           ),
@@ -162,8 +256,10 @@ class _HomeDetailCardState extends State<HomeDetailCard> {
               outcome: card.expectedOutcome!,
               viewed: _viewed,
               snoozed: _snoozed,
-              onPrimaryTap: () => setState(() => _viewed = true),
-              onSecondaryTap: () => setState(() => _snoozed = true),
+              isLoadingPrimary: _isLoadingPrimary,
+              isLoadingSecondary: _isLoadingSecondary,
+              onPrimaryTap: _handlePrimaryAction,
+              onSecondaryTap: _handleSecondaryAction,
             ),
           ],
         ],
@@ -374,6 +470,8 @@ class _ActionButtons extends StatelessWidget {
     required this.outcome,
     required this.viewed,
     required this.snoozed,
+    required this.isLoadingPrimary,
+    required this.isLoadingSecondary,
     required this.onPrimaryTap,
     required this.onSecondaryTap,
   });
@@ -381,16 +479,20 @@ class _ActionButtons extends StatelessWidget {
   final ExpectedOutcome outcome;
   final bool viewed;
   final bool snoozed;
+  final bool isLoadingPrimary;
+  final bool isLoadingSecondary;
   final VoidCallback onPrimaryTap;
   final VoidCallback onSecondaryTap;
 
   @override
   Widget build(BuildContext context) {
+    final isBusy = isLoadingPrimary || isLoadingSecondary;
+
     return Row(
       children: [
         Expanded(
           child: OutlinedButton(
-            onPressed: onPrimaryTap,
+            onPressed: isBusy ? null : onPrimaryTap,
             style: OutlinedButton.styleFrom(
               side: BorderSide(
                 color: viewed ? AppColors.goodDot : AppColors.glassBorder,
@@ -403,20 +505,30 @@ class _ActionButtons extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
-            child: Text(
-              viewed ? '✓ Done' : outcome.primaryActionLabel,
-              style: TextStyle(
-                color: viewed ? AppColors.goodText : AppColors.white,
-                fontSize: 12.5,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            child: isLoadingPrimary
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+                    ),
+                  )
+                : Text(
+                    viewed ? '✓ Done' : outcome.primaryActionLabel,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: viewed ? AppColors.goodText : AppColors.white,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
           child: OutlinedButton(
-            onPressed: onSecondaryTap,
+            onPressed: isBusy ? null : onSecondaryTap,
             style: OutlinedButton.styleFrom(
               side: BorderSide(
                 color: snoozed ? AppColors.goodDot : AppColors.glassBorder,
@@ -429,14 +541,24 @@ class _ActionButtons extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
-            child: Text(
-              snoozed ? '✓ Snoozed' : outcome.secondaryActionLabel,
-              style: TextStyle(
-                color: snoozed ? AppColors.goodText : AppColors.white,
-                fontSize: 12.5,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            child: isLoadingSecondary
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+                    ),
+                  )
+                : Text(
+                    snoozed ? '✓ Snoozed' : outcome.secondaryActionLabel,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: snoozed ? AppColors.goodText : AppColors.white,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
           ),
         ),
       ],

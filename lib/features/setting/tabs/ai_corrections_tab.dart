@@ -4,17 +4,36 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../widgets/customToast.dart';
 import '../provider/ai_corrections_provider.dart';
 import '../theme/settings_colors.dart';
+import '../widgets/living_summary_sheet.dart';
 import '../widgets/settings_row_controls.dart';
 import '../widgets/settings_section_card.dart';
 
 class AiCorrectionsTab extends ConsumerWidget {
   const AiCorrectionsTab({super.key});
 
+  Future<void> _toggle(BuildContext context, WidgetRef ref, String id) async {
+    await ref.read(aiCorrectionsProvider.notifier).toggleApplied(id);
+    if (!context.mounted) return;
+    final error = ref.read(aiCorrectionsProvider).error;
+    if (error != null) {
+      CustomToast.showError(context, error);
+    }
+  }
+
+  Future<void> _rerun(BuildContext context, WidgetRef ref) async {
+    await ref.read(aiCorrectionsProvider.notifier).rerunClassification();
+    if (!context.mounted) return;
+    final error = ref.read(aiCorrectionsProvider).error;
+    if (error != null) {
+      CustomToast.showError(context, error);
+    } else {
+      CustomToast.showSuccess(context, 'Classification re-run started.');
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ai = ref.watch(aiCorrectionsProvider);
-    final controller = ref.read(aiCorrectionsProvider.notifier);
-
     return SettingsSectionCard(
       title: 'AI & Corrections',
       subtitle:
@@ -40,11 +59,13 @@ class AiCorrectionsTab extends ConsumerWidget {
             ),
             trailing: [
               SettingsPillButton(
-                // Undo pulls a correction back; Restore re-applies one that
-                // was already undone (the only path to un-dismiss).
-                label: correction.applied ? 'Undo' : 'Restore',
+                label: ai.togglingCorrectionId == correction.id
+                    ? '...'
+                    : (correction.applied ? 'Undo' : 'Restore'),
                 compact: true,
-                onPressed: () => controller.toggleApplied(correction.id),
+                onPressed: ai.togglingCorrectionId == correction.id
+                    ? null
+                    : () => _toggle(context, ref, correction.id),
               ),
             ],
           ),
@@ -55,8 +76,7 @@ class AiCorrectionsTab extends ConsumerWidget {
           actions: [
             SettingsPillButton(
               label: 'View summary',
-              onPressed: () =>
-                  CustomToast.showInfo(context, 'Opening business summary…'),
+              onPressed: () => showLivingSummarySheet(context),
             ),
           ],
         ),
@@ -68,8 +88,10 @@ class AiCorrectionsTab extends ConsumerWidget {
               'with your monthly refresh.',
           actions: [
             SettingsPillButton(
-              label: 'Re-run now',
-              onPressed: controller.rerunClassification,
+              label: ai.isRunningClassifier ? 'Running…' : 'Re-run now',
+              onPressed: ai.isRunningClassifier
+                  ? null
+                  : () => _rerun(context, ref),
             ),
           ],
         ),

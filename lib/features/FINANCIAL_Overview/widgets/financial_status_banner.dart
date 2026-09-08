@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
-
-/// "You're profitable — 1 thing needs you this week." top banner, plus
-/// the sync/freshness line.
 class FinancialStatusBanner extends StatelessWidget {
   const FinancialStatusBanner({
     super.key,

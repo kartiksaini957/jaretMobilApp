@@ -1,11 +1,7 @@
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
-
 import '../data/expense_breakdown_data.dart';
 
-/// Donut chart for "Where the money goes": one arc per category, tap a
-/// slice to select it.
 class ExpenseDonutChart extends StatelessWidget {
   const ExpenseDonutChart({
     super.key,

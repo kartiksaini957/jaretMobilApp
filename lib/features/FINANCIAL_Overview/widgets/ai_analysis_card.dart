@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../theme/financial_colors.dart';
 
-/// "`<Metric>` — AI Analysis" card, currently in an error state.
 class AiAnalysisCard extends StatelessWidget {
   const AiAnalysisCard({super.key, required this.title});
 

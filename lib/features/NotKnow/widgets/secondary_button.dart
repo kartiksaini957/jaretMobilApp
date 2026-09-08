@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
-
-/// Outline "Back"-style button used next to [PrimaryButton] in step
-/// navigation rows.
 class SecondaryButton extends StatelessWidget {
   const SecondaryButton({
     super.key,
