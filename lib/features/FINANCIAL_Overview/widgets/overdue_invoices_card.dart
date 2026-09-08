@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../theme/financial_colors.dart';
 
-/// "Overdue invoices" card: three fanned invoice mockups over a glowing
-/// red total box. Layout/colors mirror the papers_piling reference asset.
 class OverdueInvoicesCard extends StatelessWidget {
   const OverdueInvoicesCard({super.key});
 

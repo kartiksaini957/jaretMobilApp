@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
 import '../data/home_overview_data.dart';
 
-/// "1 THING NEEDS YOU THIS WEEK" summary: centered headline + a tappable
-/// preview row for the top story card.
 class HomeSummaryCard extends StatelessWidget {
   const HomeSummaryCard({
     super.key,

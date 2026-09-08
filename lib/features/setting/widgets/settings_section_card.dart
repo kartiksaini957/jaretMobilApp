@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
 import '../../../widgets/glass_card.dart';
 import '../theme/settings_colors.dart';
-
-/// The `.panel.ls-glass.glassrim` surface from the v2 reference — a title, an
-/// optional description, then a column of rows on frosted glass with the
-/// gradient rim.
 class SettingsSectionCard extends StatelessWidget {
   const SettingsSectionCard({
     super.key,
@@ -23,7 +18,6 @@ class SettingsSectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GlassCard(
       surface: GlassSurface.panel,
-      // `.panel { border-radius:20px; padding:24px 26px }`
       borderRadius: const BorderRadius.all(Radius.circular(20)),
       padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 24),
       child: Column(
@@ -31,7 +25,6 @@ class SettingsSectionCard extends StatelessWidget {
         children: [
           Text(
             title,
-            // `.panel h2 { font-size:17px; font-weight:800 }`
             style: AppTextStyles.logo.copyWith(
               fontSize: 17,
               fontWeight: FontWeight.w800,
@@ -41,7 +34,6 @@ class SettingsSectionCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               subtitle!,
-              // `.panel .pd { font-size:12.5px; color:soft; line-height:1.55 }`
               style: AppTextStyles.body.copyWith(
                 color: SettingsColors.soft,
                 fontSize: 12.5,
@@ -56,12 +48,8 @@ class SettingsSectionCard extends StatelessWidget {
     );
   }
 }
-
-/// `.gtitle` — small uppercase label breaking a panel into sub-groups
-/// ("CHANNELS", "ACCOUNTING", "ACTIVE SESSIONS").
 class SettingsGroupLabel extends StatelessWidget {
   const SettingsGroupLabel(this.text, {super.key, this.topPadding = 20});
-
   final String text;
   final double topPadding;
 
@@ -82,10 +70,8 @@ class SettingsGroupLabel extends StatelessWidget {
   }
 }
 
-/// The `border-top` between `.frow`s.
 class SettingsDivider extends StatelessWidget {
   const SettingsDivider({super.key});
-
   @override
   Widget build(BuildContext context) {
     return const Padding(

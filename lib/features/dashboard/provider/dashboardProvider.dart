@@ -1,96 +1,110 @@
 import 'dart:async';
-
 import 'package:flutter_application_1/features/dashboard/model/dashboardTabsModel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// `KeepAliveLink` lives here rather than in the main barrel file.
-import 'package:flutter_riverpod/misc.dart';
-
+import 'package:flutter_riverpod/legacy.dart';
 import '../../../core/api_services.dart';
 import '../../../utils/pref_utils.dart';
 import '../model/dashboardModel.dart';
 import '../model/dashboardNumber.dart';
-// Prefixed: this model declares its own `ActionItem`, which clashes with the
-// reminders one in dashboardModel.dart.
 import '../model/dashboardNumberDetail.dart' as kpi_detail;
 
-/// Upcoming reminders shown on the dashboard — fetched from
-/// `GET /api/dashboard/reminders` using the saved access token. Re-runs
-/// whenever the dashboard rebuilds it (e.g. pull-to-refresh via
-/// `ref.refresh(dashboardRemindersProvider)`).
-final dashboardRemindersProvider = FutureProvider.autoDispose<List<ActionItem>>(
-  (ref) async {
-    final token = await PrefUtils.getAccessToken();
-    if (token == null || token.isEmpty) {
-      throw ApiException('Not signed in.');
-    }
-    return ApiService().getDashboardReminders(accessToken: token);
-    
-  },
-  
-);
-final dashboardInsightsProvider =
-    FutureProvider.autoDispose<BusinessHealthResponse>((ref) async {
-  // Get saved access token
-  final token = await PrefUtils.getAccessToken();
-
-  // If user is not logged in
-  if (token == null || token.isEmpty) {
-    throw ApiException('Not signed in.');
+class DashboardRemindersNotifier
+    extends StateNotifier<AsyncValue<List<ActionItem>>> {
+  DashboardRemindersNotifier() : super(const AsyncValue.loading()) {
+    fetch();
   }
 
-  // Call API
-  return ApiService().getDashboardInsights(
-    accessToken: token,
-  );
-});
-/// Holds an autoDispose provider's value for [duration] after its last
-/// listener goes away, instead of tearing it down immediately. Leaving a
-/// screen and coming back inside that window reuses the cached response
-/// rather than re-hitting the API.
-KeepAliveLink _cacheFor(Ref ref, Duration duration) {
-  final link = ref.keepAlive();
-  Timer? timer;
+  Future<void> fetch() async {
+    state = const AsyncValue.loading();
+    try {
+      final token = await PrefUtils.getAccessToken();
+      if (token == null || token.isEmpty) {
+        throw ApiException('Not signed in.');
+      }
+      final items = await ApiService().getDashboardReminders(
+        accessToken: token,
+      );
+      state = AsyncValue.data(items);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
 
-  ref.onDispose(() => timer?.cancel());
-  // No listeners left — start the countdown to disposal.
-  ref.onCancel(() => timer = Timer(duration, link.close));
-  // Someone re-subscribed before it expired — call the countdown off.
-  ref.onResume(() {
-    timer?.cancel();
-    timer = null;
-  });
-
-  return link;
+  Future<void> refresh() => fetch();
 }
 
-final dashboardKpisProvider = FutureProvider.autoDispose<DashboardKpiResponse>((
-  ref,
-) async {
-  // Cached for a minute, so flipping back to the Numbers tab doesn't re-hit
-  // the API. Failures drop out of the cache immediately (see below) so the
-  // next tap is a real retry.
-  final link = _cacheFor(ref, const Duration(minutes: 1));
+final dashboardRemindersProvider =
+    StateNotifierProvider<
+      DashboardRemindersNotifier,
+      AsyncValue<List<ActionItem>>
+    >((ref) {
+      return DashboardRemindersNotifier();
+    });
 
-  try {
-    // Get saved access token
-    final token = await PrefUtils.getAccessToken();
-
-    // If user is not logged in
-    if (token == null || token.isEmpty) {
-      throw ApiException('Not signed in.');
-    }
-
-    // Call API
-    return await ApiService().getDashboardKpis(accessToken: token);
-  } catch (_) {
-    link.close();
-    rethrow;
+class DashboardInsightsNotifier
+    extends StateNotifier<AsyncValue<BusinessHealthResponse>> {
+  DashboardInsightsNotifier() : super(const AsyncValue.loading()) {
+    fetch();
   }
-});
 
-/// Identifies one KPI for `POST /dashboard/kpi-explain`. Doubles as the
-/// family key, so it needs value equality — otherwise every rebuild of the
-/// sheet would key a fresh provider and re-fire the request.
+  Future<void> fetch() async {
+    state = const AsyncValue.loading();
+    try {
+      final token = await PrefUtils.getAccessToken();
+      if (token == null || token.isEmpty) {
+        throw ApiException('Not signed in.');
+      }
+      final response = await ApiService().getDashboardInsights(
+        accessToken: token,
+      );
+      state = AsyncValue.data(response);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  Future<void> refresh() => fetch();
+}
+
+final dashboardInsightsProvider =
+    StateNotifierProvider<
+      DashboardInsightsNotifier,
+      AsyncValue<BusinessHealthResponse>
+    >((ref) {
+      return DashboardInsightsNotifier();
+    });
+
+class DashboardKpisNotifier
+    extends StateNotifier<AsyncValue<DashboardKpiResponse>> {
+  DashboardKpisNotifier() : super(const AsyncValue.loading()) {
+    fetch();
+  }
+
+  Future<void> fetch() async {
+    state = const AsyncValue.loading();
+    try {
+      final token = await PrefUtils.getAccessToken();
+      if (token == null || token.isEmpty) {
+        throw ApiException('Not signed in.');
+      }
+      final response = await ApiService().getDashboardKpis(accessToken: token);
+      state = AsyncValue.data(response);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  Future<void> refresh() => fetch();
+}
+
+final dashboardKpisProvider =
+    StateNotifierProvider<
+      DashboardKpisNotifier,
+      AsyncValue<DashboardKpiResponse>
+    >((ref) {
+      return DashboardKpisNotifier();
+    });
+
 class KpiExplainArgs {
   const KpiExplainArgs({
     required this.kpiName,
@@ -117,10 +131,8 @@ class KpiExplainArgs {
       Object.hash(kpiName, currentValue, priorValue, formatType);
 }
 
-/// Explanation for a single KPI. Only fetched when a stat tile is tapped,
-/// since the metric sheet is what watches it.
-final kpiExplainProvider = FutureProvider.autoDispose
-    .family<kpi_detail.dashboardNumberDetail, KpiExplainArgs>((
+final kpiExplainProvider =
+    FutureProvider.family<kpi_detail.dashboardNumberDetail, KpiExplainArgs>((
       ref,
       args,
     ) async {
@@ -129,7 +141,6 @@ final kpiExplainProvider = FutureProvider.autoDispose
       if (token == null || token.isEmpty) {
         throw ApiException('Not signed in.');
       }
-
       return ApiService().getKpiExplain(
         accessToken: token,
         kpiName: args.kpiName,

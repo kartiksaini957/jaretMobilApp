@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/lightsignal/ls_css.dart';
 import '../theme/lightsignal/ls_tokens.dart';
+import '../widgets/smooth_animations.dart';
 
 /// One icon slot on [AppBottomBar]: an icon plus an optional badge count.
 // class BottomBarItem {
@@ -167,7 +168,10 @@ class _BottomBarButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        AppHaptics.selectionClick();
+        onTap();
+      },
       customBorder: const CircleBorder(),
       child: Padding(
         padding: const EdgeInsets.all(4),

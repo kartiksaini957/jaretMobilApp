@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
 import '../data/financial_overview_data.dart';
-
-/// Second pill row: every metric (Food Cost % / Labor % / ... / Avg
-/// Ticket) with a tone dot; selecting one drives the detail card below.
 class FinancialMetricPills extends StatelessWidget {
   const FinancialMetricPills({
     super.key,
@@ -85,11 +81,6 @@ class _Pill extends StatelessWidget {
                   color: selected ? AppColors.white : AppColors.faintText,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                 ),
-                // TextStyle(
-                //   color: selected ? AppColors.white : AppColors.faintText,
-                //   fontSize: 12.5,
-                //   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                // ),
               ),
             ],
           ),

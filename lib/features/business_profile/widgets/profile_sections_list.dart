@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../theme/app_theme.dart';
 import '../data/profile_sections_data.dart';
 
-/// "PROFILE SECTIONS" card: one row per section with a status dot.
 class ProfileSectionsList extends StatelessWidget {
   const ProfileSectionsList({
     super.key,
@@ -22,7 +21,7 @@ class ProfileSectionsList extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: AppColors.glassDark.withOpacity(0.1),
+          color: AppColors.glassDark.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.glassLight),
         ),

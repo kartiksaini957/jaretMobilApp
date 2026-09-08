@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../theme/app_theme.dart';
 import '../../../theme/lightsignal/ls_css.dart';
+import '../../../widgets/smooth_animations.dart';
 import '../theme/settings_colors.dart';
 
-/// `.frow .fl` — the bold label at the head of a settings row.
 TextStyle get _rowLabelStyle => AppTextStyles.body.copyWith(
   color: SettingsColors.white,
   fontSize: 13.5,
@@ -12,23 +12,18 @@ TextStyle get _rowLabelStyle => AppTextStyles.body.copyWith(
   height: 1.2,
 );
 
-/// `.frow .fs` — the quiet explanatory line under it.
 TextStyle get _rowSubtitleStyle => AppTextStyles.body.copyWith(
   color: SettingsColors.soft,
   fontSize: 11.5,
   height: 1.5,
 );
 
-/// `.trow` — a plain list row (thresholds, sessions, team, invoices,
-/// snapshots, corrections).
 TextStyle get _listRowStyle => AppTextStyles.body.copyWith(
   color: SettingsColors.bright,
   fontSize: 13,
   height: 1.4,
 );
 
-/// Label + optional subtitle + trailing switch. The workhorse row for
-/// every boolean setting across the Settings tabs.
 class SettingsToggleRow extends StatelessWidget {
   const SettingsToggleRow({
     super.key,
@@ -36,12 +31,14 @@ class SettingsToggleRow extends StatelessWidget {
     this.subtitle,
     required this.value,
     required this.onChanged,
+    this.isLoading = false,
   });
 
   final String label;
   final String? subtitle;
   final bool value;
   final ValueChanged<bool> onChanged;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -51,21 +48,36 @@ class SettingsToggleRow extends StatelessWidget {
         children: [
           Expanded(child: _RowLabel(label: label, subtitle: subtitle)),
           const SizedBox(width: 12),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeThumbColor: SettingsColors.white,
-            activeTrackColor: SettingsColors.accent.withValues(alpha: 0.45),
-            inactiveThumbColor: SettingsColors.white.withValues(alpha: 0.75),
-            inactiveTrackColor: SettingsColors.cardFill,
-          ),
+          if (isLoading)
+            const SizedBox(
+              width: 32,
+              height: 32,
+              child: Center(
+                child: SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: SettingsColors.accent,
+                  ),
+                ),
+              ),
+            )
+          else
+            Switch(
+              value: value,
+              onChanged: onChanged,
+              activeThumbColor: SettingsColors.white,
+              activeTrackColor: SettingsColors.accent.withValues(alpha: 0.45),
+              inactiveThumbColor: SettingsColors.white.withValues(alpha: 0.75),
+              inactiveTrackColor: SettingsColors.cardFill,
+            ),
         ],
       ),
     );
   }
 }
 
-/// Label + subtitle above a right-aligned dropdown pill.
 class SettingsDropdownRow<T> extends StatelessWidget {
   const SettingsDropdownRow({
     super.key,
@@ -75,6 +87,7 @@ class SettingsDropdownRow<T> extends StatelessWidget {
     required this.options,
     required this.onChanged,
     this.labelBuilder,
+    this.isLoading = false,
   });
 
   final String label;
@@ -83,6 +96,7 @@ class SettingsDropdownRow<T> extends StatelessWidget {
   final List<T> options;
   final ValueChanged<T> onChanged;
   final String Function(T)? labelBuilder;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -92,21 +106,52 @@ class SettingsDropdownRow<T> extends StatelessWidget {
         children: [
           Expanded(child: _RowLabel(label: label, subtitle: subtitle)),
           const SizedBox(width: 12),
-          Flexible(
-            child: SettingsDropdown<T>(
-              value: value,
-              options: options,
-              onChanged: onChanged,
-              labelBuilder: labelBuilder,
+          if (isLoading)
+            Container(
+              height: 38,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: SettingsColors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: SettingsColors.white.withValues(alpha: 0.15)),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1.8,
+                      color: SettingsColors.accent,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    'Loading…',
+                    style: TextStyle(
+                      color: SettingsColors.soft,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            Flexible(
+              child: SettingsDropdown<T>(
+                value: value,
+                options: options,
+                onChanged: onChanged,
+                labelBuilder: labelBuilder,
+              ),
             ),
-          ),
         ],
       ),
     );
   }
 }
 
-/// The `select` control — radius 10, translucent fill, 13px label.
 class SettingsDropdown<T> extends StatelessWidget {
   const SettingsDropdown({
     super.key,
@@ -121,12 +166,37 @@ class SettingsDropdown<T> extends StatelessWidget {
   final List<T> options;
   final ValueChanged<T> onChanged;
   final String Function(T)? labelBuilder;
-
-  /// The 34px variant used inside connector cards.
   final bool compact;
 
   @override
   Widget build(BuildContext context) {
+    // Collect unique options
+    final List<T> uniqueOptions = [];
+    for (final opt in options) {
+      if (!uniqueOptions.contains(opt)) {
+        uniqueOptions.add(opt);
+      }
+    }
+
+    // Resolve matching value safely (handle case-insensitivity or add if missing)
+    T effectiveValue = value;
+    if (!uniqueOptions.contains(value)) {
+      if (value is String) {
+        final valStr = (value as String).trim().toLowerCase();
+        final match = uniqueOptions.cast<dynamic>().firstWhere(
+              (opt) => opt.toString().trim().toLowerCase() == valStr,
+              orElse: () => null,
+            );
+        if (match != null) {
+          effectiveValue = match as T;
+        } else {
+          uniqueOptions.add(value);
+        }
+      } else {
+        uniqueOptions.add(value);
+      }
+    }
+
     return Container(
       height: compact ? 34 : 38,
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -137,7 +207,7 @@ class SettingsDropdown<T> extends StatelessWidget {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<T>(
-          value: value,
+          value: effectiveValue,
           isDense: true,
           isExpanded: true,
           dropdownColor: const Color(0xFF0A4A63),
@@ -153,7 +223,7 @@ class SettingsDropdown<T> extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
           items: [
-            for (final option in options)
+            for (final option in uniqueOptions)
               DropdownMenuItem<T>(
                 value: option,
                 child: Text(
@@ -170,9 +240,6 @@ class SettingsDropdown<T> extends StatelessWidget {
     );
   }
 }
-
-/// Label + subtitle with one or more trailing action buttons (e.g.
-/// "Change password", "Contact support", "Restore"/"Delete").
 class SettingsActionRow extends StatelessWidget {
   const SettingsActionRow({
     super.key,
@@ -206,7 +273,6 @@ class SettingsActionRow extends StatelessWidget {
   }
 }
 
-/// `.trow` — text on the left, actions pushed to the right.
 class SettingsListRow extends StatelessWidget {
   const SettingsListRow({
     super.key,
@@ -216,8 +282,6 @@ class SettingsListRow extends StatelessWidget {
   }) : assert(text != null || richText != null, 'give the row some content');
 
   final String? text;
-
-  /// For rows whose leading fragment is bold ("**Supply chain** — ...").
   final InlineSpan? richText;
   final List<Widget> trailing;
 
@@ -242,13 +306,9 @@ class SettingsListRow extends StatelessWidget {
     );
   }
 }
-
-/// The quiet trailing note on a `.trow` ("current", "full access").
 class SettingsRowNote extends StatelessWidget {
   const SettingsRowNote(this.text, {super.key});
-
   final String text;
-
   @override
   Widget build(BuildContext context) {
     return Text(
@@ -263,10 +323,8 @@ class SettingsRowNote extends StatelessWidget {
 
 class _RowLabel extends StatelessWidget {
   const _RowLabel({required this.label, this.subtitle});
-
   final String label;
   final String? subtitle;
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -283,20 +341,12 @@ class _RowLabel extends StatelessWidget {
   }
 }
 
-/// Which `.gbtn` variant a pill uses.
 enum SettingsButtonTone {
-  /// `.gbtn` — the quiet default.
   neutral,
-
-  /// `.gbtn.primary` — accent-tinted, for the one affirmative action.
   primary,
-
-  /// `.gbtn.danger` — destructive.
   danger,
 }
 
-/// The `.gbtn` glass pill used for every row-level action ("Connect",
-/// "View", "Undo", "Sign out", "Start deletion", ...).
 class SettingsPillButton extends StatelessWidget {
   const SettingsPillButton({
     super.key,
@@ -309,18 +359,12 @@ class SettingsPillButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final SettingsButtonTone tone;
-
-  /// The 32px variant used inside `.trow`s.
   final bool compact;
-
-  /// `.gbtn` — `rgba(8,40,56,.32→.26)` over `rgba(255,255,255,.13→.05)`,
-  /// pre-composited so one gradient does the work of the reference's two.
   static final Gradient _neutralFill = LsCss.linearGradient(
     degrees: 160,
     colors: const [Color(0x683E5763), Color(0x4D274351)],
   );
 
-  /// `.gbtn.primary` — the same dark layer over the accent sheen.
   static final Gradient _primaryFill = LsCss.linearGradient(
     degrees: 160,
     colors: const [Color(0x8A2E7990), Color(0x541B5164)],
@@ -335,55 +379,45 @@ class SettingsPillButton extends StatelessWidget {
       SettingsButtonTone.danger => SettingsColors.danger,
     };
     final border = switch (tone) {
-      // rgba(255,255,255,.24) / .32 / rgba(255,150,130,.4)
       SettingsButtonTone.neutral => const Color(0x3DFFFFFF),
       SettingsButtonTone.primary => const Color(0x52FFFFFF),
       SettingsButtonTone.danger => const Color(0x66FF9682),
     };
 
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(99),
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(99),
-        splashColor: SettingsColors.white.withValues(alpha: 0.10),
-        highlightColor: SettingsColors.white.withValues(alpha: 0.06),
-        child: Ink(
-          decoration: BoxDecoration(
-            gradient: isDanger
-                ? null
-                : tone == SettingsButtonTone.primary
-                ? _primaryFill
-                : _neutralFill,
-            color: isDanger ? const Color(0x33FF9682) : null,
-            borderRadius: BorderRadius.circular(99),
-            border: Border.all(color: border),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x80001422),
-                offset: Offset(0, 6),
-                blurRadius: 16,
-                spreadRadius: -9,
-              ),
-            ],
-          ),
-          // `Center(widthFactor: 1)` rather than `Container(alignment:)` —
-          // an aligned Container fills whatever width it is offered, so in a
-          // Wrap every button would claim its own line.
-          child: SizedBox(
-            height: compact ? 32 : 40,
-            child: Center(
-              widthFactor: 1,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: compact ? 14 : 20),
-                child: Text(
-                  label,
-                  style: AppTextStyles.body.copyWith(
-                    color: foreground,
-                    fontSize: compact ? 12 : 13,
-                    fontWeight: FontWeight.w800,
-                  ),
+    return SmoothScaleTap(
+      onTap: onPressed,
+      scaleFactor: 0.94,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: isDanger
+              ? null
+              : tone == SettingsButtonTone.primary
+              ? _primaryFill
+              : _neutralFill,
+          color: isDanger ? const Color(0x33FF9682) : null,
+          borderRadius: BorderRadius.circular(99),
+          border: Border.all(color: border),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x80001422),
+              offset: Offset(0, 6),
+              blurRadius: 16,
+              spreadRadius: -9,
+            ),
+          ],
+        ),
+        child: SizedBox(
+          height: compact ? 32 : 40,
+          child: Center(
+            widthFactor: 1,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: compact ? 14 : 20),
+              child: Text(
+                label,
+                style: AppTextStyles.body.copyWith(
+                  color: foreground,
+                  fontSize: compact ? 12 : 13,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             ),
@@ -394,7 +428,6 @@ class SettingsPillButton extends StatelessWidget {
   }
 }
 
-/// Compact text-entry field matching the reference's `input[type=text]`.
 class SettingsTextField extends StatelessWidget {
   const SettingsTextField({
     super.key,
@@ -455,13 +488,10 @@ class SettingsTextField extends StatelessWidget {
   }
 }
 
-/// Small colored status dot (connected/not-connected, cloud-sync ok, ...).
 class SettingsStatusDot extends StatelessWidget {
   const SettingsStatusDot({super.key, required this.color, this.size = 7});
-
   final Color color;
   final double size;
-
   @override
   Widget build(BuildContext context) {
     return Container(

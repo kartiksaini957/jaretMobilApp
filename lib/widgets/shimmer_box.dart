@@ -44,7 +44,9 @@ class _ShimmerBoxState extends State<ShimmerBox>
               end: Alignment(sweep + 0.4, 0),
               colors: const [
                 AppColors.glassLight,
-                AppColors.glassDark,
+                Color(
+                  0x66FFFFFF,
+                ), // [TEMPORARY CHANGE] Replaced AppColors.glassDark (Color(0x33062230)) with white
                 AppColors.glassLight,
               ],
             ),

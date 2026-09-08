@@ -60,9 +60,19 @@ class LoginController extends Notifier<LoginState> {
       await PrefUtils.saveUserName(session.user.name);
       debugPrint('[LoginController] tokens and user name saved to SharedPreferences');
 
+      AppUser user = session.user;
+      try {
+        debugPrint('[LoginController] Calling /auth/me after login...');
+        final meUser = await _api.getAuthMe();
+        debugPrint('[LoginController] /auth/me succeeded: $meUser');
+        user = meUser;
+      } catch (meError) {
+        debugPrint('[LoginController] /auth/me error (non-fatal): $meError');
+      }
+
       state = LoginState(
         isLoading: false,
-        user: session.user,
+        user: user,
         accessToken: session.accessToken,
         refreshToken: session.refreshToken,
       );

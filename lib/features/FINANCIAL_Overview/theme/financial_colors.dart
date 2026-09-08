@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-
-/// Standalone mint/teal palette for the Financial Overview screen —
-/// its own family, distinct from the rest of the app.
 class FinancialColors {
   FinancialColors._();
 

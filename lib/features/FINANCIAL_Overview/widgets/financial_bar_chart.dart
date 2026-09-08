@@ -32,8 +32,6 @@ class _MiniBarChartState extends State<MiniBarChart> {
         BarChartData(
           alignment: BarChartAlignment.spaceBetween,
           maxY: 50,
-
-          // Remove everything
           borderData: FlBorderData(show: false),
           gridData: const FlGridData(show: false),
           titlesData: const FlTitlesData(show: false),

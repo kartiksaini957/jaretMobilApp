@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/core/api_services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../widgets/customToast.dart';
@@ -16,11 +17,35 @@ class NotificationsTab extends ConsumerStatefulWidget {
 
 class _NotificationsTabState extends ConsumerState<NotificationsTab> {
   final _recipientController = TextEditingController();
+  bool _isSendingTest = false;
 
   @override
   void dispose() {
     _recipientController.dispose();
     super.dispose();
+  }
+
+  Future<void> _sendTestEmail() async {
+    if (_isSendingTest) return;
+    setState(() => _isSendingTest = true);
+    try {
+      final controller = ref.read(notificationsProvider.notifier);
+      final message = await controller.sendTestNotification();
+      if (mounted) {
+        CustomToast.showSuccess(context, message);
+      }
+    } catch (e) {
+      final errorMessage = e is ApiException
+          ? e.message
+          : 'Could not send test notification. Please try again.';
+      if (mounted) {
+        CustomToast.showError(context, errorMessage);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSendingTest = false);
+      }
+    }
   }
 
   @override
@@ -38,12 +63,14 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
           subtitle:
               'The primary channel — alerts land where you\'ll actually see them.',
           value: notif.pushEnabled,
+          isLoading: notif.isLoading,
           onChanged: controller.setPushEnabled,
         ),
         const SettingsDivider(),
         SettingsToggleRow(
           label: 'In-app',
           value: notif.inAppEnabled,
+          isLoading: notif.isLoading,
           onChanged: controller.setInAppEnabled,
         ),
         const SettingsDivider(),
@@ -51,6 +78,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
           label: 'Email',
           subtitle: 'Backup channel — reports and escalations.',
           value: notif.emailEnabled,
+          isLoading: notif.isLoading,
           onChanged: controller.setEmailEnabled,
         ),
         const SettingsDivider(),
@@ -58,15 +86,21 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
           label: 'Escalate if I don\'t respond',
           subtitle:
               'A critical alert you haven\'t opened gets emailed as a follow-up.',
-          value: notif.escalateAfter,
-          options: NotificationsState.escalateOptions,
-          onChanged: controller.setEscalateAfter,
+          value: NotificationsState.escalateLabelFor(notif.escalateAfter),
+          options: NotificationsState.escalateOptions
+              .map(NotificationsState.escalateLabelFor)
+              .toList(),
+          isLoading: notif.isLoading,
+          onChanged: (label) => controller.setEscalateAfter(
+            NotificationsState.escalateCodeFor(label),
+          ),
         ),
         const SettingsGroupLabel('What you hear about'),
         SettingsToggleRow(
           label: 'Critical health alerts',
           subtitle: 'Business Health "act now" items — always urgent.',
           value: notif.criticalHealthAlerts,
+          isLoading: notif.isLoading,
           onChanged: controller.setCriticalHealthAlerts,
         ),
         const SettingsDivider(),
@@ -74,6 +108,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
           label: 'Watch items',
           subtitle: 'Priority watch areas when something new starts building.',
           value: notif.watchItems,
+          isLoading: notif.isLoading,
           onChanged: controller.setWatchItems,
         ),
         const SettingsDivider(),
@@ -81,6 +116,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
           label: 'Action reminders',
           subtitle: 'Unchecked action items from your forecast and insights.',
           value: notif.actionReminders,
+          isLoading: notif.isLoading,
           onChanged: controller.setActionReminders,
         ),
         const SettingsDivider(),
@@ -88,6 +124,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
           label: 'Opportunities',
           subtitle: 'When a new opportunity clears your bar.',
           value: notif.opportunities,
+          isLoading: notif.isLoading,
           onChanged: controller.setOpportunities,
         ),
         const SettingsDivider(),
@@ -96,18 +133,21 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
           subtitle:
               'A data source stops syncing — you hear about it before your numbers go stale.',
           value: notif.connectionProblems,
+          isLoading: notif.isLoading,
           onChanged: controller.setConnectionProblems,
         ),
         const SettingsDivider(),
         SettingsToggleRow(
           label: 'Weekly report',
           value: notif.weeklyReport,
+          isLoading: notif.isLoading,
           onChanged: controller.setWeeklyReport,
         ),
         const SettingsDivider(),
         SettingsToggleRow(
           label: 'Monthly summary',
           value: notif.monthlySummary,
+          isLoading: notif.isLoading,
           onChanged: controller.setMonthlySummary,
         ),
         const SettingsDivider(),
@@ -115,6 +155,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
           label: 'Quiet hours',
           value: notif.quietHours,
           options: NotificationsState.quietHoursOptions,
+          isLoading: notif.isLoading,
           onChanged: controller.setQuietHours,
         ),
         const SettingsGroupLabel('Also send reports to'),
@@ -179,12 +220,18 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
               onPressed: controller.addThreshold,
             ),
             SettingsPillButton(
-              label: 'Send test email',
-              onPressed: () =>
-                  CustomToast.showSuccess(context, 'Test email sent.'),
+              label: _isSendingTest ? 'Sending…' : 'Send test email',
+              onPressed: _isSendingTest ? null : _sendTestEmail,
             ),
           ],
         ),
+        if (notif.isSaving) ...[
+          const SizedBox(height: 12),
+          const Text(
+            'Saving…',
+            style: TextStyle(color: SettingsColors.faintText, fontSize: 11.5),
+          ),
+        ],
       ],
     );
   }
