@@ -22,12 +22,14 @@ class InAppWebViewScreen extends StatefulWidget {
     this.title,
     this.deepLinkScheme = 'lightsignal',
     this.onDeepLink,
+    this.onPageFinished,
   });
 
   final String url;
   final String? title;
   final String deepLinkScheme;
   final ValueChanged<Uri>? onDeepLink;
+  final ValueChanged<String>? onPageFinished;
 
   @override
   State<InAppWebViewScreen> createState() => _InAppWebViewScreenState();
@@ -46,7 +48,10 @@ class _InAppWebViewScreenState extends State<InAppWebViewScreen> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageStarted: (_) => setState(() => _isLoading = true),
-          onPageFinished: (_) => setState(() => _isLoading = false),
+          onPageFinished: (url) {
+            if (mounted) setState(() => _isLoading = false);
+            widget.onPageFinished?.call(url);
+          },
           onNavigationRequest: (request) {
             final uri = Uri.tryParse(request.url);
             if (uri != null && uri.scheme == widget.deepLinkScheme) {

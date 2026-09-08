@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
-
-/// Icon chip + title + subtitle row used in the "What we'll do" list.
 class FeatureBullet extends StatelessWidget {
   const FeatureBullet({
     super.key,
@@ -29,8 +26,8 @@ class FeatureBullet extends StatelessWidget {
               begin: Alignment(-0.25, -1.0), // ~140deg
               end: Alignment(0.25, 1.0),
               colors: [
-                Color(0xFF5FE0FF), // rgb(95, 224, 255)
-                Color(0xFF0E9ED0), // rgb(14, 158, 208)
+                Color(0xFF5FE0FF), 
+                Color(0xFF0E9ED0),
               ],
             ),
             borderRadius: BorderRadius.circular(9),

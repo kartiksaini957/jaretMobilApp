@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
-
-/// Glass card used for the "A business near you" style insight preview
-/// and other eyebrow-labelled callouts.
 class NoteCard extends StatelessWidget {
   const NoteCard({
     super.key,

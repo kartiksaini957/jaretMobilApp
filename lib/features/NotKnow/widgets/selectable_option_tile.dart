@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
-
-/// Full-width toggle tile used for "pick what applies" style questions
-/// (e.g. "What keeps you up at night?").
 class SelectableOptionTile extends StatelessWidget {
   const SelectableOptionTile({
     super.key,

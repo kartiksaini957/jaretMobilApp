@@ -1,7 +1,5 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-
 import '../theme/financial_colors.dart';
 
 class ExpenseSlice {
@@ -16,7 +14,6 @@ class ExpenseSlice {
   final String amount;
 }
 
-/// Donut chart + legend for the expense breakdown.
 class ExpenseBreakdownCard extends StatelessWidget {
   const ExpenseBreakdownCard({super.key, required this.slices});
 

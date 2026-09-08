@@ -9,8 +9,6 @@ class _ChatMessage {
   final bool isUser;
 }
 
-/// "Ask AI about this KPI" card: a small seeded chat thread plus an
-/// input row. Every question currently errors, matching the reference.
 class AskAiChatCard extends StatefulWidget {
   const AskAiChatCard({super.key, required this.kpiName});
 

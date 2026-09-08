@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/shimmer_box.dart';
 import '../../../widgets/typewriter_text.dart';
-
-/// Top card on the dashboard: date, greeting, and a one-line business
-/// summary under a "YOUR BUSINESS RIGHT NOW" eyebrow.
 class GreetingCard extends StatelessWidget {
   const GreetingCard({
     super.key,
@@ -17,7 +14,6 @@ class GreetingCard extends StatelessWidget {
   final String name;
   final String summary;
 
-  /// Swaps the summary text for shimmer lines while insights are in flight.
   final bool isLoading;
 
   static const _weekdayNames = [
@@ -103,8 +99,6 @@ class GreetingCard extends StatelessWidget {
             const _SummaryShimmer()
           else
             TypewriterText(
-              // Keyed on the sentence so a fresh summary mounts a fresh
-              // animation instead of continuing the previous one.
               key: ValueKey(summary),
               text: summary,
               style: AppTextStyles.headline.copyWith(
@@ -122,8 +116,6 @@ class GreetingCard extends StatelessWidget {
   }
 }
 
-/// Two-and-a-bit shimmer lines standing in for the summary sentence, sized
-/// to roughly the line height of the real text so the card doesn't jump.
 class _SummaryShimmer extends StatelessWidget {
   const _SummaryShimmer();
 

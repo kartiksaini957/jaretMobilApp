@@ -7,9 +7,14 @@ import '../data/demand_forecast_data.dart';
 /// dollar figure vs normal, a confidence readout, and the biggest swing
 /// factor callout.
 class ForecastHeadlineCard extends StatefulWidget {
-  const ForecastHeadlineCard({super.key, required this.data});
+  const ForecastHeadlineCard({
+    super.key,
+    required this.data,
+    this.showAlt = false,
+  });
 
   final ForecastTabData data;
+  final bool showAlt;
 
   @override
   State<ForecastHeadlineCard> createState() => _ForecastHeadlineCardState();
@@ -21,6 +26,7 @@ class _ForecastHeadlineCardState extends State<ForecastHeadlineCard> {
   @override
   Widget build(BuildContext context) {
     final data = widget.data;
+    final showingAlt = widget.showAlt && data.altValue != null;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -66,7 +72,10 @@ class _ForecastHeadlineCardState extends State<ForecastHeadlineCard> {
           const SizedBox(height: 8),
 
           Text(
-            'EXPECTED · ${data.expectedLabel}',
+            // 🔧 CHANGED: label value ke saath switch hoti hai
+            showingAlt
+                ? (data.altLabel ?? '').toUpperCase()
+                : 'EXPECTED · ${data.expectedLabel}',
             style: AppTextStyles.eyebrow.copyWith(
               fontSize: 11,
               color: Colors.white,
@@ -74,7 +83,8 @@ class _ForecastHeadlineCardState extends State<ForecastHeadlineCard> {
           ),
           const SizedBox(height: 6),
           Text(
-            data.expectedValue,
+            // 🔧 CHANGED: showAlt true ho to covers dikhao, warna dollar value
+            showingAlt ? data.altValue! : data.expectedValue,
             style: AppTextStyles.headlineAccent.copyWith(
               fontSize: 34,
               height: 1.3,
@@ -82,39 +92,43 @@ class _ForecastHeadlineCardState extends State<ForecastHeadlineCard> {
             ),
           ),
           const SizedBox(height: 6),
-          Row(
-            children: [
-              Text(
-                data.normalValue,
-                style: AppTextStyles.small.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color:
-                      (data.deltaPositive
-                              ? AppColors.goodDot
-                              : AppColors.critDot)
-                          .withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  data.deltaLabel,
-                  style: TextStyle(
-                    color: data.deltaPositive
-                        ? AppColors.goodText
-                        : AppColors.crit,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
+          if (!showingAlt) // 🔧 NEW: covers mode me dollar-delta badge nahi dikhana
+            Row(
+              children: [
+                Text(
+                  data.normalValue,
+                  style: AppTextStyles.small.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
                   ),
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color:
+                        (data.deltaPositive
+                                ? AppColors.goodDot
+                                : AppColors.critDot)
+                            .withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    data.deltaLabel,
+                    style: TextStyle(
+                      color: data.deltaPositive
+                          ? AppColors.goodText
+                          : AppColors.crit,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           const SizedBox(height: 10),
           InkWell(
             onTap: () => setState(
@@ -134,7 +148,6 @@ class _ForecastHeadlineCardState extends State<ForecastHeadlineCard> {
                   'how we get this number',
                   style: AppTextStyles.small.copyWith(
                     color: Colors.white,
-
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -198,7 +211,6 @@ class _ForecastHeadlineCardState extends State<ForecastHeadlineCard> {
             data.confidenceBody,
             style: AppTextStyles.small.copyWith(
               fontWeight: FontWeight.w700,
-              // fontSize: 10.5,
               height: 1.5,
               color: Colors.white,
             ),

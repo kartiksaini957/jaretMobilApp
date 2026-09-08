@@ -14,6 +14,14 @@ enum LocationType {
     LocationType.regular => 'REGULAR SPOT',
     LocationType.seasonal => 'SEASONAL / EVENT',
   };
+
+  static LocationType fromString(String? role) {
+    if (role == null || role.isEmpty) return LocationType.regular;
+    final r = role.toLowerCase();
+    if (r.contains('headquarter')) return LocationType.headquarters;
+    if (r.contains('seasonal') || r.contains('event')) return LocationType.seasonal;
+    return LocationType.regular;
+  }
 }
 
 /// One business location. [address]/[details] are null while geocoding is
@@ -36,12 +44,10 @@ class BusinessLocation {
 
 final businessLocationsSeed = [
   const BusinessLocation(
-    name: '5th Avenue storefront',
+    name: 'Dauphin Street Flagship',
     type: LocationType.headquarters,
-    address: '7612 5th Ave, Brooklyn, NY 11209',
+    address: '450 Dauphin St, Mobile, AL 36602',
     details:
-        'Geocoded ✓ · Bay Ridge · space type: leased storefront · 22 '
-        'seats · open 11am–10pm, Fri–Sat to 11pm',
+        'Geocoded ✓ · Mobile · space type: mobile · role: headquarters · status: active',
   ),
-  const BusinessLocation(name: 'New spot', type: LocationType.regular),
 ];

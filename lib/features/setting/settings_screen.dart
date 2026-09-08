@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/features/opportunity/ScenarioLab/cenario_lab_screen.dart';
 import 'package:flutter_application_1/features/opportunity/opportunities_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../theme/app_theme.dart';
 import '../../widgets/app_nav_drawer.dart';
 import '../../widgets/gradient_background.dart';
+import '../../widgets/smooth_animations.dart';
 import '../FINANCIAL_Overview/financial_overview_screen.dart';
 import '../business_health/business_health_screen.dart';
 import '../business_profile/business_profile_screen.dart';
@@ -23,10 +23,6 @@ import 'tabs/security_team_tab.dart';
 import 'theme/settings_colors.dart';
 import 'widgets/notification_bell.dart';
 import 'widgets/settings_tab_bar.dart';
-
-/// Settings — General / Integrations / Data & Privacy / Notifications /
-/// Security & Team / AI & Corrections / Billing / Backup, selected via a
-/// pill tab bar with a single content card below.
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -36,10 +32,7 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  /// `.wrap { max-width: 1080px }`
   static const double _contentMaxWidth = 1080;
-
   static const _tabs = [
     SettingsTab('General'),
     SettingsTab('Integrations'),
@@ -117,13 +110,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         selectedIndex: 7,
         onItemSelected: _onDrawerItemSelected,
       ),
-      // The shared aurora field, so Settings reads like every other tab.
       body: GradientBackground(
         child: SafeArea(
           child: Center(
             child: ConstrainedBox(
-              // `.wrap { max-width: 1080px }` — keeps the panels readable
-              // instead of stretching them across an iPad.
               constraints: const BoxConstraints(maxWidth: _contentMaxWidth),
               child: Column(
                 children: [
@@ -144,7 +134,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 .state = i,
                           ),
                           const SizedBox(height: 22),
-                          _tabBuilders[selectedIndex],
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 260),
+                            switchInCurve: Curves.easeOutCubic,
+                            switchOutCurve: Curves.easeInCubic,
+                            transitionBuilder: (child, animation) =>
+                                smoothSlideFadeTransitionBuilder(
+                                  child,
+                                  animation,
+                                  beginOffset: const Offset(0.04, 0),
+                                ),
+                            child: KeyedSubtree(
+                              key: ValueKey('settings_tab_$selectedIndex'),
+                              child: _tabBuilders[selectedIndex],
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -161,9 +165,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
 class _SettingsHeader extends StatelessWidget {
   const _SettingsHeader({required this.onMenuTap});
-
   final VoidCallback onMenuTap;
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -174,7 +176,6 @@ class _SettingsHeader extends StatelessWidget {
             onPressed: onMenuTap,
             icon: const Icon(Icons.menu, color: SettingsColors.white),
           ),
-          // `.crumb` — "LightSignal / **Settings**".
           Expanded(
             child: Text.rich(
               TextSpan(

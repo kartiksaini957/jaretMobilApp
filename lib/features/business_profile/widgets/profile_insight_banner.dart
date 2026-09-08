@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
 
-/// Dismissible "BUSINESSES LIKE YOURS" insight banner: an eyebrow label
-/// with a close button, then a paragraph with a highlighted phrase.
 class ProfileInsightBanner extends StatelessWidget {
   const ProfileInsightBanner({
     super.key,

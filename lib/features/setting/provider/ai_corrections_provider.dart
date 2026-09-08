@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/api_services.dart';
+import '../../../utils/pref_utils.dart';
 
 class CorrectionItem {
   const CorrectionItem({
@@ -13,7 +15,6 @@ class CorrectionItem {
   final String title;
   final String description;
   final String date;
-  /// True while the correction is in effect; false once undone/dismissed.
   final bool applied;
 
   CorrectionItem copyWith({bool? applied}) => CorrectionItem(
@@ -49,40 +50,86 @@ class AiCorrectionsState {
       ),
     ],
     this.lastClassificationRun = 'Jun 12 · v7',
+    this.isRunningClassifier = false,
+    this.togglingCorrectionId,
+    this.error,
   });
 
   final List<CorrectionItem> corrections;
   final String lastClassificationRun;
+  final bool isRunningClassifier;
+  final String? togglingCorrectionId;
+  final String? error;
 
   AiCorrectionsState copyWith({
     List<CorrectionItem>? corrections,
     String? lastClassificationRun,
+    bool? isRunningClassifier,
+    String? togglingCorrectionId,
+    bool clearTogglingCorrectionId = false,
+    String? error,
   }) {
     return AiCorrectionsState(
       corrections: corrections ?? this.corrections,
       lastClassificationRun:
           lastClassificationRun ?? this.lastClassificationRun,
+      isRunningClassifier: isRunningClassifier ?? this.isRunningClassifier,
+      togglingCorrectionId: clearTogglingCorrectionId
+          ? null
+          : (togglingCorrectionId ?? this.togglingCorrectionId),
+      error: error,
     );
   }
 }
 
-/// AI & Corrections tab: every correction the user has made, and controls
-/// to undo/restore them. Corrections always win over the model's own read.
 class AiCorrectionsController extends Notifier<AiCorrectionsState> {
   @override
   AiCorrectionsState build() => const AiCorrectionsState();
 
-  void toggleApplied(String id) {
-    state = state.copyWith(
-      corrections: [
-        for (final c in state.corrections)
-          if (c.id == id) c.copyWith(applied: !c.applied) else c,
-      ],
-    );
+  /// Calls POST /api/corrections/{id}/undo and flips the local applied flag
+  /// on success. Works for both "Undo" (applied -> false) and "Restore"
+  /// (applied -> true) since the same endpoint just toggles the state.
+  Future<void> toggleApplied(String id) async {
+    state = state.copyWith(togglingCorrectionId: id, error: null);
+    try {
+      final token = await PrefUtils.getAccessToken();
+      if (token == null || token.isEmpty) {
+        throw ApiException('Not signed in.');
+      }
+      await ApiService().undoCorrection(accessToken: token, correctionId: id);
+      if (!ref.mounted) return;
+      state = state.copyWith(
+        corrections: [
+          for (final c in state.corrections)
+            if (c.id == id) c.copyWith(applied: !c.applied) else c,
+        ],
+        clearTogglingCorrectionId: true,
+      );
+    } catch (e) {
+      if (!ref.mounted) return;
+      final message = e is ApiException ? e.message : 'Could not update correction.';
+      state = state.copyWith(clearTogglingCorrectionId: true, error: message);
+    }
   }
 
-  void rerunClassification() {
-    state = state.copyWith(lastClassificationRun: 'Just now · v8');
+  Future<void> rerunClassification() async {
+    state = state.copyWith(isRunningClassifier: true, error: null);
+    try {
+      final token = await PrefUtils.getAccessToken();
+      if (token == null || token.isEmpty) {
+        throw ApiException('Not signed in.');
+      }
+      await ApiService().runClassifier(accessToken: token);
+      if (!ref.mounted) return;
+      state = state.copyWith(
+        lastClassificationRun: 'Just now',
+        isRunningClassifier: false,
+      );
+    } catch (e) {
+      if (!ref.mounted) return;
+      final message = e is ApiException ? e.message : 'Could not start classification.';
+      state = state.copyWith(isRunningClassifier: false, error: message);
+    }
   }
 }
 

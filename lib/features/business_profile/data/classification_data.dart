@@ -21,50 +21,42 @@ const classificationItems = [
     label: 'Operational format',
     confidence: ConfidenceLevel.high,
     body:
-        'Counter-service slice shop — one 5th Avenue storefront in Bay '
-        'Ridge, 22 seats, counter plus whole-pie pickup',
+        'Mobile Food Truck — Dauphin Street Flagship in Mobile, AL with commercial kitchen prep hub and catering pop-ups',
   ),
   ClassificationItem(
     label: 'What you sell',
     confidence: ConfidenceLevel.high,
     body:
-        'NY slices and whole pies — the \$3.00 plain slice is the volume '
-        'driver at about 1,900 slices a week; squares and sheet-pan '
-        'catering alongside',
+        'Artisanal coastal cuisine & seafood — fresh gulf seafood, catering packages, and festival pop-up menus (\$18.50 avg ticket)',
   ),
   ClassificationItem(
-    label: 'Price position',
-    confidence: ConfidenceLevel.moderate,
-    body:
-        'Value side of the block — \$3.00 plain slice vs the \$3.50 norm '
-        'on 5th Avenue',
-  ),
-  ClassificationItem(
-    label: 'How customers buy',
+    label: 'Industry & NAICS',
     confidence: ConfidenceLevel.high,
     body:
-        'Walk-in counter trade, delivery apps at 14% of orders, catering '
-        'booked by phone',
+        'Food & Beverage (NAICS 722330: Mobile Food Services) · Growth Stage: Scaling',
+  ),
+  ClassificationItem(
+    label: 'Point of Sale & Tech',
+    confidence: ConfidenceLevel.high,
+    body:
+        'Toast POS integrated with QuickBooks Online & Instagram marketing channels',
   ),
   ClassificationItem(
     label: 'Who you serve',
     confidence: ConfidenceLevel.high,
     body:
-        'Local B2C — school-lunch slice trade on weekdays, family dinner '
-        'crowd Friday–Saturday',
+        'B2C retail diners (lunch peak 11:30–1:30) & corporate catering clients across Mobile and Baldwin counties (35-mile radius)',
   ),
   ClassificationItem(
     label: 'Operating model',
     confidence: ConfidenceLevel.high,
     body:
-        'Owner-operated by Salvatore "Sal" Rosetti with 9 staff '
-        '(4 full-time, 5 part-time), single location since 2009',
+        'Sole Member LLC owned & operated by Jane Doe with 3 staff (Lead Prep Cook, 2 Part-time Servers)',
   ),
   ClassificationItem(
-    label: 'Supply chain',
-    confidence: ConfidenceLevel.low,
+    label: 'Risk & Insurance',
+    confidence: ConfidenceLevel.moderate,
     body:
-        'Cheese and flour through distributors, produce weekly — reads '
-        'as dependent on one cheese distributor at \$4.85/lb',
+        '\$1,000,000 General Liability policy via Hartford, Commercial Auto, and Workers Comp; seasonal weather risk mitigation in place',
   ),
 ];
