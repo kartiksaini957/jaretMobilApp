@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
 import '../data/financial_overview_data.dart';
 
-/// "ASK ABOUT {metric}" chat bottom sheet, seeded with the metric's
-/// transcript and open to further (canned) questions.
 class FinancialAskAiSheet extends StatefulWidget {
   const FinancialAskAiSheet({
     super.key,

@@ -24,12 +24,24 @@ class BackupTab extends ConsumerWidget {
           label: 'Export everything (JSON)',
           actions: [
             SettingsPillButton(
-              label: 'Create backup',
+              label: backup.isLoading ? 'Creating…' : 'Create backup',
               tone: SettingsButtonTone.primary,
-              onPressed: () {
-                controller.createBackup();
-                CustomToast.showSuccess(context, 'Backup created.');
-              },
+              onPressed: backup.isLoading
+                  ? null
+                  : () async {
+                      CustomToast.showInfo(context, 'Creating backup…');
+                      final success =
+                          await controller.createBackup(format: 'json');
+                      if (context.mounted) {
+                        if (success) {
+                          CustomToast.showSuccess(
+                              context, 'Backup created successfully.');
+                        } else {
+                          CustomToast.showError(
+                              context, 'Failed to create backup.');
+                        }
+                      }
+                    },
             ),
           ],
         ),
@@ -38,31 +50,120 @@ class BackupTab extends ConsumerWidget {
           label: 'Export tables (CSV)',
           actions: [
             SettingsPillButton(
-              label: 'Export CSV',
-              onPressed: () =>
-                  CustomToast.showInfo(context, 'Exporting tables as CSV…'),
+              label: backup.isLoading ? 'Exporting…' : 'Export CSV',
+              onPressed: backup.isLoading
+                  ? null
+                  : () async {
+                      CustomToast.showInfo(context, 'Exporting tables as CSV…');
+                      final success =
+                          await controller.createBackup(format: 'csv');
+                      if (context.mounted) {
+                        if (success) {
+                          CustomToast.showSuccess(
+                              context, 'CSV exported successfully.');
+                        } else {
+                          CustomToast.showError(
+                              context, 'Failed to export CSV.');
+                        }
+                      }
+                    },
             ),
           ],
         ),
-        const SettingsGroupLabel('Snapshots'),
-        for (final snapshot in backup.snapshots)
+        const SettingsDivider(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const SettingsGroupLabel('Snapshots'),
+            if (!backup.isLoadingSnapshots)
+              IconButton(
+                icon: const Icon(
+                  Icons.refresh_rounded,
+                  size: 18,
+                  color: SettingsColors.soft,
+                ),
+                tooltip: 'Refresh snapshots',
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onPressed: () {
+                  CustomToast.showInfo(context, 'Refreshing snapshots…');
+                  controller.fetchSnapshots();
+                },
+              ),
+          ],
+        ),
+        if (backup.isLoadingSnapshots)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 14),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: SettingsColors.accent,
+                  ),
+                ),
+                SizedBox(width: 10),
+                Text(
+                  'Loading snapshots…',
+                  style: TextStyle(
+                    color: SettingsColors.soft,
+                    fontSize: 12.5,
+                  ),
+                ),
+              ],
+            ),
+          )
+        else if (backup.errorMessage != null && backup.snapshots.isEmpty)
           SettingsListRow(
-            text: '${snapshot.timestamp} · ${snapshot.label}',
+            text: 'Failed to load snapshots',
             trailing: [
               SettingsPillButton(
-                label: 'Restore',
+                label: 'Retry',
                 compact: true,
-                onPressed: () =>
-                    CustomToast.showInfo(context, 'Restoring snapshot…'),
-              ),
-              SettingsPillButton(
-                label: 'Delete',
-                tone: SettingsButtonTone.danger,
-                compact: true,
-                onPressed: () => controller.deleteSnapshot(snapshot.id),
+                onPressed: () => controller.fetchSnapshots(),
               ),
             ],
-          ),
+          )
+        else if (backup.snapshots.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              'No snapshots available.',
+              style: AppTextStyles.body.copyWith(
+                color: SettingsColors.soft,
+                fontSize: 12.5,
+              ),
+            ),
+          )
+        else
+          for (final snapshot in backup.snapshots)
+            SettingsListRow(
+              text:
+                  '${snapshot.formattedDate} · Health: ${snapshot.healthScore}',
+              trailing: [
+                SettingsPillButton(
+                  label: 'Restore',
+                  compact: true,
+                  onPressed: () => CustomToast.showInfo(
+                    context,
+                    'Restoring snapshot ${snapshot.formattedDate}…',
+                  ),
+                ),
+                SettingsPillButton(
+                  label: 'Delete',
+                  tone: SettingsButtonTone.danger,
+                  compact: true,
+                  onPressed: () {
+                    controller.deleteSnapshot(snapshot.snapshotId);
+                    CustomToast.showSuccess(context, 'Snapshot removed.');
+                  },
+                ),
+              ],
+            ),
         const SizedBox(height: 14),
         Row(
           children: [

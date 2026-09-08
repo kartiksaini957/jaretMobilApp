@@ -2,13 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../theme/settings_colors.dart';
-
-/// Which tab a notification deep-links to when tapped.
 enum NotificationTarget { businessHealth, opportunities, none }
-
-/// Severity of a notification row, driving its dot color.
 enum NotificationSeverity { critical, watch, good, neutral }
-
 extension NotificationSeverityColor on NotificationSeverity {
   Color get dotColor => switch (this) {
     NotificationSeverity.critical => SettingsColors.critical,
@@ -31,8 +26,6 @@ class AppNotification {
   final String id;
   final NotificationSeverity severity;
   final String title;
-
-  /// `.ns` — "category · age · opens [tab]".
   final String meta;
   final NotificationTarget target;
   final bool read;
@@ -46,12 +39,6 @@ class AppNotification {
     read: read ?? this.read,
   );
 }
-
-/// The in-app notification inbox behind the topbar bell.
-///
-/// Nothing emits notifications yet — these are the reference rows from the
-/// v2 mock. Once the backend emitters ship this list comes from
-/// `GET /api/notifications` and starts empty until one fires.
 class NotificationBellController extends Notifier<List<AppNotification>> {
   @override
   List<AppNotification> build() => const [
@@ -89,8 +76,6 @@ class NotificationBellController extends Notifier<List<AppNotification>> {
       read: true,
     ),
   ];
-
-  /// Marking a row read is also what stops its escalation timer.
   void markRead(String id) {
     state = [
       for (final n in state)
@@ -108,7 +93,6 @@ final notificationBellProvider =
       NotificationBellController.new,
     );
 
-/// Badge count — the badge hides entirely at zero.
 final unreadNotificationCountProvider = Provider<int>((ref) {
   return ref.watch(notificationBellProvider).where((n) => !n.read).length;
 });

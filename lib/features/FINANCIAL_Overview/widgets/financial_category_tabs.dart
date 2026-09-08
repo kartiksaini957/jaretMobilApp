@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
-
-/// Top pill row: Home / Pressing now / Ratios / Expenses. "Pressing now"
-/// and "Ratios" always carry a red dot, matching the mock.
 class FinancialCategoryTabs extends StatelessWidget {
   const FinancialCategoryTabs({
     super.key,
@@ -82,11 +78,6 @@ class _Pill extends StatelessWidget {
                   color: selected ? AppColors.white : AppColors.faintText,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                 ),
-                // TextStyle(
-                //   color: selected ? AppColors.white : AppColors.faintText,
-                //   fontSize: 12.5,
-                //   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                // ),
               ),
             ],
           ),

@@ -17,7 +17,6 @@ class MetricData {
   final Color statusColor;
 }
 
-/// 2-column grid of dismissible/starrable metric tiles.
 class KeyMetricsGrid extends StatefulWidget {
   const KeyMetricsGrid({super.key, required this.metrics});
 

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/core/api_services.dart';
+import 'package:flutter_application_1/features/setting/widgets/consent_history_sheet.dart';
+import 'package:flutter_application_1/utils/pref_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../theme/app_theme.dart';
@@ -25,6 +28,7 @@ class DataPrivacyTab extends ConsumerWidget {
           subtitle:
               'Compare your numbers against anonymized businesses like yours. Your data stays anonymous in others\' comparisons too.',
           value: privacy.peerBenchmarking,
+          isLoading: privacy.isLoading,
           onChanged: controller.setPeerBenchmarking,
         ),
         const SettingsDivider(),
@@ -32,6 +36,7 @@ class DataPrivacyTab extends ConsumerWidget {
           label: 'Anonymized data for AI improvement',
           subtitle: 'Never your name, never your customers.',
           value: privacy.aiImprovement,
+          isLoading: privacy.isLoading,
           onChanged: controller.setAiImprovement,
         ),
         const SettingsDivider(),
@@ -40,6 +45,7 @@ class DataPrivacyTab extends ConsumerWidget {
           subtitle:
               'Let LightSignal read photos of your business — from your Google Business Profile, your website, and your Facebook page — to assess storefront presentation and flag mismatches. Only your business is ever assessed, never people or the neighborhood. (Final consent wording pending legal review.)',
           value: privacy.photoPermissions,
+          isLoading: privacy.isLoading,
           onChanged: controller.setPhotoPermissions,
         ),
         // The per-source consent gate. It stays visible when the master
@@ -54,11 +60,7 @@ class DataPrivacyTab extends ConsumerWidget {
               controller.setGoogleBusinessProfile,
             ),
             ('Website', privacy.website, controller.setWebsite),
-            (
-              'Facebook page',
-              privacy.facebookPage,
-              controller.setFacebookPage,
-            ),
+            ('Facebook page', privacy.facebookPage, controller.setFacebookPage),
           ],
         ),
         const SettingsDivider(),
@@ -66,6 +68,7 @@ class DataPrivacyTab extends ConsumerWidget {
           label: 'Data retention',
           value: privacy.retentionDays,
           options: DataPrivacyState.retentionOptions,
+          isLoading: privacy.isLoading,
           labelBuilder: (v) => '$v days',
           onChanged: controller.setRetentionDays,
         ),
@@ -76,8 +79,7 @@ class DataPrivacyTab extends ConsumerWidget {
           actions: [
             SettingsPillButton(
               label: 'View',
-              onPressed: () =>
-                  CustomToast.showInfo(context, 'Opening consent history…'),
+          onPressed: () => showConsentHistorySheet(context),
             ),
           ],
         ),
@@ -95,9 +97,11 @@ class DataPrivacyTab extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 16),
-        const Text(
-          'SOC 2 · GDPR · CCPA — LightSignal\'s compliance posture applies to all stored data.',
-          style: TextStyle(color: SettingsColors.faintText, fontSize: 11.5),
+        Text(
+          privacy.isSaving
+              ? 'Saving…'
+              : 'SOC 2 · GDPR · CCPA — LightSignal\'s compliance posture applies to all stored data.',
+          style: const TextStyle(color: SettingsColors.faintText, fontSize: 11.5),
         ),
       ],
     );
@@ -192,35 +196,79 @@ class _SourceCheckbox extends StatelessWidget {
 void _confirmDeletion(BuildContext context) {
   showDialog<void>(
     context: context,
-    builder: (dialogContext) => AlertDialog(
-      backgroundColor: const Color(0xFF0A4A63),
-      title: const Text(
-        'Start account deletion?',
-        style: TextStyle(color: SettingsColors.white),
-      ),
-      content: const Text(
-        'This begins the 14-day grace window. After that, your data is permanently erased.',
-        style: TextStyle(color: SettingsColors.faintText),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(),
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.of(dialogContext).pop();
-            CustomToast.showSuccess(
-              context,
-              'Deletion started — 14-day grace window began.',
+    barrierDismissible: true,
+    builder: (dialogContext) => Consumer(
+      builder: (context, ref, _) {
+        bool isDeleting = false;
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            Future<void> handleDelete() async {
+              setState(() => isDeleting = true);
+              try {
+                final token = await PrefUtils.getAccessToken();
+                if (token == null || token.isEmpty) {
+                  throw ApiException('Not signed in.');
+                }
+                final result = await ApiService().deleteAccount(accessToken: token);
+
+                if (!dialogContext.mounted) return;
+                Navigator.of(dialogContext).pop();
+
+                if (!context.mounted) return;
+                CustomToast.showSuccess(
+                  context,
+                  'Deletion started — ${result.gracePeriodDays}-day grace window began.',
+                );
+              } catch (e) {
+                setState(() => isDeleting = false);
+                final message = e is ApiException
+                    ? e.message
+                    : 'Could not start deletion. Please try again.';
+                if (context.mounted) {
+                  CustomToast.showError(context, message);
+                }
+              }
+            }
+
+            return AlertDialog(
+              backgroundColor: const Color(0xFF0A4A63),
+              title: const Text(
+                'Start account deletion?',
+                style: TextStyle(color: SettingsColors.white),
+              ),
+              content: const Text(
+                'This begins the 14-day grace window. After that, your data is permanently erased.',
+                style: TextStyle(color: SettingsColors.faintText),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isDeleting
+                      ? null
+                      : () => Navigator.of(dialogContext).pop(),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: isDeleting ? null : handleDelete,
+                  child: isDeleting
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: SettingsColors.danger,
+                          ),
+                        )
+                      : const Text(
+                          'Start deletion',
+                          style: TextStyle(color: SettingsColors.danger),
+                        ),
+                ),
+              ],
             );
           },
-          child: const Text(
-            'Start deletion',
-            style: TextStyle(color: SettingsColors.danger),
-          ),
-        ),
-      ],
+        );
+      },
     ),
   );
 }

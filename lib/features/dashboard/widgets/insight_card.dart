@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
-
-/// Small glass card used for "THE ISSUE" / "THE MOVE" / "OPPORTUNITY"
-/// style callouts: a dotted label, an optional bold headline, and an
-/// optional body line.
 class InsightCard extends StatelessWidget {
   const InsightCard({
     super.key,
@@ -29,7 +24,6 @@ class InsightCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.glassDark,
         borderRadius: BorderRadius.circular(16),
-        // border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,12 +57,6 @@ class InsightCard extends StatelessWidget {
                 fontWeight: FontWeight.w500,
                 color: Colors.white,
               ),
-              // const TextStyle(
-              //   color: AppColors.white,
-              //   fontSize: 14.5,
-              //   fontWeight: FontWeight.w700,
-              //   height: 1.35,
-              // ),
             ),
           ],
           if (body != null) ...[

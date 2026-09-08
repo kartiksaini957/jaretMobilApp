@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
-
 class ReminderData {
   const ReminderData({
     required this.dotColor,
@@ -13,19 +11,12 @@ class ReminderData {
   final Color dotColor;
   final String title;
   final String? subtitle;
-
-  /// Overrides the default faint subtitle color — e.g. red for a
-  /// critical/overdue reminder that needs to stand out.
   final Color? subtitleColor;
 }
 
-/// Glass card listing upcoming reminders, each with a status dot,
-/// bold title, and a small subtitle.
 class RemindersCard extends StatelessWidget {
   const RemindersCard({super.key, required this.reminders});
-
   final List<ReminderData> reminders;
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -42,7 +33,6 @@ class RemindersCard extends StatelessWidget {
             offset: const Offset(10, 10),
           ),
         ],
-        // border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,9 +49,7 @@ class RemindersCard extends StatelessWidget {
 
 class _ReminderTile extends StatelessWidget {
   const _ReminderTile({required this.reminder});
-
   final ReminderData reminder;
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -86,11 +74,6 @@ class _ReminderTile extends StatelessWidget {
               Text(
                 reminder.title,
                 style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w500),
-                // const TextStyle(
-                //   color: AppColors.white,
-                //   fontSize: 14,
-                //   fontWeight: FontWeight.w700,
-                // ),
               ),
               if (reminder.subtitle != null) ...[
                 const SizedBox(height: 2),

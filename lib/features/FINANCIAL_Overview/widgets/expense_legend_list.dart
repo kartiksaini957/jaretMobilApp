@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
 import '../data/expense_breakdown_data.dart';
 
-/// Legend rows under the donut: color dot, label, percent, amount. The
-/// selected row is highlighted, matching the mock.
 class ExpenseLegendList extends StatelessWidget {
   const ExpenseLegendList({
     super.key,

@@ -8,6 +8,7 @@ import '../../widgets/customToast.dart';
 import '../../widgets/gradient_background.dart';
 import '../../widgets/customElevatedbutton.dart';
 import '../dashboard/dashboard_screen.dart';
+import 'connect_quickbooks_screen.dart';
 import 'forgot_password_screen.dart';
 import 'providers/auth_providers.dart';
 import 'providers/login_provider.dart';
@@ -65,9 +66,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
-      );
+      final user = ref.read(loginControllerProvider).user;
+      if (user != null && !user.quickbooksConnected) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const ConnectQuickbooksScreen()),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        );
+      }
       return;
     }
 

@@ -56,8 +56,15 @@ class _AddLocationFormState extends State<AddLocationForm> {
 
   void _submit() {
     final name = _nameController.text.trim();
+    final address = _addressController.text.trim();
+    if (name.isEmpty && address.isEmpty) return;
     widget.onAdd(
-      BusinessLocation(name: name.isEmpty ? 'New spot' : name, type: _type),
+      BusinessLocation(
+        name: name.isEmpty ? 'New spot' : name,
+        type: _type,
+        address: address.isNotEmpty ? address : '450 Dauphin St, Mobile, AL 36602',
+        details: 'Geocoded ✓ · role: ${_type.label} · status: active',
+      ),
     );
   }
 

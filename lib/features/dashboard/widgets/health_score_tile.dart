@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
-
-/// Full-width "HEALTH SCORE" card in the NUMBERS grid: a blue gradient
-/// banner with the label + big score on the left and the score range on
-/// the right, instead of the plain glass [StatTile] look.
 class HealthScoreTile extends StatelessWidget {
   const HealthScoreTile({
     super.key,

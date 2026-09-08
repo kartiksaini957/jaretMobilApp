@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
 import '../data/financial_overview_data.dart';
 import 'financial_ask_ai_sheet.dart';
 import 'financial_bar_chart.dart';
 import 'financial_suggested_actions_sheet.dart';
 
-/// The big per-metric card: value + status, trend chart, a Vs last
-/// month / Vs peers toggle, "WHAT'S DRIVING IT", and the Suggested
-/// actions / Ask AI entry points.
 class FinancialMetricDetailCard extends StatefulWidget {
   const FinancialMetricDetailCard({super.key, required this.metric});
 
@@ -44,7 +40,6 @@ class _FinancialMetricDetailCardState extends State<FinancialMetricDetailCard> {
       decoration: BoxDecoration(
         color: AppColors.glassDark,
         borderRadius: BorderRadius.circular(16),
-        // border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,11 +65,6 @@ class _FinancialMetricDetailCardState extends State<FinancialMetricDetailCard> {
                 child: Text(
                   metric.statusLabel,
                   style: AppTextStyles.small.copyWith(color: _toneColor),
-                  // TextStyle(
-                  //   color: _toneColor,
-                  //   fontSize: 10.5,
-                  //   fontWeight: FontWeight.w800,
-                  // ),
                 ),
               ),
             ],
@@ -87,11 +77,6 @@ class _FinancialMetricDetailCardState extends State<FinancialMetricDetailCard> {
               fontWeight: FontWeight.w700,
               color: Colors.white,
             ),
-            // const TextStyle(
-            //   color: AppColors.white,
-            //   fontSize: 34,
-            //   fontWeight: FontWeight.w800,
-            // ),
           ),
           const SizedBox(height: 4),
           Text(metric.trendLabel, style: AppTextStyles.small),
@@ -169,11 +154,6 @@ class _FinancialMetricDetailCardState extends State<FinancialMetricDetailCard> {
                   child: Text(
                     metric.statusLabel,
                     style: AppTextStyles.small.copyWith(color: _toneColor),
-                    // TextStyle(
-                    //   color: _toneColor,
-                    //   fontSize: 10,
-                    //   fontWeight: FontWeight.w800,
-                    // ),
                   ),
                 ),
               ],
@@ -279,11 +259,6 @@ class _ToggleButton extends StatelessWidget {
           child: Text(
             label,
             style: AppTextStyles.small,
-            // TextStyle(
-            //   color: AppColors.white,
-            //   fontSize: 12,
-            //   fontWeight: FontWeight.w700,
-            // ),
           ),
         ),
       ),
@@ -293,10 +268,8 @@ class _ToggleButton extends StatelessWidget {
 
 class _DrivingRow extends StatelessWidget {
   const _DrivingRow({required this.index, required this.factor});
-
   final int index;
   final DrivingFactor factor;
-
   Color get _impactColor => switch (factor.tone) {
     ImpactTone.positive => AppColors.goodText,
     ImpactTone.negative => AppColors.crit,

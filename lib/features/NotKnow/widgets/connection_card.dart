@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
-
-/// A book-keeping integration row: either shows a "Connected" badge or a
-/// "Connect" action button.
 class ConnectionCard extends StatelessWidget {
   const ConnectionCard({
     super.key,
