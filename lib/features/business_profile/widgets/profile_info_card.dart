@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
 
-/// Generic title + pill-button + caption card used for "How LightSignal
-/// sees your business" and "Tell LightSignal something".
 class ProfileInfoCard extends StatelessWidget {
   const ProfileInfoCard({
     super.key,

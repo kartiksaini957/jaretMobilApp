@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
 import '../data/home_overview_data.dart';
 
-/// Horizontally scrollable row of story chips; the selected one drives
-/// the detail card below.
 class HomeStoryCarousel extends StatelessWidget {
   const HomeStoryCarousel({
     super.key,

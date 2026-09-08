@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../theme/app_theme.dart';
-
 /// Wrap of pill chips; selected chips fill white with dark text, matching
 /// the mock. [fullWidthOptions] render on their own row full-width (e.g.
 /// "Fairly consistent year-round").
@@ -43,21 +41,35 @@ class ChipSelectInput extends StatelessWidget {
         onTap: () => onToggle(option),
         borderRadius: BorderRadius.circular(24),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
           alignment: fullWidth ? Alignment.center : null,
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.white : Colors.transparent,
+            color: isSelected
+                ? const Color.fromRGBO(14, 130, 170, 0.75)
+                : const Color.fromRGBO(10, 48, 70, 0.4),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: isSelected ? AppColors.white : AppColors.glassBorder,
+              color: isSelected
+                  ? const Color.fromRGBO(127, 227, 255, 0.85)
+                  : const Color.fromRGBO(127, 227, 255, 0.35),
+              width: 1.2,
             ),
+            boxShadow: isSelected
+                ? const [
+                    BoxShadow(
+                      color: Color.fromRGBO(0, 50, 80, 0.4),
+                      blurRadius: 10,
+                      offset: Offset(0, 3),
+                    ),
+                  ]
+                : null,
           ),
           child: Text(
             option,
             style: TextStyle(
-              color: isSelected ? AppColors.ink : AppColors.white,
+              color: Colors.white,
               fontSize: 13.5,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
             ),
           ),
         ),

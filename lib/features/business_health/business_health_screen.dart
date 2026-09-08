@@ -1,28 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/features/opportunity/ScenarioLab/cenario_lab_screen.dart';
-import 'package:flutter_application_1/features/opportunity/opportunities_screen.dart';
+import 'package:flutter_application_1/core/api_services.dart';
+import 'package:flutter_application_1/features/business_health/data/full_read_data.dart';
 import 'package:flutter_application_1/theme/app_theme.dart';
-
 import '../../widgets/app_nav_drawer.dart';
 import '../../widgets/customAppbar.dart';
 import '../../widgets/gradient_background.dart';
-import '../FINANCIAL_Overview/financial_overview_screen.dart';
-import '../business_profile/business_profile_screen.dart';
-import '../dashboard/dashboard_screen.dart';
-import '../demand_Forecast/demand_forecast_screen.dart';
-import '../Scenario_lab/scenario_lab_screen.dart';
+import '../../utils/pref_utils.dart';
+import 'model/businessHealthOverviewModel.dart';
 import 'theme/business_health_colors.dart';
 import 'widgets/full_read_section.dart';
 import 'widgets/header_action_button.dart';
 import 'widgets/health_category_card.dart';
 import 'widgets/narrative_card.dart';
 import 'widgets/overall_health_card.dart';
-import 'widgets/previous_snapshot_card.dart';
 import 'widgets/snapshot_dropdown_pill.dart';
 import 'widgets/snapshot_history_sheet.dart';
 import '../../widgets/app_nav_destinations.dart';
 
-/// Business Health screen: overall score and the category breakdown grid.
 class BusinessHealthScreen extends StatefulWidget {
   const BusinessHealthScreen({super.key});
 
@@ -31,11 +25,77 @@ class BusinessHealthScreen extends StatefulWidget {
 }
 
 class _BusinessHealthScreenState extends State<BusinessHealthScreen> {
-  bool _showJan11Snapshot = true;
+  late Future<BusinessHealthOverviewResponse> _future;
+  bool _isRefreshing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = _load();
+  }
+
+  Future<BusinessHealthOverviewResponse> _load() async {
+    final token = await PrefUtils.getAccessToken();
+    final result = await ApiService().getBusinessHealthOverview(
+      accessToken: token ?? '',
+    );
+    applyBusinessHealthToFullRead(result.data);
+    return result;
+  }
 
   void _onDrawerItemSelected(int index) {
-    openNavDestination(context, index, currentIndex: AppNavIndex.businessHealth);
+    openNavDestination(
+      context,
+      index,
+      currentIndex: AppNavIndex.businessHealth,
+    );
   }
+
+  Future<void> _onRefreshTap() async {
+    if (_isRefreshing)
+      return; // already chal raha hai to dobara mat trigger karo
+
+    setState(() => _isRefreshing = true);
+
+    try {
+      final token = await PrefUtils.getAccessToken();
+      await ApiService().refreshBusinessHealth(accessToken: token ?? '');
+
+      final newFuture = _load();
+      setState(() {
+        _future = newFuture;
+      });
+      await newFuture; // naya data load hone tak wait karo
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Refresh failed: $e')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isRefreshing = false);
+      }
+    }
+  }
+
+  String _statusLabel(String label) {
+    switch (label) {
+      case 'above_average':
+        return 'Above Average';
+      case 'below_average':
+        return 'Below Average';
+      case 'top_tier':
+        return 'Top Tier';
+      default:
+        return 'At Average';
+    }
+  }
+
+  bool _isGood(String label) => label == 'above_average' || label == 'top_tier';
+
+  String _deltaText(int delta) =>
+      delta == 0 ? 'steady' : (delta > 0 ? '+$delta' : '$delta');
 
   @override
   Widget build(BuildContext context) {
@@ -51,229 +111,269 @@ class _BusinessHealthScreenState extends State<BusinessHealthScreen> {
       body: GradientBackground(
         child: SafeArea(
           top: false,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    SnapshotDropdownPill(
-                      label: 'Snapshot · Feb 11',
-                      onTap: () => SnapshotHistorySheet.show(context, const [
-                        SnapshotEntry(
-                          label: 'Feb 11 — current',
-                          score: 74,
-                          isCurrent: true,
-                        ),
-                        SnapshotEntry(label: 'Jan 11', score: 71),
-                        SnapshotEntry(label: 'Dec 11', score: 69),
-                      ]),
-                    ),
-                    const Spacer(),
-                    HeaderActionButton(
-                      icon: Icons.refresh,
-                      label: 'Refresh',
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: const Color(0xFF26C281),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'BUSINESS HEALTH · AS OF FEB 11',
+          child: FutureBuilder<BusinessHealthOverviewResponse>(
+            future: _future,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError || !snapshot.hasData) {
+                final err = snapshot.error;
+                final String errMsg = (err is ApiException)
+                    ? err.message
+                    : (err?.toString().replaceFirst('Exception: ', '') ??
+                        'Could not load business health.');
 
-                      style: AppTextStyles.body.copyWith(
-                        color: BusinessHealthColors.faintText,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.8,
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 32,
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(22),
+                      decoration: BoxDecoration(
+                        color: AppColors.glassDark,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: AppColors.glassBorder.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.warning_amber_rounded,
+                            color: AppColors.yellow,
+                            size: 42,
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            'Business Health Unavailable',
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.headline.copyWith(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            errMsg,
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.body.copyWith(
+                              color: AppColors.mutedText,
+                              fontSize: 13.5,
+                              height: 1.45,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                _future = _load();
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 22,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.accent.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: AppColors.accent.withValues(alpha: 0.4),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.refresh_rounded,
+                                    size: 18,
+                                    color: AppColors.accent,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Retry',
+                                    style: AppTextStyles.small.copyWith(
+                                      color: AppColors.accent,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                const OverallHealthCard(
-                  score: 74,
-                  statusLabel: 'Above Average',
-                  statusGood: true,
-                  deltaText: '+3 since Jan 11',
-                  confidenceText:
-                      'AI Confidence 92% · Full coverage — QuickBooks '
-                      'Online, Square, and your Google reviews are '
-                      'connected. Reads are at full strength.',
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: HealthCategoryCard(
-                        title: 'PROFITABILITY',
-                        score: 78,
-                        deltaText: '+2',
-                        statusText: 'Above Average',
-                        statusGood: true,
-                        progress: 0.78,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: HealthCategoryCard(
-                        title: 'CASH',
-                        score: 66,
-                        deltaText: '-3',
-                        deltaPositive: false,
-                        statusText: 'At Average',
-                        statusGood: false,
-                        progress: 0.66,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: HealthCategoryCard(
-                        title: 'GROWTH',
-                        score: 81,
-                        deltaText: '+4',
-                        statusText: 'Above Average',
-                        statusGood: true,
-                        progress: 0.81,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: HealthCategoryCard(
-                        title: 'CUSTOMERS',
-                        score: 79,
-                        deltaText: '+1',
-                        statusText: 'Above Average',
-                        statusGood: true,
-                        progress: 0.79,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: HealthCategoryCard(
-                        title: 'RISK',
-                        score: 68,
-                        deltaText: '-2',
-                        deltaPositive: false,
-                        statusText: 'At Average',
-                        statusGood: false,
-                        progress: 0.68,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: HealthCategoryCard(
-                        title: 'PEERS',
-                        score: 71,
-                        statusText: 'Brooklyn slice-shop pool',
-                        progress: 0.71,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const NarrativeCard(
-                  text:
-                      'Weekend dinner is doing the carrying — Friday and '
-                      'Saturday are running 14% ahead of last February and '
-                      'revenue is pacing 9.4% ahead of January. The '
-                      'pressure point is cheese: an 8% mozzarella increase '
-                      'since December has taken 1.1 points of margin, and '
-                      'the 7.5-month cash cushion now sits below the '
-                      '10-month peer median with the summer slow weeks '
-                      'ahead.',
-                ),
-                if (_showJan11Snapshot) ...[
-                  const SizedBox(height: 16),
-                  PreviousSnapshotCard(
-                    label: 'JAN 11 SNAPSHOT',
-                    score: 71,
-                    statusLabel: 'Above Average',
-                    statusGood: true,
-                    confidenceText:
-                        'AI Confidence 89% · Full coverage — QuickBooks '
-                        'Online, Square, and your Google reviews are '
-                        'connected.',
-                    onDismiss: () => setState(() => _showJan11Snapshot = false),
-                    narrative:
-                        'January was steady rather than strong — weekend '
-                        'dinner held the month near \$101,300 while '
-                        'weekday lunch leaned on the school-slice trade. '
-                        'Cheese prices had just started creeping and '
-                        'Friday dough sold out once, both small enough '
-                        'then to watch rather than act on.',
-                    categories: const [
-                      HealthCategoryCard(
-                        title: 'PROFITABILITY',
-                        score: 76,
-                        statusText: 'Above Average',
-                        statusGood: true,
-                        progress: 0.76,
-                      ),
-                      HealthCategoryCard(
-                        title: 'CASH',
-                        score: 69,
-                        statusText: 'At Average',
-                        statusGood: false,
-                        progress: 0.69,
-                      ),
-                      HealthCategoryCard(
-                        title: 'GROWTH',
-                        score: 77,
-                        statusText: 'Above Average',
-                        statusGood: true,
-                        progress: 0.77,
-                      ),
-                      HealthCategoryCard(
-                        title: 'CUSTOMERS',
-                        score: 78,
-                        statusText: 'Above Average',
-                        statusGood: true,
-                        progress: 0.78,
-                      ),
-                      HealthCategoryCard(
-                        title: 'RISK',
-                        score: 70,
-                        statusText: 'At Average',
-                        statusGood: false,
-                        progress: 0.70,
-                      ),
-                      HealthCategoryCard(
-                        title: 'PEERS',
-                        score: 70,
-                        statusText: 'Brooklyn slice-shop pool',
-                        progress: 0.70,
-                      ),
-                    ],
                   ),
-                ],
-                const SizedBox(height: 20),
-                const FullReadSection(),
-              ],
-            ),
+                );
+              }
+
+              final data = snapshot.data!.data;
+              final overall = data.overall;
+              final cats = data.categories;
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        SnapshotDropdownPill(
+                          label: 'Snapshot · ${overall.asOf}',
+                          onTap: () => SnapshotHistorySheet.show(context, [
+                            SnapshotEntry(
+                              label: '${overall.asOf} — current',
+                              score: overall.score,
+                              isCurrent: true,
+                            ),
+                          ]),
+                        ),
+                        const Spacer(),
+                        HeaderActionButton(
+                          icon: _isRefreshing
+                              ? Icons.hourglass_empty
+                              : Icons.refresh,
+                          label: _isRefreshing ? 'Refreshing...' : 'Refresh',
+                          onTap: _isRefreshing ? () {} : _onRefreshTap,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF26C281),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'BUSINESS HEALTH · AS OF ${overall.asOf}',
+                          style: AppTextStyles.body.copyWith(
+                            color: BusinessHealthColors.faintText,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    OverallHealthCard(
+                      score: overall.score,
+                      statusLabel: _statusLabel(overall.label),
+                      statusGood: _isGood(overall.label),
+                      deltaText:
+                          '${_deltaText(overall.delta)} since last snapshot',
+                      confidenceText:
+                          'AI Confidence ${(overall.aiConfidence * 100).round()}% · '
+                          '${overall.dataCompleteness}% data completeness'
+                          '${data.dataCoverageNote.isNotEmpty ? ' · ${data.dataCoverageNote}' : ''}',
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: HealthCategoryCard(
+                            title: 'PROFITABILITY',
+                            score: cats.financial.score,
+                            deltaText: _deltaText(cats.financial.delta),
+                            deltaPositive: cats.financial.delta >= 0,
+                            statusText: _statusLabel(cats.financial.label),
+                            statusGood: _isGood(cats.financial.label),
+                            progress: cats.financial.progress,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: HealthCategoryCard(
+                            title: 'CASH',
+                            score: cats.operational.score,
+                            deltaText: _deltaText(cats.operational.delta),
+                            deltaPositive: cats.operational.delta >= 0,
+                            statusText: _statusLabel(cats.operational.label),
+                            statusGood: _isGood(cats.operational.label),
+                            progress: cats.operational.progress,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: HealthCategoryCard(
+                            title: 'GROWTH',
+                            score: cats.growth.score,
+                            deltaText: _deltaText(cats.growth.delta),
+                            deltaPositive: cats.growth.delta >= 0,
+                            statusText: _statusLabel(cats.growth.label),
+                            statusGood: _isGood(cats.growth.label),
+                            progress: cats.growth.progress,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: HealthCategoryCard(
+                            title: 'CUSTOMERS',
+                            score: cats.customer.score,
+                            deltaText: _deltaText(cats.customer.delta),
+                            deltaPositive: cats.customer.delta >= 0,
+                            statusText: _statusLabel(cats.customer.label),
+                            statusGood: _isGood(cats.customer.label),
+                            progress: cats.customer.progress,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: HealthCategoryCard(
+                            title: 'RISK',
+                            score: cats.risk.score,
+                            deltaText: _deltaText(cats.risk.delta),
+                            deltaPositive: cats.risk.delta >= 0,
+                            statusText: _statusLabel(cats.risk.label),
+                            statusGood: _isGood(cats.risk.label),
+                            progress: cats.risk.progress,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: HealthCategoryCard(
+                            title: 'PEERS',
+                            score: data.benchmarks.peerAvg,
+                            statusText: data.benchmarks.peerPool,
+                            progress: data.benchmarks.peerAvg / 100.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    NarrativeCard(text: data.aiSummary),
+                    // NOTE: PreviousSnapshotCard removed — this API has no
+                    // historical snapshot data (only prior_score numbers).
+                    // Bata do agar snapshot-history endpoint hai, use bhi wire kar dunga.
+                    const SizedBox(height: 20),
+                    const FullReadSection(),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),

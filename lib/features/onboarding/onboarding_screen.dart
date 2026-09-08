@@ -98,9 +98,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 }
 
-/// Anchors [child] to the bottom of the pane, leaving the freed space
-/// blank above it. Falls back to scrolling if the content ever grows
-/// taller than the available height.
 class _PaneBottom extends StatelessWidget {
   const _PaneBottom({required this.child});
 

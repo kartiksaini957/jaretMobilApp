@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-
-/// Small colored pill used for "Above Average" / "At Average" / "Below
-/// Average" style status labels, with a leading dot.
 class StatusPill extends StatelessWidget {
   const StatusPill({
     super.key,

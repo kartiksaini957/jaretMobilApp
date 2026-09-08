@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/features/auth/connect_quickbooks_screen.dart';
 import 'package:flutter_application_1/features/auth/providers/login_provider.dart';
+import 'package:flutter_application_1/features/dashboard/provider/dashboardAskAIProvider.dart';
+import 'package:flutter_application_1/features/dashboard/widgets/dashboard_chat_history_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../bottombar/app_bottom_bar.dart';
+import '../../core/api_services.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app_nav_drawer.dart';
 import '../../widgets/customAppbar.dart';
@@ -11,6 +15,7 @@ import 'model/dashboardModel.dart';
 import 'model/dashboardNumber.dart';
 import 'model/dashboardTabsModel.dart';
 import 'provider/dashboardProvider.dart';
+import '../notification/provider/notification_provider.dart';
 import 'widgets/greeting_card.dart';
 import 'widgets/health_score_tile.dart';
 import 'widgets/insight_card.dart';
@@ -19,6 +24,7 @@ import 'widgets/reminders_card.dart';
 import 'widgets/stat_tile.dart';
 import '../../utils/pref_utils.dart';
 import '../../widgets/app_nav_destinations.dart';
+import '../../widgets/smooth_animations.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({
@@ -35,13 +41,8 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  /// Hides the badge when there's nothing to count — while insights are
-  /// still loading (null) or when a section came back empty.
   static int? _badge(int? count) =>
       (count == null || count == 0) ? null : count;
-
-  /// The first four tabs badge how many items their section will show, so
-  /// the counts come straight from the dashboard-insights response.
   List<BottomBarItem> _buildBottomItems(
     AsyncValue<BusinessHealthResponse> insights,
   ) {
@@ -74,10 +75,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(notificationProvider.notifier).fetchAlerts();
+    });
     PrefUtils.getUserName().then((name) {
       if (mounted && name != null && name.isNotEmpty) {
         setState(() => _cachedName = name);
       }
+    });
+    ApiService().getAuthMe().then((user) {
+      if (mounted) {
+        if (user.name.isNotEmpty) {
+          setState(() => _cachedName = user.name);
+        }
+        if (!user.quickbooksConnected) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const ConnectQuickbooksScreen()),
+          );
+        }
+      }
+    }).catchError((e) {
+      debugPrint('[DashboardScreen] /auth/me fetch error: $e');
     });
   }
 
@@ -133,8 +151,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       isLoading: dashboardInsights.isLoading,
                       summary: dashboardInsights.when(
                         loading: () => '',
-                        error: (error, _) =>
-                            'No insights available yet — check back once your data has synced.',
+                        error: (error, _) => error is ApiException
+                            ? error.message
+                            : 'No insights available yet — check back once your data has synced.',
                         data: (data) => data.data.summary,
                       ),
                     ),
@@ -144,9 +163,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     const _RemindersSection(),
                     const SizedBox(height: 20),
                     AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 160),
-                      switchInCurve: Curves.easeOut,
-                      switchOutCurve: Curves.easeIn,
+                      duration: const Duration(milliseconds: 280),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      transitionBuilder: (child, animation) =>
+                          smoothSlideFadeTransitionBuilder(
+                            child,
+                            animation,
+                            beginOffset: const Offset(0, 0.04),
+                          ),
                       child: _buildLowerSection(),
                     ),
                   ],
@@ -220,12 +245,15 @@ class _RemindersSection extends ConsumerWidget {
           children: [
             Expanded(
               child: Text(
-                'No reminders right now.',
+                error is ApiException
+                    ? error.message
+                    : ApiException.cleanErrorMessage(error),
                 style: AppTextStyles.body.copyWith(color: AppColors.faintText),
               ),
             ),
             TextButton(
-              onPressed: () => ref.refresh(dashboardRemindersProvider),
+              onPressed: () =>
+                  ref.read(dashboardRemindersProvider.notifier).refresh(),
               child: Text('Retry', style: AppTextStyles.body),
             ),
           ],
@@ -251,18 +279,21 @@ class _RemindersSection extends ConsumerWidget {
             ),
           );
         }
-        return RemindersCard(
-          reminders: [
-            for (final item in items)
-              ReminderData(
-                dotColor: _dotColorFor(item.priority),
-                title: item.label,
-                subtitle: _subtitleFor(item),
-                subtitleColor: item.priority == 'critical'
-                    ? AppColors.urgent
-                    : null,
-              ),
-          ],
+        return SmoothFadeSlide(
+          duration: const Duration(milliseconds: 320),
+          child: RemindersCard(
+            reminders: [
+              for (final item in items)
+                ReminderData(
+                  dotColor: _dotColorFor(item.priority),
+                  title: item.label,
+                  subtitle: _subtitleFor(item),
+                  subtitleColor: item.priority == 'critical'
+                      ? AppColors.urgent
+                      : null,
+                ),
+            ],
+          ),
         );
       },
     );
@@ -308,8 +339,11 @@ class _InsightsSection<T> extends ConsumerWidget {
             ],
           ),
           error: (error, stackTrace) => _InsightsMessageTile(
-            text: 'Couldn\'t load insights.',
-            onRetry: () => ref.refresh(dashboardInsightsProvider),
+            text: error is ApiException
+                ? error.message
+                : ApiException.cleanErrorMessage(error),
+            onRetry: () =>
+                ref.read(dashboardInsightsProvider.notifier).refresh(),
           ),
           data: (response) {
             final items = select(response.data);
@@ -584,9 +618,6 @@ String _formatSigned(num value, String suffix, {int decimals = 1}) {
 
 class _NumbersSection extends ConsumerWidget {
   const _NumbersSection({super.key});
-
-  /// Percent change vs the prior period. Returns null when the prior value
-  /// is zero, since there's no meaningful base to compare against.
   static String? _percentDelta(KpiValue kpi) {
     if (kpi.priorValue == 0) return null;
     final change = (kpi.value - kpi.priorValue) / kpi.priorValue.abs() * 100;
@@ -624,8 +655,11 @@ class _NumbersSection extends ConsumerWidget {
             ],
           ),
           error: (error, stackTrace) => _InsightsMessageTile(
-            text: 'No KPI data available yet.',
-            onRetry: () => ref.refresh(dashboardKpisProvider),
+            text: error is ApiException
+                ? error.message
+                : ApiException.cleanErrorMessage(error),
+            onRetry: () =>
+                ref.read(dashboardKpisProvider.notifier).refresh(),
           ),
           data: (response) => _buildTiles(context, response.data.kpis),
         ),
@@ -633,8 +667,6 @@ class _NumbersSection extends ConsumerWidget {
     );
   }
 
-  /// Opens the metric sheet for one KPI — this is what triggers the
-  /// `/dashboard/kpi-explain` call.
   static void _openDetail(
     BuildContext context, {
     required String title,
@@ -766,11 +798,46 @@ class _NumbersSection extends ConsumerWidget {
   }
 }
 
-class _AskAiSection extends StatelessWidget {
-  const _AskAiSection({super.key});
+class _AskAiSection extends ConsumerStatefulWidget {
+   const _AskAiSection({super.key}); 
+
+  @override
+  ConsumerState<_AskAiSection> createState() => _AskAiSectionState();
+}
+
+class _AskAiSectionState extends ConsumerState<_AskAiSection> {
+  final _controller = TextEditingController();
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _send() {
+    final text = _controller.text;
+    if (text.trim().isEmpty) return;
+    _controller.clear();
+    ref.read(dashboardChatProvider.notifier).sendMessage(text);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final messages = ref.watch(dashboardChatProvider);
+    final isSending = messages.isNotEmpty && messages.last.isLoading;
+     final isLoadingHistory = ref.watch(chatHistoryLoadingProvider); 
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -779,7 +846,7 @@ class _AskAiSection extends StatelessWidget {
         Row(
           children: [
             OutlinedButton.icon(
-              onPressed: () {},
+                  onPressed: () => showChatHistorySheet(context, ref: ref),
               icon: const Icon(
                 Icons.chat_outlined,
                 size: 15,
@@ -790,7 +857,6 @@ class _AskAiSection extends StatelessWidget {
                 style: AppTextStyles.body.copyWith(
                   fontSize: 13.0,
                   color: AppColors.white,
-                  // fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -803,14 +869,14 @@ class _AskAiSection extends StatelessWidget {
             ),
             const Spacer(),
             OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () =>
+                  ref.read(dashboardChatProvider.notifier).startNewChat(),
               icon: const Icon(Icons.add, size: 15, color: AppColors.white),
               label: Text(
                 'New',
                 style: AppTextStyles.body.copyWith(
                   fontSize: 13.0,
                   color: AppColors.white,
-                  // fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -823,17 +889,152 @@ class _AskAiSection extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 36),
-        Center(
-          child: Text(
-            'Ask anything about your business to start a conversation. '
-            'Follow-ups stay in the same thread.',
-            textAlign: TextAlign.center,
-            style: AppTextStyles.body.copyWith(color: Color(0xFFA7DCF0)),
+        const SizedBox(height: 20),
+        if (isLoadingHistory)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 48),
+            child: Center(
+              child: SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(strokeWidth: 2.4),
+              ),
+            ),
+          )
+         else if (messages.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 36),
+            child: Center(
+              child: Text(
+                'Ask anything about your business to start a conversation. '
+                'Follow-ups stay in the same thread.',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.body.copyWith(
+                  color: const Color(0xFFA7DCF0),
+                ),
+              ),
+            ),
+          )
+        else
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 420),
+            child: ListView.separated(
+              controller: _scrollController,
+              shrinkWrap: true,
+              physics: const ClampingScrollPhysics(),
+              itemCount: messages.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) =>
+                  _ChatBubble(message: messages[index]),
+            ),
           ),
+        const SizedBox(height: 16),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _controller,
+                minLines: 1,
+                maxLines: 4,
+                enabled: !isSending,
+                style: AppTextStyles.body.copyWith(color: AppColors.white),
+                textInputAction: TextInputAction.send,
+                onSubmitted: (_) => _send(),
+                decoration: InputDecoration(
+                  hintText: 'Ask anything about your business...',
+                  hintStyle: AppTextStyles.body.copyWith(
+                    color: AppColors.faintText,
+                  ),
+                  filled: true,
+                  fillColor: AppColors.glassDark,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(22),
+                    borderSide: const BorderSide(color: AppColors.glassBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(22),
+                    borderSide: const BorderSide(color: AppColors.glassBorder),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(22),
+                    borderSide: const BorderSide(color: AppColors.accent),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            IconButton(
+              onPressed: isSending ? null : _send,
+              icon: isSending
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.white,
+                      ),
+                    )
+                  : const Icon(Icons.send, color: AppColors.white, size: 18),
+              style: IconButton.styleFrom(
+                backgroundColor: AppColors.accent,
+                shape: const CircleBorder(),
+                padding: const EdgeInsets.all(12),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 36),
       ],
+    );
+  }
+}
+
+class _ChatBubble extends StatelessWidget {
+  const _ChatBubble({required this.message});
+  final ChatMessage message;
+
+  @override
+  Widget build(BuildContext context) {
+    final isUser = message.role == ChatRole.user;
+    return Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.78,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isUser ? AppColors.accent : AppColors.glassDark,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
+            bottomLeft: Radius.circular(isUser ? 16 : 4),
+            bottomRight: Radius.circular(isUser ? 4 : 16),
+          ),
+          border: isUser ? null : Border.all(color: AppColors.glassBorder),
+        ),
+        child: message.isLoading
+            ? const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.white,
+                ),
+              )
+            : Text(
+                message.text,
+                style: AppTextStyles.body.copyWith(
+                  color: AppColors.white,
+                  fontSize: 13.5,
+                  height: 1.4,
+                ),
+              ),
+      ),
     );
   }
 }

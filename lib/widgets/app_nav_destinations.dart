@@ -8,6 +8,7 @@ import '../features/demand_Forecast/demand_forecast_screen.dart';
 import '../features/opportunity/ScenarioLab/cenario_lab_screen.dart';
 import '../features/opportunity/opportunities_screen.dart';
 import '../features/setting/settings_screen.dart';
+import 'smooth_animations.dart';
 
 /// Drawer slot indices, in the order [AppNavDrawer] lists them.
 class AppNavIndex {
@@ -44,7 +45,7 @@ void openNavDestination(
   // Dashboard → X → Dashboard would leave two dashboards on the stack.
   if (index == AppNavIndex.dashboard) {
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
+      SmoothPageRoute(
         builder: (_) => const DashboardScreen(
           initialDrawerIndex: AppNavIndex.dashboard,
         ),
@@ -65,5 +66,5 @@ void openNavDestination(
   };
   if (builder == null) return;
 
-  Navigator.of(context).push(MaterialPageRoute(builder: builder));
+  Navigator.of(context).push(SmoothPageRoute(builder: builder));
 }

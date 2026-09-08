@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-
 import '../theme/financial_colors.dart';
 import 'status_pill.dart';
 
-/// Top summary card: profitability status badge, headline, and a short
-/// explanation.
 class ProfitabilityStatusCard extends StatelessWidget {
   const ProfitabilityStatusCard({super.key});
 

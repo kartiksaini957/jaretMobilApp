@@ -9,10 +9,12 @@ class OwnerNoteInputCard extends StatelessWidget {
     super.key,
     required this.controller,
     required this.onSave,
+    this.isSaving = false,
   });
 
   final TextEditingController controller;
   final VoidCallback onSave;
+  final bool isSaving;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +73,7 @@ class OwnerNoteInputCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: ElevatedButton(
-              onPressed: onSave,
+              onPressed: isSaving ? null : onSave,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.accent,
                 foregroundColor: AppColors.ink,
@@ -84,10 +86,22 @@ class OwnerNoteInputCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(24),
                 ),
               ),
-              child: const Text(
-                'Save note →',
-                style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700),
-              ),
+              child: isSaving
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.ink,
+                      ),
+                    )
+                  : const Text(
+                      'Save note →',
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
             ),
           ),
         ],

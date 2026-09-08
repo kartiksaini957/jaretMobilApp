@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/api_services.dart';
+import '../../../theme/app_theme.dart';
+import '../../../utils/pref_utils.dart';
 import '../../../widgets/customAppbar.dart';
 import '../../../widgets/customToast.dart';
 import '../../../widgets/gradient_background.dart';
@@ -18,13 +21,16 @@ class OwnerNotesScreen extends StatefulWidget {
 }
 
 class _OwnerNotesScreenState extends State<OwnerNotesScreen> {
-  static const _monthAbbrev = [
-    'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
-    'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
-  ];
-
   final _controller = TextEditingController();
-  late final List<OwnerNote> _notes = [...ownerNotesSeed];
+  List<OwnerNote> _notes = [];
+  bool _isLoading = true;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNotes();
+  }
 
   @override
   void dispose() {
@@ -32,19 +38,99 @@ class _OwnerNotesScreenState extends State<OwnerNotesScreen> {
     super.dispose();
   }
 
-  String get _todayLabel {
-    final now = DateTime.now();
-    return '${_monthAbbrev[now.month - 1]} ${now.day}';
+  Future<void> _fetchNotes() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final token = await PrefUtils.getAccessToken();
+      if (token == null || token.isEmpty) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+            _notes = [...ownerNotesSeed];
+          });
+        }
+        return;
+      }
+
+      final list =
+          await ApiService().getBusinessProfileNotes(accessToken: token);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _notes = list;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        CustomToast.showError(context, e.toString());
+      }
+    }
   }
 
-  void _saveNote() {
+  Future<void> _saveNote() async {
     final text = _controller.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty || _isSaving) return;
+
     setState(() {
-      _notes.insert(0, OwnerNote(dateLabel: _todayLabel, body: text));
-      _controller.clear();
+      _isSaving = true;
     });
-    CustomToast.showSuccess(context, 'Note saved.');
+
+    try {
+      final token = await PrefUtils.getAccessToken();
+      if (token == null || token.isEmpty) {
+        throw 'Authentication token not found. Please log in again.';
+      }
+
+      final savedNote = await ApiService().addBusinessProfileNote(
+        accessToken: token,
+        text: text,
+      );
+
+      if (mounted) {
+        setState(() {
+          _notes.insert(0, savedNote);
+          _controller.clear();
+        });
+        CustomToast.showSuccess(context, 'Note saved.');
+      }
+    } catch (e) {
+      if (mounted) {
+        CustomToast.showError(context, e.toString());
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _deleteNote(int index, OwnerNote note) async {
+    setState(() {
+      _notes.removeAt(index);
+    });
+    CustomToast.showSuccess(context, 'Note deleted.');
+
+    if (note.id.isNotEmpty) {
+      try {
+        final token = await PrefUtils.getAccessToken();
+        if (token != null && token.isNotEmpty) {
+          await ApiService().deleteBusinessProfileNote(
+            accessToken: token,
+            noteId: note.id,
+          );
+        }
+      } catch (e) {
+        debugPrint('Error deleting note from API: $e');
+      }
+    }
   }
 
   @override
@@ -57,20 +143,50 @@ class _OwnerNotesScreenState extends State<OwnerNotesScreen> {
       body: GradientBackground(
         child: SafeArea(
           top: false,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FlowHeader(
-                  label: 'OWNER NOTES',
-                  onBack: () => Navigator.of(context).pop(),
-                ),
-                const SizedBox(height: 14),
-                OwnerNoteInputCard(controller: _controller, onSave: _saveNote),
-                const SizedBox(height: 16),
-                OwnerNotesList(notes: _notes),
-              ],
+          child: RefreshIndicator(
+            onRefresh: _fetchNotes,
+            color: AppColors.accent,
+            backgroundColor: AppColors.glassDark,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FlowHeader(
+                    label: 'OWNER NOTES',
+                    onBack: () => Navigator.of(context).pop(),
+                  ),
+                  const SizedBox(height: 14),
+                  OwnerNoteInputCard(
+                    controller: _controller,
+                    onSave: _saveNote,
+                    isSaving: _isSaving,
+                  ),
+                  const SizedBox(height: 16),
+                  if (_isLoading)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        color: AppColors.glassDark,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.glassBorder),
+                      ),
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: AppColors.accent,
+                        ),
+                      ),
+                    )
+                  else
+                    OwnerNotesList(
+                      notes: _notes,
+                      onDelete: _deleteNote,
+                    ),
+                ],
+              ),
             ),
           ),
         ),

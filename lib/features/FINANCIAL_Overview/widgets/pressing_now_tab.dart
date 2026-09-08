@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
 import '../data/home_overview_data.dart';
 import 'home_detail_card.dart';
 import 'home_story_carousel.dart';
 
-/// "Pressing now" category tab: just the items that still need
-/// attention (Pressing / Building), reusing the Home carousel + detail
-/// card but filtered down to those two statuses.
 class PressingNowTab extends StatefulWidget {
   const PressingNowTab({super.key});
 
@@ -16,19 +12,20 @@ class PressingNowTab extends StatefulWidget {
 }
 
 class _PressingNowTabState extends State<PressingNowTab> {
-  static final List<HomeStoryCard> _cards = homeStoryCards
-      .where(
-        (card) =>
-            card.status == HomeCardStatus.pressing ||
-            card.status == HomeCardStatus.building,
-      )
-      .toList();
-
   int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    if (_cards.isEmpty) {
+    final pressingCards = homeStoryCards
+        .where(
+          (card) =>
+              card.status == HomeCardStatus.pressing ||
+              card.status == HomeCardStatus.building,
+        )
+        .toList();
+    final cards = pressingCards.isNotEmpty ? pressingCards : homeStoryCards;
+
+    if (cards.isEmpty) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.all(16),
@@ -44,21 +41,18 @@ class _PressingNowTabState extends State<PressingNowTab> {
       );
     }
 
+    final currentIndex = _selectedIndex < cards.length ? _selectedIndex : 0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Text(
-        //   '${_cards.length} things need you this week',
-        //   style: AppTextStyles.buttonLabel.copyWith(fontSize: 14),
-        // ),
-        // const SizedBox(height: 12),
         HomeStoryCarousel(
-          cards: _cards,
-          selectedIndex: _selectedIndex,
+          cards: cards,
+          selectedIndex: currentIndex,
           onSelect: (index) => setState(() => _selectedIndex = index),
         ),
         const SizedBox(height: 16),
-        HomeDetailCard(card: _cards[_selectedIndex]),
+        HomeDetailCard(card: cards[currentIndex]),
       ],
     );
   }

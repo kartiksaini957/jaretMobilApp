@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
-
-/// Glass tile used in the "NUMBERS" grid: a label, a big value, an
-/// optional delta line, and an optional status pill.
 class StatTile extends StatelessWidget {
   const StatTile({
     super.key,
@@ -78,11 +74,6 @@ class StatTile extends StatelessWidget {
                           letterSpacing: 0.4,
                           fontSize: 9.0,
                         ),
-                        // TextStyle(
-                        //   color: tagColor ?? AppColors.accent,
-                        //   fontSize: 10,
-                        //   fontWeight: FontWeight.w700,
-                        // ),
                       ),
                     ),
                 ],
@@ -95,17 +86,11 @@ class StatTile extends StatelessWidget {
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
                 ),
-                // TextStyle(
-                //   color: valueColor,
-                //   fontSize: 21,
-                //   fontWeight: FontWeight.w800,
-                // ),
               ),
               if (delta != null) ...[
                 const SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  // mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       delta!,

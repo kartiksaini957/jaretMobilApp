@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
 
-/// Shared status tone used by the headline eyebrow and every "THE FULL
-/// READ" category badge (Pressing/Watch/Good/Steady).
 enum StatusTone { pressing, watch, good, steady }
 
 extension StatusToneStyle on StatusTone {
@@ -22,26 +19,27 @@ extension StatusToneStyle on StatusTone {
   };
 }
 
-/// One checklist item in the "Do this" panel.
 class DoThisItem {
   const DoThisItem({
+    required this.id,
     required this.title,
     required this.dateLabel,
     required this.priority,
     required this.tag,
     required this.whyBody,
     this.whyDollarLine,
+    this.completed = false,
   });
-
+  final String id;
   final String title;
   final String dateLabel;
   final String priority; // 'HIGH' | 'MEDIUM'
   final String tag;
   final String whyBody;
   final String? whyDollarLine;
+  final bool completed;
 }
 
-/// One driver in the "What's moving demand" panel.
 class ForceItem {
   const ForceItem({
     required this.title,
@@ -62,7 +60,6 @@ class ForceItem {
   final String sourceLabel;
 }
 
-/// The four math rows in "How the number breaks down".
 class BreakdownData {
   const BreakdownData({
     required this.committed,
@@ -77,7 +74,6 @@ class BreakdownData {
   final String externalAdjustment;
 }
 
-/// The single "World scan" item.
 class WorldScanData {
   const WorldScanData({
     required this.title,
@@ -94,7 +90,6 @@ class WorldScanData {
   final String sourceLabel;
 }
 
-/// Everything shown for one top tab (This weekend / Rest of month).
 class ForecastTabData {
   const ForecastTabData({
     required this.status,
@@ -126,6 +121,8 @@ class ForecastTabData {
     required this.worldScanTone,
     this.worldScanCount,
     required this.worldScan,
+    this.altValue, // 🔧 NEW: e.g. "185 Covers"
+    this.altLabel,
   });
 
   final StatusTone status;
@@ -140,7 +137,6 @@ class ForecastTabData {
   final String confidenceLabel;
   final String confidenceBody;
   final String swingFactorBody;
-
   final StatusTone doThisTone;
   final String doThisSummary;
   final String doThisIntro;
@@ -158,6 +154,8 @@ class ForecastTabData {
   final StatusTone worldScanTone;
   final String? worldScanCount;
   final WorldScanData worldScan;
+  final String? altValue; // 🔧 NEW — null = toggle button hide karo
+  final String? altLabel;
 }
 
 const thisWeekendForecast = ForecastTabData(
@@ -191,47 +189,47 @@ const thisWeekendForecast = ForecastTabData(
       'Three moves, all decided by Thursday — the why and the dollar '
       'logic are under each one.',
   doThisItems: [
-    DoThisItem(
-      title: "Scale Friday's dough past the \$5,200 cap",
-      dateLabel: "set Thursday's prep by Feb 12",
-      priority: 'HIGH',
-      tag: 'Friday dough cap',
-      whyBody:
-          'Fridays have sold out by 8pm twice this month — turn-aways '
-          'are running ≈35 orders a week at the Fri–Sat peak, and '
-          "Valentine's spillover starts Friday. The cap is production, "
-          'not demand — a bigger Thursday batch is the whole fix.',
-      whyDollarLine:
-          '≈\$180/week of added dough and ingredient prep against '
-          '≈\$330 recovered this Friday — and every Friday after.',
-    ),
-    DoThisItem(
-      title: "Take Valentine's pie pre-orders at the counter and on "
-          'the box-top QR',
-      dateLabel: 'start today, Feb 11',
-      priority: 'MEDIUM',
-      tag: "Valentine's on a Saturday",
-      whyBody:
-          'Pre-orders smooth the Saturday oven line, and every direct '
-          'pre-order skips the ~24% delivery-app commission on what '
-          'will be the biggest night of the quarter.',
-      whyDollarLine:
-          'A pre-ordered pie taken direct keeps the ~\$7 the apps '
-          'would take from a \$31 delivery ticket.',
-    ),
-    DoThisItem(
-      title: 'Add a second counter hand Saturday 5–10pm',
-      dateLabel: 'post the shift by Thu Feb 12',
-      priority: 'MEDIUM',
-      tag: "Valentine's on a Saturday",
-      whyBody:
-          'Your counter is the bottleneck on big nights, not the 22 '
-          'seats. One extra hand keeps the slice line moving while '
-          'the ovens run whole pies.',
-      whyDollarLine:
-          '~\$100 of labor for the five hours against a ≈\$1,900 '
-          'Saturday lift.',
-    ),
+    // DoThisItem(
+    //   title: "Scale Friday's dough past the \$5,200 cap",
+    //   dateLabel: "set Thursday's prep by Feb 12",
+    //   priority: 'HIGH',
+    //   tag: 'Friday dough cap',
+    //   whyBody:
+    //       'Fridays have sold out by 8pm twice this month — turn-aways '
+    //       'are running ≈35 orders a week at the Fri–Sat peak, and '
+    //       "Valentine's spillover starts Friday. The cap is production, "
+    //       'not demand — a bigger Thursday batch is the whole fix.',
+    //   whyDollarLine:
+    //       '≈\$180/week of added dough and ingredient prep against '
+    //       '≈\$330 recovered this Friday — and every Friday after.',
+    // ),
+    // DoThisItem(
+    //   title: "Take Valentine's pie pre-orders at the counter and on "
+    //       'the box-top QR',
+    //   dateLabel: 'start today, Feb 11',
+    //   priority: 'MEDIUM',
+    //   tag: "Valentine's on a Saturday",
+    //   whyBody:
+    //       'Pre-orders smooth the Saturday oven line, and every direct '
+    //       'pre-order skips the ~24% delivery-app commission on what '
+    //       'will be the biggest night of the quarter.',
+    //   whyDollarLine:
+    //       'A pre-ordered pie taken direct keeps the ~\$7 the apps '
+    //       'would take from a \$31 delivery ticket.',
+    // ),
+    // DoThisItem(
+    //   title: 'Add a second counter hand Saturday 5–10pm',
+    //   dateLabel: 'post the shift by Thu Feb 12',
+    //   priority: 'MEDIUM',
+    //   tag: "Valentine's on a Saturday",
+    //   whyBody:
+    //       'Your counter is the bottleneck on big nights, not the 22 '
+    //       'seats. One extra hand keeps the slice line moving while '
+    //       'the ovens run whole pies.',
+    //   whyDollarLine:
+    //       '~\$100 of labor for the five hours against a ≈\$1,900 '
+    //       'Saturday lift.',
+    // ),
   ],
   movingTone: StatusTone.good,
   movingSummary:
@@ -347,50 +345,9 @@ const restOfMonthForecast = ForecastTabData(
   doThisSummary:
       'Trim recess-week prep ~15% (order by Sun), lock the bigger '
       'Friday dough batch, QR the cold-snap deliveries',
-  doThisIntro: "A soft week you can see coming — here's how to spend less through it.",
-  doThisItems: [
-    DoThisItem(
-      title: 'Trim Feb 16–20 lunch prep about 15%',
-      dateLabel: 'order by Sun Feb 15',
-      priority: 'HIGH',
-      tag: 'Mid-winter recess',
-      whyBody:
-          'NYC public schools are out all week, and the school-lunch '
-          'slice line goes with them. Ordering to the lighter demand '
-          'avoids waste on flour, cheese, and prepped dough that '
-          "won't sell.",
-      whyDollarLine:
-          '≈\$980 less lunch demand for the week — trimming 15% '
-          'keeps waste from eating the savings.',
-    ),
-    DoThisItem(
-      title: 'Use the quiet week to lock the bigger Friday dough batch',
-      dateLabel: 'week of Feb 16',
-      priority: 'MEDIUM',
-      tag: 'Mid-winter recess',
-      whyBody:
-          'The slowest lunch week of the month is the cheapest time '
-          'to test scaled-up Friday production before it matters — '
-          'turn-aways are running ≈35 orders a week at the peak.',
-      whyDollarLine:
-          '≈\$180/week of added prep against the ≈\$620/week '
-          '(\$2,700/month) walking away at the Friday–Saturday peak '
-          '— and it compounds every Friday.',
-    ),
-    DoThisItem(
-      title: 'Put the box-top QR on every cold-snap delivery',
-      dateLabel: 'Feb 17–19',
-      priority: 'MEDIUM',
-      tag: 'Midweek cold snap',
-      whyBody:
-          'Cold nights push orders to the apps at ~24% commission. '
-          'The QR nudges customers to order direct next time — the '
-          'cheapest fix for a weather week.',
-      whyDollarLine:
-          'Every shifted order keeps ~\$7 of a \$31 delivery ticket '
-          'in the shop.',
-    ),
-  ],
+  doThisIntro:
+      "A soft week you can see coming — here's how to spend less through it.",
+  doThisItems: [],
   movingTone: StatusTone.watch,
   movingSummary:
       'Recess takes -\$980 of lunch, the cold snap risks -\$650, '
@@ -439,8 +396,7 @@ const restOfMonthForecast = ForecastTabData(
       '\$260 catering committed, walk-ins ~97%, recess -\$980 with '
       'dinner untouched',
   breakdown: BreakdownData(
-    committed:
-        '\$260 in catering already on the books for Feb 26–27',
+    committed: '\$260 in catering already on the books for Feb 26–27',
     expectedLosses:
         '≈\$980 of weekday lunch during recess, plus up to ≈\$650 '
         'more if the cold snap runs cold',
@@ -451,7 +407,8 @@ const restOfMonthForecast = ForecastTabData(
         'no calendar tailwind this stretch — recess and the cold '
         'snap both net negative',
   ),
-  trackRecordSummary: 'Last 5 forecasts within 9% — fine to cut the order on this',
+  trackRecordSummary:
+      'Last 5 forecasts within 9% — fine to cut the order on this',
   trackRecordBody:
       'Your last 5 weekly forecasts landed within 9% of actual — '
       'fine to cut the order on this.',
@@ -460,7 +417,8 @@ const restOfMonthForecast = ForecastTabData(
       'lowest-risk call this read makes all month.',
   worldScanTone: StatusTone.steady,
   worldScan: WorldScanData(
-    title: 'Spring watch: school pizza-party season books 3–4 weeks '
+    title:
+        'Spring watch: school pizza-party season books 3–4 weeks '
         'ahead',
     dateLabel: 'looking ahead',
     body:

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../theme/financial_colors.dart';
 
-/// "Overdue invoices are building up" alert card: what's going on, why
-/// it matters, what to do, and an expected-impact footer.
 class PressingAlertCard extends StatelessWidget {
   const PressingAlertCard({super.key});
 

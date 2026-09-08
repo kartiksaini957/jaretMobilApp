@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/features/dashboard/dashboard_screen.dart';
-import 'package:flutter_application_1/features/onboarding/onboarding_screen.dart';
-import 'package:flutter_application_1/utils/pref_utils.dart';
+import 'core/api_services.dart';
+import 'features/auth/connect_quickbooks_screen.dart';
+import 'features/auth/login_screen.dart';
+import 'features/dashboard/dashboard_screen.dart';
+import 'features/onboarding/onboarding_screen.dart';
+import 'theme/app_theme.dart';
+import 'utils/pref_utils.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -20,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B1020), // Dark background
+      backgroundColor: const Color(0xFF0B1020), 
       body: SafeArea(
         child: Center(
           child: Column(
@@ -39,26 +43,24 @@ class _SplashScreenState extends State<SplashScreen> {
                   fit: BoxFit.contain,
                 ),
               ),
-
               const SizedBox(height: 24),
-
-              const Text(
+              Text(
                 "LightSignal",
-                style: TextStyle(
+                style: AppTextStyles.body.copyWith(
                   color: Colors.white,
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.5,
                 ),
               ),
-
               const SizedBox(height: 8),
-
-              const Text(
+              Text(
                 "AI-Powered Business Intelligence",
-                style: TextStyle(color: Colors.white70, fontSize: 15),
+                style: AppTextStyles.body.copyWith(
+                  color: Colors.white70,
+                  fontSize: 15,
+                ),
               ),
-
               const SizedBox(height: 40),
             ],
           ),
@@ -69,18 +71,37 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _checkLogin() async {
     await Future.delayed(const Duration(seconds: 2));
-
     final hasToken = await PrefUtils.hasAccessToken();
-    print('SplashScreen: hasToken ===== $hasToken');
-    print("token--: ${await PrefUtils.getAccessToken()}");
-
     if (!mounted) return;
-
     if (hasToken) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
-      );
+      try {
+        final user = await ApiService().getAuthMe();
+        if (!mounted) return;
+        if (!user.quickbooksConnected) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const ConnectQuickbooksScreen()),
+          );
+          return;
+        }
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        );
+      } catch (e) {
+        if (!mounted) return;
+        if (e is ApiException && e.statusCode == 401) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const DashboardScreen()),
+          );
+        }
+      }
     } else {
       Navigator.pushReplacement(
         context,
